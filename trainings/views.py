@@ -525,6 +525,17 @@ def dashboard_training_participant_review(request, id):
                 form.status = 'need_payment'
                 form.save()
                 messages.info(request, 'Accepted the participant successfully')
+
+                # Email
+                to = []
+                to.append(rt.user.email)
+                subject = "Request to Join Training - " + rt.code_id + " (" + training.training_name + ")"
+                ctx_email = {
+                    'training':training,
+                    'rt': rt,
+                }
+                send_email_default(subject, to, ctx_email, 'email/training-join-response.html')
+
             else:
                 messages.warning(request, 'Unable to review the participant')
         if 'reject' in request.POST:
@@ -535,6 +546,16 @@ def dashboard_training_participant_review(request, id):
                 form.status = 'rejected'
                 form.save()
                 messages.info(request, 'Rejected the participant successfully')
+
+                  # Email
+                to = []
+                to.append(rt.user.email)
+                subject = "Request to Join Training - " + rt.code_id + " (" + training.training_name + ")"
+                ctx_email = {
+                    'training':training,
+                    'user': rt.user,
+                }
+                send_email_default(subject, to, ctx_email, 'email/training-join-response.html')
             else:
                 messages.warning(request, 'Unable to review the participant')
         return redirect('dashboard_training_participant', training.id)
@@ -581,6 +602,20 @@ def dashboard_training_join(request, id):
         rt.participant_organization_type = request.POST['participant_organization_type']
         rt.participant_designation = request.POST['participant_designation']
         rt.save()
+
+        # Email
+        cidb_reviewers = CustomUser.objects.all().filter(
+            Q(role='cidb_reviewer')|
+            Q(role='superadmin')
+        )
+        to = []
+        for reviewer in cidb_reviewers:
+            to.append(reviewer.email)
+        subject = "Request to Join Training - " + rt.code_id + " (" + training.training_name + ")"
+        ctx_email = {
+            'training':training,
+        }
+        send_email_default(subject, to, ctx_email, 'email/training-join-request.html')
 
         messages.warning(request, 'Successfully request to join the training. Please wait for approval from reviewer before proceeding with payment.')
         return redirect('dashboard_joined_training_list')

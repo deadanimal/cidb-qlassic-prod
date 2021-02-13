@@ -1,5 +1,6 @@
 # Helpers
 from .models import Payment
+from datetime import datetime
 
 def get_claim_category_name(slug):
     if slug == 'mileage':
@@ -32,7 +33,7 @@ def payment_response_process(request):
     payment.payment_status = int(status)
     payment.payment_method = payment_method
     payment.payment_method_description = payment_method_desc
-    payment.payment_date = transaction_date
+    payment.payment_date = datetime.strptime(transaction_date, "%d/%m/%Y %H:%M:%S")
     payment.transaction_id = transaction_id
     payment.auth_code = auth_code
     payment.receipt_number = receipt_no

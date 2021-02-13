@@ -33,8 +33,6 @@ def dashboard_profile(request):
     form_we = WorkExperienceCreateForm()
     form_aq = AcademicQualificationCreateForm()
 
-    if request.user.icno == None or request.user.icno == '':
-        messages.warning(request,'Please update your profile to complete the registration.')
     if request.method == 'POST':
         if 'update' in request.POST:
             form_user = UserUpdateForm(request.POST, request.FILES or None, instance=user)
@@ -62,6 +60,10 @@ def dashboard_profile(request):
             else:
                 messages.warning(request, 'Unable to create academic qualification: ' + form_aq.errors.as_text())
         return redirect('dashboard_profile')
+    
+    if request.user.icno == None or request.user.icno == '':
+        messages.warning(request,'Please update your profile to complete the registration.')
+        
     context = { 'form_user': form_user,'form_we':form_we,'form_aq':form_aq,'work_experiences':work_experiences,'academic_qualifications':academic_qualifications}
     return render(request, "dashboard/portal/profile.html", context)
 
