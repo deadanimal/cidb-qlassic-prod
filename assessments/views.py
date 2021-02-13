@@ -12,6 +12,12 @@ from django.db.models import Q
 import datetime
 import random
 
+# Payment
+from django.views.decorators.csrf import csrf_exempt
+from api.soap.create_transaction import create_transaction, payment_gateway_url
+from billings.helpers import payment_response_process
+from billings.models import Payment
+
 from core.helpers import get_state_code, get_sector_code, send_email_default
 
 # Forms
@@ -571,6 +577,20 @@ def dashboard_application_verify(request, id):
                 qaa.verified_date = datetime.datetime.now()
                 if qaa.payment_mode == 'off':
                     qaa.application_status = 'verified'
+
+                    # Email CASC Verifier
+                    verifiers = CustomUser.objects.all().filter(
+                        Q(role='casc_verifier')|
+                        Q(role='superadmin')
+                    )
+                    to = []
+                    for verifier in verifiers:
+                        to.append(verifier.email)
+                    subject = "Assessor Assignation - " + qaa.qaa_number
+                    ctx_email = {
+                        'qaa':qaa,
+                    }
+                    send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
                 else:
                     qaa.application_status = 'need_payment'
                 qaa.save()
@@ -650,10 +670,80 @@ def dashboard_application_list(request):
 
     return render(request, "dashboard/application/application_list.html",context)
 
+
+
 @login_required(login_url="/login/")
-def dashboard_application_payment(request):
-    qaas = QlassicAssessmentApplication.objects.all().filter(application_status='need_payment',user=request.user)
-    context = { 'qaas':qaas }
+def dashboard_application_payment(request, id):
+    mode = 'payment'
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    response = create_transaction(request, 1000, 0, 'QLC', qaa.qaa_number, request.user)
+    proforma = response.Code
+    
+    # Create Payment
+    payment, created = Payment.objects.get_or_create(order_id=proforma)
+    payment.user = request.user
+    payment.customer_name = request.user.name
+    payment.customer_email = request.user.email
+    payment.qaa = qaa
+    payment.currency = 'MYR'
+    payment.payment_amount = 1000
+    payment.save()
+
+    context = {
+        'title': 'Payment - QLASSIC Assessment Application',
+        'mode': mode,
+        'qaa': qaa,
+        'proforma': proforma,
+        'response': response,
+        'url': payment_gateway_url,
+    }
+    return render(request, "dashboard/application/payment.html",context)
+
+@csrf_exempt
+def dashboard_application_payment_response(request, id):
+    mode = 'payment_response'
+    payment = None
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    if request.method == 'POST':
+        payment = payment_response_process(request)
+        if payment.payment_status == 1:
+            qaa.status = 'verified'
+            qaa.save()
+            messages.info(request, 'Payment is successful. Your application will be reviewed soon.')
+            
+            # Email
+            reviewers = CustomUser.objects.all().filter(role='casc_reviewer')
+            to = []
+            for reviewer in reviewers:
+                to.append(reviewer.email)
+            subject = "New Transaction for QLASSIC Assessment Application - " + qaa.qaa_number
+            ctx_email = {
+                'qaa':qaa,
+                'payment':payment,
+            }
+            send_email_default(subject, to, ctx_email, 'email/qaa-payment-response.html')
+        
+            # Email CASC Verifier
+            verifiers = CustomUser.objects.all().filter(
+                Q(role='casc_verifier')|
+                Q(role='superadmin')
+            )
+            to = []
+            for verifier in verifiers:
+                to.append(verifier.email)
+            subject = "Assessor Assignation - " + qaa.qaa_number
+            ctx_email = {
+                'qaa':qaa,
+            }
+            send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
+        else:
+            messages.warning(request, 'Payment unsuccessful. Please try again.')
+    context = {
+        'title': 'Payment Response - QLASSIC Assessment Application',
+        'mode': mode,
+        'training': qaa,
+        'payment': payment,
+    }
     return render(request, "dashboard/application/payment.html",context)
 
 @login_required(login_url="/login/")
@@ -723,6 +813,17 @@ def dashboard_application_assessor_assign(request, id):
                 name=sa.assessor.user.name,
                 role_in_assessment='assessor',
             )
+
+        # Email Assigned Assessor
+        to = []
+        for sa in suggested_assessors:
+            to.append(sa.assessor.user.email)
+        subject = "Assessor Assignation - " + qaa.qaa_number
+        ctx_email = {
+            'qaa':qaa,
+        }
+        send_email_default(subject, to, ctx_email, 'email/qaa-assessor-assigned.html')
+
         qaa.application_status = 'assessor_assign'
         qaa.save()
         messages.info(request,'Successfully assigned the assessors.')

@@ -123,11 +123,7 @@
                           {% endif %}
                         {% endif %}
                         {% if qaa.application_status == 'need_payment' %}
-                        <form action="" method="POST">
-                          {% csrf_token %}
-                          <input type="hidden" name="id" value="{{ qaa.id }}">
-                          <button type="submit" name="payment" class="btn btn-sm btn-success w-100 mb-2">Pay</button>
-                        </form>
+                          <a href="{% url 'dashboard_application_payment' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Pay</a>
                         {% endif %}
                       {% endif %}
                     </td>
