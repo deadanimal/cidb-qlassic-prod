@@ -47,9 +47,10 @@ urlpatterns = [
 
     # path('pdf/generate/<str:report_type>/', views_pdf.report_generate, name='report_view'),
     # path('pdf/view/<str:report_type>/', views_pdf.report_edit, name='generate_view'),
-    path('docx/view/', views_pdf.doc_test, name='doc_test'),
     # path('test/email/', views.test_email, name="test_email"),
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
 
+    # Tester
+    path('docx/view/', views.view_pdf, name='doc_test'),
 ]

@@ -80,7 +80,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="template_type" value="{{ lt.template_type }}">
                     <input type="hidden" name="id" value="{{ lt.id }}">
-                    <button type="submit" name="test_template" class="btn btn-sm btn-info w-100 mb-2">Test Sample</button>
+                    {% comment %} <button type="submit" name="test_template" class="btn btn-sm btn-info w-100 mb-2">Test Sample</button> {% endcomment %}
                     </form>
                   </td>
                 </tr>

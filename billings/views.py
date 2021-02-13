@@ -15,8 +15,9 @@ import random
 
 # Models
 from billings.models import ClaimApplication
-from assessments.models import QlassicAssessmentApplication
+from assessments.models import QlassicAssessmentApplication, AssignedAssessor
 from trainings.models import Training
+from users.models import Assessor
 
 # Forms
 from users.forms import TransportUpdateForm
@@ -56,15 +57,19 @@ def dashboard_claim_dashboard(request, role):
 def dashboard_claim_project_list(request, role, category):
     category_name = get_claim_category_name(category)
     claims = ClaimApplication.objects.all().filter(user=request.user, claim_category=category).order_by('-created_date')
-    projects = None
+    assigned = None
     trainings = None
 
     if role == 'assessor':
-        projects = QlassicAssessmentApplication.objects.all().filter(
-            # user=request.user
-            Q(user=request.user,application_status='completed')|
-            Q(user=request.user,application_status='approved')
-        )
+        # assessor_projects = QlassicAssessmentApplication.objects.all().filter(
+        #     # user=request.user
+        #     Q(user=request.user,application_status='completed')|
+        #     Q(user=request.user,application_status='approved')
+        # )
+        assessor = Assessor.objects.all().filter(user=request.user)
+        if len(assessor) > 0:
+            assessor_single = assessor[0]
+            assigned = AssignedAssessor.objects.all().filter(assessor=assessor_single)
     if role == 'trainer':
         trainings = Training.objects.all().filter(trainer=request.user,attendance_review_status='approved')
     context = {
@@ -72,7 +77,7 @@ def dashboard_claim_project_list(request, role, category):
         'claims': claims,
         'category': category,
         'category_name': category_name,
-        'projects': projects,
+        'assigned': assigned,
         'trainings': trainings,
     }
     return render(request, "dashboard/claim/project_list.html", context)

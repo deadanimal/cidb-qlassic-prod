@@ -38,6 +38,11 @@ class StreamingConvertedPdf:
         if self.download:
             res['Content-Disposition'] = 'attachment; filename="{}"'.format(self.get_file_name())
         return res
+    
+    def file_content(self):
+        self.convert_to_pdf()
+        res = open(self.tmp_path, 'rb')
+        return res
 
     def __del__(self):
         try:
@@ -51,7 +56,8 @@ class ConvertFileModelField(StreamingConvertedPdf):
 
     def get_content(self):
         self.convert_to_pdf()
-        return {'path': self.tmp_path, 'name': self.get_file_name()}
+        print(type(self))
+        return {'doc': self.doc, 'path': self.tmp_path, 'name': self.get_file_name()}
 
     def stream_content(self):
         pass

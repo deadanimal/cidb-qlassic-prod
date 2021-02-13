@@ -3,6 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from datetime import date, datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -20,22 +21,23 @@ from django.template.loader import get_template
 # Helpers
 from app.helpers.letter_templates import test_letter_template
 from portal.helpers import TEMPLATE_TYPE
+from trainings.helpers import get_pass_fail_translation
 
 # Forms
 from assessments.forms import DefectGroupCreateForm, SubComponentCreateForm, ElementCreateForm, ComponentCreateForm
 from projects.forms import VerifiedContractorForm
-from portal.forms import LetterTemplateCreateForm
+from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateForm
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import DefectGroup, SubComponent, Element, Component, QlassicAssessmentApplication
+from assessments.models import DefectGroup, SubComponent, Element, Component, QlassicAssessmentApplication, SupportingDocuments
 from trainings.models import TrainingType
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, Training, LetterTemplate
 
 # Generate Document
 from core.helpers import translate_malay_date, standard_date
-from app.helpers.letter_templates import generate_document
+from app.helpers.letter_templates import generate_document, generate_document_file
 
 # Decorators
 from authentication.decorators import allowed_users
@@ -281,13 +283,49 @@ def report_generate(request, report_type, id):
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+from .helpers.letter_templates import generate_training_document
+
+from core.helpers import send_email_with_attachment
+from trainings.models import RegistrationTraining
+
 @login_required(login_url="/login/")
 def view_pdf(request):
-    qaa = QlassicAssessmentApplication.objects.all().order_by('-id')[0]
-    context = {
-        'qaa': qaa
+    # response = generate_document_file(request, 'training_certificate', {})
+    training_type = TrainingType.objects.all().filter(name="Exam")[0]
+    template_ctx = {
+        'name': 'Abu bin Ali',
+        'hp_no': '011-110220',
+        'fax_no': '011-110220',
+        'address1': 'Lolololo',
+        'address2': 'Lilililili',
+        'postcode': '192200',
+        'city': 'Kota Bharu',
+        'state': 'Kelantan',
+        'company': 'Kelantan Sdn. Bhd.',
+        'date': translate_malay_date(standard_date(datetime.now().date())),
+        'current_date': translate_malay_date(standard_date(datetime.now().date())),
+        'location': 'Seri Kamanban',
+        'ic': '920202-1020-1200',
+        'pass': get_pass_fail_translation(True),
     }
-    return render(request, "pdf/score_letter.html", context)
+    response = generate_training_document(request, training_type, template_ctx)
+    # SupportingDocuments.objects.create(file_name=response['name'],file=response['path'])
+    
+    attendance = RegistrationTraining.objects.all().exclude(certificate_file=None).first()
+
+    # Email
+    # to = ['muhaafidz@gmail.com']
+    # subject = "Complaint From Trainee"
+    # attachments = [attendance.certificate_file.path]
+    # messages.info(request, 'Successfully delivered an email to trainer(s).')
+    # send_email_with_attachment(subject, to, {}, 'email/training-complaint.html', attachments)
+
+    hoho = str(datetime.utcnow().strftime('%s'))   
+    huhu = str(datetime.utcnow().timestamp()).split('.', 1)[0]  
+    print(hoho)
+    print(huhu)
+    print(type(hoho))
+    return response
 
 @login_required(login_url="/login/")
 def generate_pdf(request):
@@ -312,8 +350,8 @@ def generate_pdf(request):
     return response
 
 ### Admin - Management Module ###
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_defect_group(request):
     defect_groups = DefectGroup.objects.all()
     form_defect_group = DefectGroupCreateForm()
@@ -330,8 +368,8 @@ def dashboard_defect_group(request):
     context = {"defect_groups": defect_groups, 'form_defect_group': form_defect_group}
     return render(request, "dashboard/management/defect_group.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_defect_group_id(request, id):
     defect_group = get_object_or_404(DefectGroup, id=id)
     form_defect_group = DefectGroupCreateForm(instance=defect_group)
@@ -352,8 +390,8 @@ def dashboard_defect_group_id(request, id):
     context = {"defect_group": defect_group,'form_defect_group':form_defect_group}
     return render(request, "dashboard/management/defect_group_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_sub_component(request):
     sub_components = SubComponent.objects.all()
     form_sub_component = SubComponentCreateForm()
@@ -370,8 +408,8 @@ def dashboard_sub_component(request):
     context = {"sub_components": sub_components, 'form_sub_component': form_sub_component}
     return render(request, "dashboard/management/sub_component.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_sub_component_id(request, id):
     sub_component = get_object_or_404(SubComponent, id=id)
     form_sub_component = SubComponentCreateForm(instance=sub_component)
@@ -392,8 +430,8 @@ def dashboard_sub_component_id(request, id):
     context = {"sub_component": sub_component,'form_sub_component':form_sub_component}
     return render(request, "dashboard/management/sub_component_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_component(request):
     components = Component.objects.all()
     form_component = ComponentCreateForm()
@@ -410,8 +448,8 @@ def dashboard_component(request):
     context = {"components": components, 'form_component': form_component}
     return render(request, "dashboard/management/component.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_component_id(request, id):
     component = get_object_or_404(Component, id=id)
     form_component = ComponentCreateForm(instance=component)
@@ -432,8 +470,8 @@ def dashboard_component_id(request, id):
     context = {"component": component,'form_component':form_component}
     return render(request, "dashboard/management/component_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_element(request):
     elements = Element.objects.all()
     form_element = ElementCreateForm()
@@ -450,8 +488,8 @@ def dashboard_element(request):
     context = {"elements": elements, 'form_element': form_element}
     return render(request, "dashboard/management/element.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_element_id(request, id):
     element = get_object_or_404(Element, id=id)
     form_element = ElementCreateForm(instance=element)
@@ -472,22 +510,22 @@ def dashboard_element_id(request, id):
     context = {"element": element,'form_element':form_element}
     return render(request, "dashboard/management/element_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_management_letter_id(request, id):
     context = {
     }
     return render(request, "dashboard/management/letter_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_management_letter(request):
     context = {
     }
     return render(request, "dashboard/management/letter.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_verified_contractor(request):
     vcs = VerifiedContractor.objects.all()
     form_vc = VerifiedContractorForm()
@@ -509,8 +547,8 @@ def dashboard_verified_contractor(request):
     context = {"vcs": vcs, 'form_vc': form_vc}
     return render(request, "dashboard/management/verified_contractor.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_verified_contractor_id(request, id):
     vc = get_object_or_404(VerifiedContractor, id=id)
     form_vc = VerifiedContractorForm(instance=vc)
@@ -536,10 +574,10 @@ def dashboard_verified_contractor_id(request, id):
     context = {"vc": vc,'form_vc':form_vc}
     return render(request, "dashboard/management/verified_contractor_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_letter_template(request):
-    letter_templates = LetterTemplate.objects.all()
+    letter_templates = LetterTemplate.objects.all().filter(training_type=None)
     form_letter_template = LetterTemplateCreateForm()
     
     # Check Template Existence
@@ -557,7 +595,7 @@ def dashboard_letter_template(request):
                 form_letter_template.save()
                 messages.info(request, 'Created successfully')
             else:
-                messages.warning(request, 'Unable to create new letter template')
+                messages.warning(request, 'Unable to create new letter template: '+form_letter_template.errors.as_text())
         if 'test_template' in request.POST:
             id = request.POST['id']
             template_type = request.POST['template_type']
@@ -568,8 +606,8 @@ def dashboard_letter_template(request):
     context = {"letter_templates": letter_templates, 'form_letter_template': form_letter_template}
     return render(request, "dashboard/management/letter_template.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_letter_template_id(request, id):
     letter_template = get_object_or_404(LetterTemplate, id=id)
     form_letter_template = LetterTemplateCreateForm(instance=letter_template)
@@ -590,44 +628,62 @@ def dashboard_letter_template_id(request, id):
     context = {"letter_template": letter_template,'form_letter_template':form_letter_template}
     return render(request, "dashboard/management/letter_template_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_training_type(request):
     training_types = TrainingType.objects.all()
     form_training_type = TrainingTypeCreateForm()
+    form_letter_template = LetterTemplateTrainingCreateForm()
     if request.method == 'POST':
         if 'create' in request.POST:
             form_training_type = TrainingTypeCreateForm(request.POST,request.FILES)
+            form_letter_template = LetterTemplateTrainingCreateForm(request.POST,request.FILES)
             if form_training_type.is_valid():
-                form_training_type.save()
-                messages.info(request, 'Created successfully')
+                if form_letter_template.is_valid():
+                    training_type = form_training_type.save()
+                    letter_template = form_letter_template.save()
+                    letter_template.training_type = training_type
+                    letter_template.title = training_type.name
+                    letter_template.type = training_type.name
+                    letter_template.save()
+                    messages.info(request, 'Created successfully')
+                else:
+                    messages.warning(request, 'Unable to create new training type: '+form_training_type.errors.as_text())
             else:
-                messages.warning(request, 'Unable to create new training type')
+                messages.warning(request, 'Unable to create new training type: '+form_training_type.errors.as_text())
 
         return redirect('dashboard_training_type')
-    context = {"training_types": training_types, 'form_training_type': form_training_type}
+    context = {"training_types": training_types, 'form_training_type': form_training_type, 'form_letter_template': form_letter_template}
     return render(request, "dashboard/management/training_type.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_training_type_id(request, id):
     training_type = get_object_or_404(TrainingType, id=id)
+    letter_template = get_object_or_404(LetterTemplate, training_type=training_type)
     form_training_type = TrainingTypeCreateForm(instance=training_type)
+    form_letter_template = LetterTemplateTrainingCreateForm(instance=letter_template)
     if request.method == 'POST':
         if 'delete' in request.POST:
+            letter_template.delete()
             training_type.delete()
             messages.info(request, 'Deleted successfully')
             return redirect('dashboard_training_type')
         if 'update' in request.POST:
             form_training_type = TrainingTypeCreateForm(request.POST,request.FILES,instance=training_type)
+            form_letter_template = LetterTemplateTrainingCreateForm(request.POST,request.FILES,instance=letter_template)
             if form_training_type.is_valid():
-                form_training_type.save()
-                messages.info(request, 'Updated successfully')
+                if form_letter_template.is_valid():
+                    form_training_type.save()
+                    form_letter_template.save()
+                    messages.info(request, 'Updated successfully')
+                else:
+                    messages.warning(request, 'Unable to update training type')
             else:
-                messages.warning(request, 'Unable to update training_type')
+                messages.warning(request, 'Unable to update training type')
 
         return redirect('dashboard_training_type_id', id)
-    context = {"training_type": training_type,'form_training_type':form_training_type}
+    context = {"training_type": training_type,'form_training_type':form_training_type, 'form_letter_template':form_letter_template}
     return render(request, "dashboard/management/training_type_id.html", context)
 
 # @login_required(login_url="/login/")

@@ -32,3 +32,11 @@ class LetterTemplateCreateForm(ModelForm):
             'template_type',
             'is_active',
         )
+    
+class LetterTemplateTrainingCreateForm(ModelForm):
+    template_file = forms.FileField(required=True)
+    class Meta:
+        model = LetterTemplate
+        fields = (
+            'template_file',
+        )

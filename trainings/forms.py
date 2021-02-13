@@ -67,6 +67,7 @@ class TrainingTypeCreateForm(ModelForm):
         model = TrainingType
         fields = (
             'name',
+            'cert_type',
             'required_for_assessor',
         )
 

@@ -223,18 +223,24 @@ def save_role_application_supporting_documents(request, application):
 
     return success
 
-def generate_role_application_number(application):
-    number = ''
-    if application.application_number == None:
-        applications = RoleApplication.objects.all().exclude(application_number=None).order_by('-created_date')
-        if len(applications) > 0:
-            latest = applications[0]
-            str_current_count = latest.application_number.replace('QRA','')
-            current_count = int(str_current_count)
-            current_count += 1
-            application.application_number = 'QRA' + str(current_count).zfill(6)
-            application.save()
-        else:
-            application.application_number = 'QRA' + str(1).zfill(6)
-            application.save()
-    return number
+# def generate_role_application_number(application):
+#     number = ''
+#     if application.application_number == None:
+#         applications = RoleApplication.objects.all().exclude(application_number=None).order_by('-created_date')
+#         if len(applications) > 0:
+#             latest = applications[0]
+#             str_current_count = latest.application_number.replace('QRA','')
+#             current_count = int(str_current_count)
+#             current_count += 1
+#             application.application_number = 'QRA' + str(current_count).zfill(6)
+#             application.save()
+#         else:
+#             application.application_number = 'QRA' + str(1).zfill(6)
+#             application.save()
+#     return number
+
+def get_pass_fail_translation(pass_status):
+    if pass_status == True:
+        return 'LULUS'
+    else:
+        return 'GAGAL'

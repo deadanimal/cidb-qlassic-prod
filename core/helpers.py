@@ -5,6 +5,7 @@ from django.core.mail import EmailMessage
 
 from django.utils.deconstruct import deconstructible
 
+
 @deconstructible
 class PathAndRename(object):
 
@@ -14,7 +15,8 @@ class PathAndRename(object):
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
         # set filename as random string
-        filename_ = str(datetime.datetime.utcnow().timestamp()).split('.',1)[0] + uuid.uuid4().hex
+        # filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
+        filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
         filename = '{}.{}'.format(filename_, ext)
         # return the whole path to the file
         return os.path.join(self.path, filename)
@@ -142,3 +144,15 @@ def translate_day(str_date):
     str_date = str_date.replace('Saturday','Sabtu')
 
     return str_date
+    
+    
+
+
+
+
+
+
+
+
+
+

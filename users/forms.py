@@ -40,6 +40,7 @@ class UserUpdateForm(ModelForm):
     class Meta:
         model = CustomUser
         exclude = (
+            'code_id',
             'password',
             'email',
             'last_login',

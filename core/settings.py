@@ -83,7 +83,6 @@ INSTALLED_APPS = [
     'assessments',
     'billings',
     'projects',
-    'files',
     'trainings',
     'users',
     'portal',
@@ -241,23 +240,30 @@ STATICFILES_DIRS = (
 ## GEOS Setting
 # geo_enabled = config('BUILD_WITH_GEO_LIBRARIES', default=0)
 # if geo_enabled == 1:
-    # GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
-    # GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
-    
+#     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+#     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
 
 
 ## SendGrid
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey' # this is exactly the value 'apikey'
-EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_HOST_USER = 'apikey' # this is exactly the value 'apikey'
+# EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# DEFAULT_FROM_EMAIL = 'noreply@cidb.gov.my'
+ANYMAIL = {
+    'SENDGRID_API_KEY': config('SENDGRID_API_KEY'),
+}
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+DEFAULT_FROM_EMAIL = 'noreply@cidb.gov.my'  # if you don't already have this in settings
+# AUTH_USER_MODEL = 'users.CustomUser' 
+# ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[QLASSIC Portal] '
 
 skip_email = os.getenv('SKIP_EMAIL', default=0)
 
-DEFAULT_FROM_EMAIL = 'noreply@cidb.gov.my'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True

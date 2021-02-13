@@ -6,7 +6,7 @@ from users.models import Trainer, Assessor, CustomUser
 
 # Helpers
 from core.helpers import STATE_CHOICES, PathAndRename
-import uuid
+import uuid, datetime
 
 # Signals
 from django.db.models.signals import post_save
@@ -57,12 +57,12 @@ class RoleApplication(models.Model):
         choices=APPLICATION_TYPE,
     )
 
-    payment = models.ForeignKey('billings.Payment', on_delete=models.CASCADE, null=True)
-    
     interview_date = models.DateField(null=True,blank=True)
     interview_time_from = models.TimeField(null=True,blank=True)
     interview_time_to = models.TimeField(null=True,blank=True)
     interview_location = models.TextField(null=True,blank=True, max_length=2000)
+    interview_letter_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Interview Letter')
+    interview_sent = models.BooleanField(null=True, default=False)
 
     reviewed_by = models.CharField(null=True, max_length=255)
     approved_by = models.CharField(null=True, max_length=255)
@@ -73,6 +73,21 @@ class RoleApplication(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     modified_by = models.CharField(null=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
+
+    def save(self,*args, **kwargs):
+        if not self.application_number:
+            prefix = 'QRA'
+            prev_instances = self.__class__.objects.filter(application_number__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().application_number[-3:]
+                self.application_number = prefix+'{0:06d}'.format(int(last_instance_id)+1)
+            else:
+                self.application_number = prefix+'{0:06d}'.format(1)
+            
+        super(RoleApplication, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
 
     def __str__(self):
         return '%s' % (self.user)
@@ -99,6 +114,20 @@ class TrainingType(models.Model):
     
     name = models.CharField(null=True, max_length=30)
     required_for_assessor = models.BooleanField(default=False, null=True, verbose_name="Required For Becoming Assessor?")
+    template_file = models.FileField(null=True, upload_to=PathAndRename('templates'))
+
+    CERT_TYPE = [
+        # To follow SRS
+        ('attendance', 'Attendance'),
+        ('pass', 'Pass'),
+    ]
+    
+    cert_type = models.CharField(
+        null=True,
+        max_length=30,
+        choices=CERT_TYPE,
+        verbose_name='Certificate Type',
+    )
 
     # Date
     created_by = models.CharField(null=True, max_length=50)
@@ -111,6 +140,7 @@ class TrainingType(models.Model):
 
 class Training(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
     trainer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     
     # TRAINING_TYPE = [
@@ -128,7 +158,7 @@ class Training(models.Model):
     from_time = models.TimeField(null=True, verbose_name='Start Time')
     to_time = models.TimeField(null=True, verbose_name='End Time')
     size = models.IntegerField(null=True, verbose_name='Available Seat')
-    passing_mark = models.DecimalField(null=True, max_digits=6, decimal_places=2, verbose_name="Passing Mark")
+    passing_mark = models.DecimalField(null=True, default=0, max_digits=6, decimal_places=2, verbose_name="Passing Mark")
     ccd_point = models.DecimalField(null=True, max_digits=6, decimal_places=2, verbose_name="CCD Point")
     fee = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Fees (RM)")
 
@@ -204,6 +234,21 @@ class Training(models.Model):
         days = self.to_date - self.from_date
         return days.days + 1
 
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'TR{}'.format(datetime.datetime.now().strftime('%y'))
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-3:]
+                self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:04d}'.format(1)
+            
+        super(Training, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
+
 class Coach(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     training = models.ForeignKey(Training, on_delete=models.CASCADE, null=True)
@@ -216,6 +261,8 @@ class Coach(models.Model):
 
 class RegistrationTraining(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     training = models.ForeignKey(Training, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
 
@@ -286,6 +333,18 @@ class RegistrationTraining(models.Model):
         blank=True,
         choices=ATTENDANCE_FULL,
     )
+    
+    PASS_STATUS = [
+        # To follow SRS
+        (True, 'PASS'),
+        (False, 'FAIL'),
+    ]
+    pass_status = models.BooleanField(
+        null=True, 
+        blank=True,
+        choices=PASS_STATUS,
+    )
+
     marks = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
 
     amount = models.DecimalField(null=True, max_digits=10, decimal_places=2, verbose_name="Amount (RM)")
@@ -299,6 +358,21 @@ class RegistrationTraining(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     modified_by = models.CharField(null=True, blank=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
+
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'RT'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-2:]
+                self.code_id = prefix+'{0:06d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:06d}'.format(1)
+            
+        super(RegistrationTraining, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
 
     def __str__(self):
         return '%s - %s' % (self.user, self.training)

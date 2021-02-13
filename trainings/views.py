@@ -1,6 +1,8 @@
 from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 # Decorators
 from django.contrib.auth.decorators import login_required
@@ -18,11 +20,13 @@ from .models import (
 )
 
 from users.models import (
-    Trainer,
+    CustomUser, Trainer,
     Assessor,
     AcademicQualification, 
     WorkExperience,
 )
+
+from billings.models import Payment
 
 # Forms
 from .forms import (
@@ -43,14 +47,17 @@ from .helpers import (
     get_assessor_application,
     get_role_application_supporting_documents,
     save_role_application_supporting_documents,
-    generate_role_application_number,
+    # generate_role_application_number,
 )
-from core.helpers import translate_malay_date, standard_date, send_email_default
-from app.helpers.letter_templates import generate_document
+from billings.helpers import payment_response_process
+
+from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment
+from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
+from api.soap.create_transaction import create_transaction, payment_gateway_url
 
 # Create your views here.
-@allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor', 'trainee', 'applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor', 'trainee', 'applicant'])
 def dashboard_training_application_dashboard(request):
     if request.user.role != 'assessor' and request.user.role != 'trainer' and request.user.role != 'superadmin':
         messages.warning(request, 'You must be either QLASSIC Industry Assessor (QIA), QLASSIC CIDB Assessor (QCA) or Trainer in order to apply the role(s) below.')
@@ -69,8 +76,8 @@ def dashboard_training_application_dashboard(request):
     }
     return render(request, "dashboard/training/role_application_dashboard.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_role_application_list(request):
     applications = RoleApplication.objects.all().exclude(application_status='').order_by('-modified_date')
     context = {
@@ -89,8 +96,8 @@ def dashboard_training_role_application_list(request):
 #     #     application, applicable = get_trainer_application(request, request.user, 'trainer')
 #     return render(request, "dashboard/training/application_form.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer','assessor'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer','assessor'])
 def dashboard_training_application_new(request, application_type, step):
     context = {
         'application_type': application_type,
@@ -111,8 +118,6 @@ def dashboard_training_application_new(request, application_type, step):
         messages.warning(request, 'Unable to apply the role.')
         return redirect('dashboard_training_application_dashboard')
     
-    
-
     if step == 'step-2':
         academic_qualifications = AcademicQualification.objects.all().filter(user=request.user)
         context['academic_qualifications'] = academic_qualifications
@@ -140,7 +145,6 @@ def dashboard_training_application_new(request, application_type, step):
                 messages.info(request, 'Deleted the joined training.')
             return redirect('dashboard_training_application_new', application_type, step)
 
-    
     if step == 'step-5':
         work_experiences = WorkExperience.objects.all().filter(user=request.user)
         context['supporting_documents'] = get_role_application_supporting_documents(application)
@@ -148,16 +152,33 @@ def dashboard_training_application_new(request, application_type, step):
             save_role_application_supporting_documents(request, application)
             if 'save' in request.POST:
                 return redirect('dashboard_training_application_new', application_type, step)
+
             if 'submit' in request.POST:
                 application.application_status = 'pending'
-                generate_role_application_number(application)
+                # generate_role_application_number(application)
                 application.save()
+
+                 # Email
+                to = []
+                reviewers = CustomUser.objects.all().filter(
+                    Q(role='superadmin')|
+                    Q(role='cidb_reviewer')
+                )
+                for reviewer in reviewers:
+                    to.append(reviewer.email)
+                subject = "Role Application Submission - " + application.application_number
+                ctx_email = {
+                    'application':application,
+                }
+                messages.info(request, 'Successfully send the role application.')
+                send_email_default(subject, to, ctx_email, 'email/role-application-submission.html')
+
                 return redirect('dashboard_training_application_dashboard')
 
     return render(request, "dashboard/training/role_application_form.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer','assessor'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_role_application_review(request, id, step):
     application = get_object_or_404(RoleApplication, id=id)
     context = {
@@ -180,32 +201,32 @@ def dashboard_training_role_application_review(request, id, step):
         joined_trainings = JoinedTraining.objects.all().filter(user=request.user)
         context['registration_trainings'] = registration_trainings
         context['joined_trainings'] = joined_trainings
-        if request.method == 'POST':
-            if 'add' in request.POST:
-                jt_year = request.POST['year']
-                jt_course = request.POST['course']
-                jt_place = request.POST['place']
-                jt = JoinedTraining.objects.create(user=request.user, year=jt_year, course=jt_course, place=jt_place)
-                messages.info(request, 'Added the joined training info.')
-            if 'delete' in request.POST:
-                jt_id = request.POST['id']
-                jt = JoinedTraining.objects.get(id=jt_id)
-                jt.delete()
-                messages.info(request, 'Deleted the joined training.')
-            return redirect('dashboard_training_application_new', application_type, step)
+        # if request.method == 'POST':
+        #     if 'add' in request.POST:
+        #         jt_year = request.POST['year']
+        #         jt_course = request.POST['course']
+        #         jt_place = request.POST['place']
+        #         jt = JoinedTraining.objects.create(user=request.user, year=jt_year, course=jt_course, place=jt_place)
+        #         messages.info(request, 'Added the joined training info.')
+        #     if 'delete' in request.POST:
+        #         jt_id = request.POST['id']
+        #         jt = JoinedTraining.objects.get(id=jt_id)
+        #         jt.delete()
+        #         messages.info(request, 'Deleted the joined training.')
+        #     return redirect('dashboard_training_application_new', application_type, step)
 
     if step == 'step-5':
         work_experiences = WorkExperience.objects.all().filter(user=request.user)
         context['supporting_documents'] = get_role_application_supporting_documents(application)
-        if request.method == 'POST':
-            save_role_application_supporting_documents(request, application)
-            if 'save' in request.POST:
-                return redirect('dashboard_training_application_new', application_type, step)
-            if 'submit' in request.POST:
-                application.application_status = 'pending'
-                generate_role_application_number(application)
-                application.save()
-                return redirect('dashboard_training_application_dashboard')
+        # if request.method == 'POST':
+        #     save_role_application_supporting_documents(request, application)
+        #     if 'save' in request.POST:
+        #         return redirect('dashboard_training_application_new', application_type, step)
+        #     if 'submit' in request.POST:
+        #         application.application_status = 'pending'
+        #         # generate_role_application_number(application)
+        #         application.save()
+        #         return redirect('dashboard_training_application_dashboard')
 
     if request.method == "POST":
         if 'interview' in request.POST:
@@ -223,6 +244,28 @@ def dashboard_training_role_application_review(request, id, step):
             application.save()
 
             # Create Letter Template
+
+            # Interview Letter
+            template_ctx = {
+                'name': application.user.name,
+                'ic': application.user.icno,
+                'company': application.user.organization,
+                'date': translate_malay_date(standard_date(datetime.now())),
+            }
+            if application.application_type == 'trainer':
+                response = generate_document_file(request, 'interview_trainer', template_ctx)
+                application.interview_letter_file.save('pdf', response)
+            if application.application_type == 'qca':
+                response = generate_document_file(request, 'interview_qca', template_ctx)
+                application.interview_letter_file.save('pdf', response)
+
+            # Email
+            to = ['muhaafidz@gmail.com']
+            subject = "Interview Invitation"
+            attachments = [application.interview_letter_file.path]
+            messages.info(request, 'Successfully delivered an email to trainer(s).')
+            send_email_with_attachment(subject, to, {}, 'email/interview-trainer-invitation.html', attachments)
+      
             
         if 'reject' in request.POST:
             pass
@@ -231,8 +274,8 @@ def dashboard_training_role_application_review(request, id, step):
 
     return render(request, "dashboard/training/role_application_form.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'cidb_reviewer'])
 def dashboard_training_list(request):
     mode = 'list'
     trainings = Training.objects.all()
@@ -246,8 +289,8 @@ def dashboard_training_list(request):
     }
     return render(request, "dashboard/training/manage_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer'])
 def dashboard_training_new(request):
     mode = 'create'
     training_form = TrainingCreateForm()
@@ -270,8 +313,8 @@ def dashboard_training_new(request):
     return render(request, "dashboard/training/manage_training.html", context)
 
 
-@allowed_users(allowed_roles=['superadmin', 'trainer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer'])
 def dashboard_training_update(request, id):
     mode = 'update'
     training = get_object_or_404(Training, id=id)
@@ -310,8 +353,8 @@ def dashboard_training_update(request, id):
         return redirect('dashboard_training_update', training.id)
     return render(request, "dashboard/training/manage_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_review(request, id):
     mode = 'review'
     training = get_object_or_404(Training, id=id)
@@ -339,8 +382,8 @@ def dashboard_training_review(request, id):
         return redirect('dashboard_training_list')
     return render(request, "dashboard/training/manage_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer'])
 def dashboard_training_coach_update(request, id):
     coach = get_object_or_404(Coach, id=id)
     training = coach.training
@@ -369,8 +412,8 @@ def dashboard_training_coach_update(request, id):
         return redirect('dashboard_training_coach_update', coach.id)
     return render(request, "dashboard/training/coach_form.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer', 'cidb_reviewer', 'applicant', 'trainee'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'cidb_reviewer', 'applicant', 'trainee'])
 def dashboard_available_training_list(request):
     mode = 'all'
     trainings = Training.objects.all().filter(review_status='accepted')
@@ -381,8 +424,8 @@ def dashboard_available_training_list(request):
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer', 'applicant', 'trainee'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'applicant', 'trainee'])
 def dashboard_joined_training_list(request):
     mode = 'joined_training'
     trainings = RegistrationTraining.objects.all().filter(user=request.user)
@@ -393,8 +436,54 @@ def dashboard_joined_training_list(request):
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer', 'trainer', 'applicant', 'trainee'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'applicant', 'trainee'])
+def dashboard_joined_training_pay(request, id):
+    mode = 'payment'
+    rt = get_object_or_404(RegistrationTraining, id=id)
+    response = create_transaction(request, rt.training.fee, 0, 'QLC-PUP', rt.code_id, request.user)
+    proforma = response.Code
+    
+    # Create Payment
+    payment, created = Payment.objects.get_or_create(order_id=proforma)
+    payment.user = request.user
+    payment.customer_name = request.user.name
+    payment.customer_email = request.user.email
+    payment.rt = rt
+    payment.currency = 'MYR'
+    payment.payment_amount = rt.training.fee
+    payment.save()
+
+    context = {
+        'title': 'Payment - Joined Training',
+        'mode': mode,
+        'training': rt,
+        'proforma': proforma,
+        'response': response,
+        'url': payment_gateway_url,
+    }
+    return render(request, "dashboard/training/enroll_training.html", context)
+
+@csrf_exempt
+def dashboard_joined_training_pay_response(request, id):
+    mode = 'payment_response'
+    payment = None
+    rt = get_object_or_404(RegistrationTraining, id=id)
+    if request.method == 'POST':
+        payment = payment_response_process(request)
+        if payment.payment_status == 1:
+            rt.status = 'accepted'
+            rt.save()
+    context = {
+        'title': 'Payment Response - Joined Training',
+        'mode': mode,
+        'training': rt,
+        'payment': payment,
+    }
+    return render(request, "dashboard/training/enroll_training.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer', 'trainer', 'applicant', 'trainee'])
 def dashboard_training_participant(request, id):
     mode = 'participant'
     training = get_object_or_404(Training, id=id)
@@ -410,8 +499,8 @@ def dashboard_training_participant(request, id):
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_participant_review(request, id):
     mode = 'participant_review'
     rt = get_object_or_404(RegistrationTraining, id=id)
@@ -451,8 +540,8 @@ def dashboard_training_participant_review(request, id):
         return redirect('dashboard_training_participant', training.id)
     return render(request, "dashboard/training/enroll_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainee', 'applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainee', 'applicant'])
 def dashboard_training_join(request, id):
     training = get_object_or_404(Training, id=id)
     existing = RegistrationTraining.objects.all().filter(training=training, user=request.user).order_by('-created_date')
@@ -493,12 +582,13 @@ def dashboard_training_join(request, id):
         rt.participant_designation = request.POST['participant_designation']
         rt.save()
 
+        messages.warning(request, 'Successfully request to join the training. Please wait for approval from reviewer before proceeding with payment.')
         return redirect('dashboard_joined_training_list')
 
     return render(request, "dashboard/training/enroll_training.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'trainer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer'])
 def dashboard_training_attendance_trainer(request, id):
     training = get_object_or_404(Training, id=id)
     attendances = RegistrationTraining.objects.all().filter(training=training, status='accepted')
@@ -558,8 +648,8 @@ def dashboard_training_attendance_trainer(request, id):
 
     return render(request, "dashboard/training/attendance.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_attendance_review(request, id):
     training = get_object_or_404(Training, id=id)
     attendances = RegistrationTraining.objects.all().filter(training=training, status='accepted')
@@ -573,16 +663,48 @@ def dashboard_training_attendance_review(request, id):
 
     if request.method == 'POST':
         if 'generate' in request.POST:
-            pass
+            for attendance in attendances:
+                if attendance.attendance_full == True:
+                    if training.cert_type == 'pass':
+                        if attendance.marks >= training.passing_mark:
+                            attendance.pass_status = True
+                        else:
+                            attendance.pass_status = False
+                    else:
+                        attendance.pass_status = True
+                else:
+                    attendance.pass_status = False
+                
+                generate_pdf = False
+
+                if attendance.pass_status == True:
+                    generate_pdf = True
+                else:
+                    if training.cert_type == 'pass':
+                        generate_pdf = True
+                    
+                if generate_pdf == True:   
+                    template_ctx = {
+                        'name': attendance.user.name,
+                        'ic': attendance.user.icno,
+                        'company': attendance.user.organization,
+                        'date': translate_malay_date(standard_date(datetime.now())),
+                    }
+                    response = generate_training_document_file(request, training.training_type, template_ctx)
+                    attendance.certificate_file.save('pdf', response)
+
+                attendance.save()
+            messages.info(request, 'Successfully generated the document for participants.')  
         if 'approve' in request.POST:
             training.attendance_review_status = 'approved'
             training.save()
+            messages.info(request, 'Successfully approved the attendance.')  
         return redirect('dashboard_training_attendance_review', training.id)
 
     return render(request, "dashboard/training/attendance.html", context)
 
-@allowed_users(allowed_roles=['trainee', 'applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['trainee', 'applicant'])
 def dashboard_training_feedback_list_trainee(request):
     feedbacks = Feedback.objects.all().filter(user=request.user)
 
@@ -593,8 +715,8 @@ def dashboard_training_feedback_list_trainee(request):
 
     return render(request, "dashboard/training/feedback_list.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_feedback_list_staff(request):
     feedbacks = Feedback.objects.all()
 
@@ -605,8 +727,8 @@ def dashboard_training_feedback_list_staff(request):
 
     return render(request, "dashboard/training/feedback_list.html", context)
 
-@allowed_users(allowed_roles=['trainee', 'applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['trainee', 'applicant'])
 def dashboard_training_feedback_application(request, id):
     training = get_object_or_404(Training, id=id)
     context = {
@@ -628,8 +750,8 @@ def dashboard_training_feedback_application(request, id):
 
     return render(request, "dashboard/training/feedback_application.html", context)
 
-@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_feedback_review(request, id):
     feedback = get_object_or_404(Feedback, id=id)
     trainers = Coach.objects.all().filter(training=feedback.training)
@@ -648,6 +770,7 @@ def dashboard_training_feedback_review(request, id):
         feedback.reviewer = request.user
         feedback.save()
 
+        # Email
         to = []
         for trainer in trainers:
             to.append(trainer.email)
@@ -655,11 +778,21 @@ def dashboard_training_feedback_review(request, id):
         ctx_email = {
             'feedback':feedback,
         }
-
         messages.info(request, 'Successfully delivered an email to trainer(s).')
         send_email_default(subject, to, ctx_email, 'email/training-complaint.html')
-            
-
+           
         return redirect('dashboard_training_feedback_review', feedback.id)
 
     return render(request, "dashboard/training/feedback_application.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer', 'trainee', 'applicant', 'trainer', 'assessor'])
+def dashboard_joined_training_certificate(request):
+    trainings = RegistrationTraining.objects.all().filter(user=request.user, pass_status=True)
+
+    context = {
+        'role': 'staff',
+        'trainings':trainings,
+    }
+
+    return render(request, "dashboard/training/certificate_list.html", context)

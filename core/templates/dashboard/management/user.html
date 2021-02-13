@@ -63,6 +63,7 @@
             <table class="table table-custom-simplified table-flush">
               <thead class="thead-light">
                 <tr>
+                  <th>ID</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
@@ -73,6 +74,7 @@
               <tbody>
                 {% for user in users %}
                 <tr>
+                  <th>{{ user.code_id }}</th>
                   <th>{{ user.name }}</th>
                   <th>{{ user.email }}</th>
                   <th>{{ user.get_role_display }}</th>

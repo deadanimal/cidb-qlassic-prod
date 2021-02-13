@@ -42,6 +42,8 @@
             <p class="mb-1">Training Name: <strong>{{ training.training_name }}</strong></p>
             <p class="mb-1">Date: <strong>{{ training.from_date|date:'d M Y' }} - {{ training.to_date|date:'d M Y' }}</strong></p>
             <p class="mb-1">Type: <strong>{{ training.training_type }}</strong></p>
+            {% if training.cert_type == 'pass' %}<p class="mb-1">Passing Mark: <strong>{{ training.passing_mark }}</strong></p>{% endif %}
+            {% if mode != 'reviewer' %}
             <p class="mb-0">Download Attendance Sheet:
               {% comment %} <strong><a href="{% static "assets/docs/ATTENDANCE_SHEET.docx" %}" target="_blank">Download</a></strong> {% endcomment %}
               <form action="" method="POST">
@@ -49,6 +51,13 @@
                 <button type="submit" name="generate_template" class="btn btn-primary btn-sm">Download</button>
               </form>
             </p>
+            {% else %}
+            <p class="mb-0">Download Attendance:
+              {% comment %} <strong><a href="{% static "assets/docs/ATTENDANCE_SHEET.docx" %}" target="_blank">Download</a></strong> {% endcomment %}
+                <br>
+                <a href="{{ training.attendance_sheet_file.url }}" class="btn btn-primary btn-sm" target="_blank">Download</a>
+            </p>
+            {% endif %}
           </div>
           <div class="table-responsive py-4">
             <table class="table table-custom-simplified table-flush">
@@ -57,8 +66,9 @@
                   <th>Name</th>
                   <th>IC Number</th>
                   <th>Attendance</th>
-                  <th>Exam Marks</th>
+                  {% if training.cert_type == 'pass' %}<th>Exam Marks</th>{% endif %}
                   {% if mode == 'reviewer' %}
+                  <th>Pass Status</th>
                   <th>Certificate</th>
                   {% endif %}
                 </tr>
@@ -79,22 +89,25 @@
                         {{ at.get_attendance_full_display }}
                       {% endif %}
                     </td>
-                    <td>
-                    <div>
-                      <div class="d-flex">
-                        {% if training.attendance_review_status == 'pending' %}
-                          <input type="number" class="form-control form-control-sm" name='marks' style="min-width:80px;" value="{{ at.marks }}">
-                          <button type="submit" class="btn btn-sm btn-info" name='mark'>Save</button>
-                        {% else %}
-                          {{ at.marks }}
-                        {% endif %}
-                      </div>
-                    </div>
-                    </td>
+                    {% if training.cert_type == 'pass' %}
+                      <td>
+                        <div>
+                          <div class="d-flex">
+                            {% if training.attendance_review_status == 'pending' %}
+                              <input type="number" class="form-control form-control-sm" name='marks' style="min-width:80px;" value="{{ at.marks }}">
+                              <button type="submit" class="btn btn-sm btn-info" name='mark'>Save</button>
+                            {% else %}
+                              {{ at.marks }}
+                            {% endif %}
+                          </div>
+                        </div>
+                      </td>
+                    {% endif %}
                     {% if mode == 'reviewer' %}
+                    <th>{{ at.get_pass_status_display }}</th>
                     <th>
                       {% if at.certificate_file %}
-                        <a href="{{ at.certificate_file }}" target="_blank">Download</a>
+                        <a href="{{ at.certificate_file.url }}" target="_blank">Download</a>
                       {% endif%}
                     </th>
                     {% endif %}

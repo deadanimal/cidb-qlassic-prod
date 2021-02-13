@@ -37,6 +37,7 @@ qlassic_information_router = router.register('qlassic-information', QlassicInfor
 project_info_router = router.register('project-info', ProjectInfoViewSet)
 user_router = router.register('user', UserViewSet)
 
+from . import views
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -51,7 +52,7 @@ urlpatterns = [
     url('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
     
     # SOAP
-    path('soap/create-transaction/', test_create_transaction, name='soap_test_create_transaction'),
+    path('soap/create-transaction/', views.test_create_transaction, name='soap_test_create_transaction'),
     path('soap/contractor/', test_request_contractor, name='soap_contractor'),
 ]
 

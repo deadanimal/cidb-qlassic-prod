@@ -20,8 +20,8 @@ from authentication.decorators import allowed_users
 from django.db.models import Q
 
 ### Admin - Application Module ###
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_management_user(request):
     users = CustomUser.objects.all()
     role = ''
@@ -43,8 +43,8 @@ def dashboard_management_user(request):
     }
     return render(request, "dashboard/management/user.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_management_user_id(request, id):
     user = get_object_or_404(CustomUser, id=id)
     role_form = RoleUpdateForm(instance=user)

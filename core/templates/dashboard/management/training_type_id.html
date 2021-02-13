@@ -41,9 +41,10 @@
             <h2 class="mb-0">Manage Training Type</h2>
           </div>
           <div class="card-body">
-            <form action="" method="POST"> 
+            <form action="" method="POST" enctype="multipart/form-data"> 
               {% csrf_token %}
               {{ form_training_type|crispy }}
+              {{ form_letter_template|crispy }}
               <div class="d-flex">
                 <a href="{% url 'dashboard_training_type' %}" class="btn mr-auto btn-secondary">Back</a>
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal_delete">Delete</button>

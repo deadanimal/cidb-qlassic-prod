@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
+import datetime
 
 from .managers import CustomUserManager
 import uuid
@@ -19,6 +20,8 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     icno = models.CharField(null=True, max_length=14, verbose_name='Identity Card Number')
     name = models.CharField(null=True, max_length=100)
 
@@ -107,7 +110,22 @@ class CustomUser(AbstractUser):
     created_by = models.CharField(null=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
-   
+    
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'USR{}'.format(datetime.datetime.now().strftime('%y'))
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-3:]
+                self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:04d}'.format(1)
+            
+        super(CustomUser, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
+
     def __str__(self):
         return self.email
 
@@ -174,7 +192,9 @@ class WorkExperience(models.Model):
 class Assessor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, unique=True, on_delete=models.CASCADE, null=True)
-    assessor_no = models.CharField(null=True, max_length=50, verbose_name='Assessor number')
+    qia_id = models.CharField(null=True,blank=True, max_length=50)
+    qca_id = models.CharField(null=True,blank=True, max_length=50)
+    assessor_no = models.CharField(null=True,blank=True, max_length=50, verbose_name='Assessor number')
     
     ASSESSOR_TYPE = [
         # To follow SRS
@@ -189,24 +209,68 @@ class Assessor(models.Model):
     )  
 
     # Date
-    created_by = models.CharField(null=True, max_length=50)
+    created_by = models.CharField(null=True,blank=True, max_length=50)
     created_date = models.DateTimeField(auto_now_add=True)
-    modified_by = models.CharField(null=True, max_length=50)
+    modified_by = models.CharField(null=True,blank=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
 
+    def save(self,*args, **kwargs):
+        if self.assessor_type == 'QCA':
+            if not self.qca_id:
+                prefix = 'CQA '
+                postfix = '/{}'.format(datetime.datetime.now().strftime('%y'))
+                prev_instances = self.__class__.objects.filter(qca_id__contains=postfix)
+                if prev_instances.exists():
+                    last_instance_id = prev_instances.first().qca_id[-4:-3]
+                    self.qca_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)+postfix
+                else:
+                    self.qca_id = prefix+'{0:03d}'.format(1)+postfix
+                self.assessor_no = self.qca_id
+            super(Assessor, self).save(*args, **kwargs)
+        if self.assessor_type == 'QIA':
+            if not self.qia_id:
+                prefix = 'IQA '
+                postfix = '/{}'.format(datetime.datetime.now().strftime('%y'))
+                prev_instances = self.__class__.objects.filter(qia_id__contains=postfix)
+                if prev_instances.exists():
+                    last_instance_id = prev_instances.first().qia_id[-4:-3]
+                    self.qia_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)+postfix
+                else:
+                    self.qia_id = prefix+'{0:03d}'.format(1)+postfix
+                self.assessor_no = self.qia_id
+            super(Assessor, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
+
     def __str__(self):
-        return self.assessor_no
+        return self.user.email
 
 class Trainer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-    trainer_no = models.CharField(null=True, max_length=6, verbose_name='Trainer number')
+    trainer_no = models.CharField(null=True, blank=True, max_length=50, verbose_name='Trainer number')
 
     # Date
-    created_by = models.CharField(null=True, max_length=50)
+    created_by = models.CharField(null=True, blank=True, max_length=50)
     created_date = models.DateTimeField(auto_now_add=True)
-    modified_by = models.CharField(null=True, max_length=50)
+    modified_by = models.CharField(null=True, blank=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
 
+    def save(self,*args, **kwargs):
+        if not self.trainer_no:
+            prefix = 'QT{}'.format(datetime.datetime.now().strftime('%y'))
+            prev_instances = self.__class__.objects.filter(trainer_no__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().trainer_no[-3:]
+                self.trainer_no = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.trainer_no = prefix+'{0:04d}'.format(1)
+            
+        super(Trainer, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
+
     def __str__(self):
-        return self.user
+        return self.user.email

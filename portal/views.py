@@ -25,8 +25,6 @@ def dashboard(request):
 
 @login_required(login_url="/login/")
 def dashboard_profile(request):
-    filename = str(datetime.datetime.utcnow().timestamp()).split('.',1)[0]
-    print(filename)
     user = request.user
     academic_qualifications = AcademicQualification.objects.all().filter(user=request.user)
     work_experiences = WorkExperience.objects.all().filter(user=request.user)
@@ -121,8 +119,8 @@ def dashboard_profile_academic_qualification(request, id):
                 
     return render(request, "dashboard/portal/profile_detail.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_announcement(request):
     announcements = Announcement.objects.all()
     form_announcement = AnnouncementCreateForm()
@@ -141,8 +139,8 @@ def dashboard_announcement(request):
     context = {"announcements": announcements, 'form_announcement':form_announcement}
     return render(request, "dashboard/portal/announcement.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_announcement_id(request, id):
     announcement = get_object_or_404(Announcement, id=id)
     form_announcement = AnnouncementCreateForm(instance=announcement)
@@ -165,8 +163,8 @@ def dashboard_announcement_id(request, id):
     context = {"announcement": announcement,'form_announcement': form_announcement}
     return render(request, "dashboard/portal/announcement_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_publication(request):
     publications = Publication.objects.all()
     form_publication = PublicationCreateForm()
@@ -184,8 +182,8 @@ def dashboard_publication(request):
     context = {"publications": publications, 'form_publication': form_publication}
     return render(request, "dashboard/portal/publication.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_publication_id(request, id):
     publication = get_object_or_404(Publication, id=id)
     form_publication = PublicationCreateForm(instance=publication)
@@ -208,8 +206,8 @@ def dashboard_publication_id(request, id):
     context = {"publication": publication,'form_publication': form_publication}
     return render(request, "dashboard/portal/publication_id.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_training(request):
     trainings = Training.objects.all()
     form_training = TrainingCreateForm()
@@ -227,8 +225,8 @@ def dashboard_training(request):
     context = {"trainings": trainings, 'form_training': form_training}
     return render(request, "dashboard/portal/training.html", context)
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_training_id(request, id):
     training = get_object_or_404(Training, id=id)
     form_training = TrainingCreateForm(instance=training)

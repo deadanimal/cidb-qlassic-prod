@@ -73,6 +73,15 @@
                       {{ training_form.size|as_crispy_field }}
                     </div>
                     <div class="col-md-6">
+                      {{ training_form.training_type|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Certificate Type*</label>
+                        {% render_field training_form.cert_type onchange="check_cm()" class+="form-control" %}
+                      </div>
+                    </div>
+                    <div class="col-md-6" id="form_passing_mark" style="display:none;">
                       {{ training_form.passing_mark|as_crispy_field }}
                     </div>
                     <div class="col-md-6">
@@ -80,12 +89,6 @@
                     </div>
                     <div class="col-md-6">
                       {{ training_form.fee|as_crispy_field }}
-                    </div>
-                    <div class="col-md-6">
-                      {{ training_form.training_type|as_crispy_field }}
-                    </div>
-                    <div class="col-md-6">
-                      {{ training_form.cert_type|as_crispy_field }}
                     </div>
                     <div class="col-md-6">
                       {{ training_form.address1|as_crispy_field }}
@@ -114,6 +117,19 @@
                   <button type="submit" class="btn btn-primary">Create</button>
                 {% endif %}
               </form>
+              <script>
+                function check_cm(){
+                  console.log($('#id_cert_type').val());
+                  if ($('#id_cert_type option:selected').val() == 'pass') {
+                    $('#form_passing_mark').css("display",'block');
+                  } else {
+                    $('#form_passing_mark').css("display",'none');
+                  }
+                }
+                $(document).ready( function () {
+                  check_cm();
+                });
+              </script>
             </div>
           </div>
         </div>
@@ -258,6 +274,7 @@
                     <th>To</th>
                     <th>Seats</th>
                     <th>Status</th>
+                    <th>Attendance Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -270,6 +287,7 @@
                     <th>{{ tr.to_date|date:'d M Y' }}</th>
                     <th>{{ tr.size }} pax</th>
                     <th>{{ tr.get_review_status_display }}</th>
+                    <th>{{ tr.get_attendance_review_status_display }}</th>
                     <td>
                       {% if tr.review_status == 'pending' %}
                         {% if request.user.role == 'superadmin' or request.user.role == 'trainer' %}
@@ -277,6 +295,13 @@
                         {% endif %}
                         {% if request.user.role == 'cidb_reviewer' or request.user.role == 'superadmin' %}
                           <a href="{% url 'dashboard_training_review' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review</button>
+                        {% endif %}
+                      {% endif %}
+                      {% if tr.review_status == 'accepted' %}
+                        {% if request.user.role == 'trainer' or request.user.role == 'superadmin' %}
+                          {% if tr.attendance_review_status == 'pending' %}
+                          <a href="{% url 'dashboard_training_attendance_trainer' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Manage Attendance</button>
+                          {% endif %}
                         {% endif %}
                       {% endif %}
                     </td>

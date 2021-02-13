@@ -54,11 +54,11 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for project in projects %}
+                    {% for ass in assigned %}
                     <tr>
-                      <th>{{ project.pi.project_title }}</th>
+                      <th>{{ ass.ad.qaa.pi.project_title }}</th>
                       <th>
-                        <a href="{% url 'dashboard_claim_application' role category project.id %}" class="btn btn-sm btn-primary">Apply</a>
+                        <a href="{% url 'dashboard_claim_application' role category ass.ad.qaa.id %}" class="btn btn-sm btn-primary">Apply</a>
                       </th>
                     </tr>
                     {% endfor %}

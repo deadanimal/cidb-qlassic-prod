@@ -35,13 +35,13 @@ from authentication.decorators import allowed_users
 def dashboard_application_overview(request):
     return render(request, "dashboard/application/overview.html")
 
-@allowed_users(allowed_roles=['superadmin'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
 def dashboard_application(request):
     return render(request, "dashboard/application/list.html")
 
-@allowed_users(allowed_roles=['contractor'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['contractor'])
 def dashboard_application_profile(request):
     user = request.user
     form_user = UserUpdateForm(instance=user)
@@ -74,8 +74,8 @@ def dashboard_application_profile(request):
 #     }
 #     return render(request, "dashboard/application/project_list.html", context)
 
-@allowed_users(allowed_roles=['superadmin','contractor','applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','contractor','applicant'])
 def dashboard_application_project(request):
     # Check if verified contractor before displaying the list of contractor
     verified_contractor = VerifiedContractor.objects.filter(user=request.user,is_verified=True).first()
@@ -120,8 +120,8 @@ def dashboard_application_project(request):
 
     return render(request, "dashboard/application/project_list.html", context)
 
-@allowed_users(allowed_roles=['superadmin','contractor','applicant'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','contractor','applicant'])
 def dashboard_application_new(request, contractor_registration_number, id):
     contractor = get_object_or_404(Contractor, contractor_registration_number=contractor_registration_number, project_reference_number=id)
     qaa = None
@@ -175,6 +175,8 @@ def dashboard_application_new(request, contractor_registration_number, id):
     qaa.hp_no = request.user.hp_no
     qaa.fax_no = request.user.fax_no
     qaa.save()
+
+    assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         
     form_qaa = QAACreateForm(instance=qaa)
     if request.method == 'POST':
@@ -654,8 +656,8 @@ def dashboard_application_payment(request):
     context = { 'qaas':qaas }
     return render(request, "dashboard/application/payment.html",context)
 
-@allowed_users(allowed_roles=['superadmin','casc_verifier','assessor'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier','assessor'])
 def dashboard_application_assessor_list(request):
     mode = 'list_all'
     context = {}
@@ -674,8 +676,8 @@ def dashboard_application_assessor_list(request):
         }
     return render(request, "dashboard/application/assessor_list.html", context)
 
-@allowed_users(allowed_roles=['superadmin','casc_verifier'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier'])
 def dashboard_application_assessor_assign(request, id):
     mode = 'assign_assessor'
     
@@ -727,8 +729,8 @@ def dashboard_application_assessor_assign(request, id):
         return redirect('dashboard_application_assessor_list')
     return render(request, "dashboard/application/application_info.html", context)
 
-@allowed_users(allowed_roles=['superadmin','assessor'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','assessor'])
 def dashboard_application_assessor_approve(request, id):
     mode = 'verify_assessor'
     suggested_assessor = get_object_or_404(SuggestedAssessor, id=id)
@@ -776,8 +778,8 @@ def dashboard_application_assessor_approve(request, id):
         return redirect('dashboard_application_assessor_list')    
     return render(request, "dashboard/application/application_info.html", context)
 
-@allowed_users(allowed_roles=['superadmin','casc_verifier'])
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier'])
 def dashboard_application_assessor_change(request, id):
     current = get_object_or_404(SuggestedAssessor, id=id)
     assessors = Assessor.objects.all()

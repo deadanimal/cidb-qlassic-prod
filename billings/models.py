@@ -19,45 +19,72 @@ from django.dispatch import receiver
 # Create your models here.
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-    rt = models.ForeignKey('trainings.RegistrationTraining', on_delete=models.CASCADE, null=True)
-    tc = models.ForeignKey('trainings.TrainingCertificate', on_delete=models.CASCADE, null=True)
-    qaa = models.ForeignKey('assessments.QlassicAssessmentApplication', on_delete=models.CASCADE, null=True)
-    
-    payment_description = models.CharField(null=True, max_length=255)
-    payment_date = models.DateTimeField(null=True)
-    payment_amount = models.FloatField(null=True)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
 
-    PAYMENT_TYPE = [
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    rt = models.ForeignKey('trainings.RegistrationTraining', on_delete=models.CASCADE, null=True, blank=True)
+    ra = models.ForeignKey('trainings.RoleApplication', on_delete=models.CASCADE, null=True, blank=True)
+    qaa = models.ForeignKey('assessments.QlassicAssessmentApplication', on_delete=models.CASCADE, null=True, blank=True)
+    
+    customer_name = models.CharField(null=True, blank=True, max_length=255)
+    customer_email = models.CharField(null=True, blank=True, max_length=255)
+    currency = models.CharField(null=True, blank=True, max_length=255)
+    payment_date = models.DateTimeField(null=True, blank=True)
+    payment_amount = models.DecimalField(null=True, blank=True, max_digits=8, decimal_places=2, verbose_name="Amount (RM)")
+    order_id = models.CharField(null=True, blank=True, max_length=255)
+    transaction_id = models.CharField(null=True, blank=True, max_length=255)
+    
+    PAYMENT_METHOD = [
         # To follow SRS
-        ('online_banking','Online Banking'),
-        ('credit_debit_card','Credit/ Debit card'),
+        ('FPX','Online Banking'),
+        ('CCX','Credit/ Debit card'),
     ]
-    payment_type = models.CharField(
+    payment_method = models.CharField(
         null=True,
-        choices=PAYMENT_TYPE,
+        blank=True,
+        choices=PAYMENT_METHOD,
         max_length=50
     )
+    payment_method_description = models.CharField(null=True, blank=True, max_length=255)
+    auth_code = models.CharField(null=True, blank=True, max_length=255)
+    receipt_number = models.CharField(null=True, blank=True, max_length=255)
 
     PAYMENT_STATUS = [
         # To follow SRS
-        ('pending','Pending'),
-        ('paid','Paid'),
+        ("1",'Successfull'),
+        ("0",'Fail'),
+        ("-1",'Pending'),
     ]
     payment_status = models.CharField(
-        null=True,
+        default="-1",
         choices=PAYMENT_STATUS,
         max_length=15
     )
+    status_description = models.CharField(null=True, blank=True, max_length=255)
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(null=True, max_length=50)
+    created_by = models.CharField(null=True, max_length=50, blank=True)
     modified_date = models.DateTimeField(auto_now=True)
-    modified_by = models.CharField(null=True, max_length=50)
-   
+    modified_by = models.CharField(null=True, max_length=50, blank=True)
+    
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'PY{}'.format(datetime.datetime.now().strftime('%y'))
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-3:]
+                self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:04d}'.format(1)
+            
+        super(Payment, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-created_date']
+
     def __str__(self):
-        return self.payment_description
+        return self.order_id
 
 class ClaimApplication(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -144,16 +144,16 @@
                         {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' or request.user.role == 'casc_approver' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_claim_review_list' 'assessor' %}" class="nav-link">
-                            <span class="sidenav-mini-icon"> VA </span>
-                            <span class="sidenav-normal"> Verify Assessment Claim </span>
+                            <span class="sidenav-mini-icon"> AA </span>
+                            <span class="sidenav-normal"> Approve Assessment Claim </span>
                             </a>
                         </li>
                         {% endif %}
                         {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' or request.user.role == 'casc_approver' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_claim_review_list' 'trainer' %}" class="nav-link">
-                            <span class="sidenav-mini-icon"> VT </span>
-                            <span class="sidenav-normal"> Verify Training Claim </span>
+                            <span class="sidenav-mini-icon"> AT </span>
+                            <span class="sidenav-normal"> Approve Training Claim </span>
                             </a>
                         </li>
                         {% endif %}
@@ -190,12 +190,14 @@
                             <span class="sidenav-normal"> Dashboard </span>
                             </a>
                         </li>
+                        {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_training_role_application_list' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> L </span>
                             <span class="sidenav-normal"> List of Application </span>
                             </a>
                         </li>
+                        {% endif %}
                         {% if request.user.role == 'superadmin' or request.user.role == 'trainer' or request.user.role == 'cidb_reviewer' %}
                         <li class="nav-item">
                             <div class="nav-link">
@@ -215,7 +217,7 @@
                         <li class="nav-item">
                             <a href="{% url 'dashboard_training_list' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> L </span>
-                            <span class="sidenav-normal"> List of Training </span>
+                            <span class="sidenav-normal"> Manage Training </span>
                             </a>
                         </li>
                         {% endif %}
@@ -237,6 +239,14 @@
                             <a href="{% url 'dashboard_joined_training_list' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> R </span>
                             <span class="sidenav-normal"> Joined Training </span>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if request.user.role == 'assessor' or request.user.role == 'trainer' or request.user.role == 'applicant' or request.user.role == 'trainee' %}
+                        <li class="nav-item">
+                            <a href="{% url 'dashboard_joined_training_certificate' %}" class="nav-link">
+                            <span class="sidenav-mini-icon"> C </span>
+                            <span class="sidenav-normal"> Certificate </span>
                             </a>
                         </li>
                         {% endif %}

@@ -20,6 +20,11 @@
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
+                {% if mode == 'review' %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_training_feedback_list_staff' %}">Feedback List</a></li>
+                {% else %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_training_feedback_list_trainee' %}">Feedback List</a></li>
+                {% endif %}
                 <li class="breadcrumb-item active" aria-current="page">Training Feedback</li>
               </ol>
             </nav>
@@ -71,7 +76,7 @@
                 <fieldset>
                   <div class="form-group">
                     <label for="id_description_1">Send to</label>
-                    <textarea name="description_1" id="id_description_1" rows="3" class="form-control" disabled>{% for trainer in trainers %}{{ trainer.email }},{% endfor %}</textarea>
+                    <textarea name="description_1" id="id_description_1" rows="3" class="form-control" disabled>{% for trainer in trainers %}{{ trainer.email }}, {% endfor %}</textarea>
                   </div>
                   <div class="form-group">
                     <label for="warning">Warning</label>

@@ -157,7 +157,7 @@ class QlassicAssessmentApplication(models.Model):
     modified_by = models.CharField(null=True, max_length=50)
    
     def __str__(self):
-        return "%s (%s) - %s" % (self.user, self.created_date, self.qaa_number)
+        return "%s - %s" % (self.created_date, self.qaa_number)
 
 class Component(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -297,7 +297,7 @@ class SupportingDocuments(models.Model):
     modified_by = models.CharField(null=True, max_length=50)
    
     def __str__(self):
-        return self.file_name
+        return str(self.id)
 
 class SuggestedAssessor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

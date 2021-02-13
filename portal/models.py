@@ -4,6 +4,9 @@ import uuid
 from core.helpers import PathAndRename, STATE_CHOICES
 from .helpers import TEMPLATE_TYPE
 
+# Models
+from trainings.models import TrainingType
+
 # Create your models here.
 class Announcement(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -88,14 +91,18 @@ class LetterTemplate(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(null=True, max_length=255)
     
+    # If exist, it considered as training template, else considered as general template
+    training_type = models.ForeignKey(TrainingType, on_delete=models.CASCADE, null=True, blank=True)
+    
     template_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('templates'))
     is_active = models.BooleanField(default=True, verbose_name="Use this template now?")
 
     template_type = models.CharField(
         null=True,
-        max_length=50,
+        max_length=150,
         choices=TEMPLATE_TYPE
     )
+
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)

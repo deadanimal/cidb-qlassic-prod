@@ -1,7 +1,8 @@
 
 from django.contrib import messages
+from django.core.files.base import ContentFile
 from portal.models import LetterTemplate
-from app.helpers.helpers import docx_to_pdf_download, docx_to_pdf_stream
+from app.helpers.helpers import docx_to_pdf_download, docx_to_pdf_stream, docx_to_pdf_file
 from core.helpers import translate_malay_date
 import datetime
 
@@ -27,7 +28,7 @@ def test_template_interview_letter(id):
 
 # Actual Value
 def generate_document(request, template_type, context):
-    letter_templates = LetterTemplate.objects.all().filter(template_type=template_type,is_active=True).order_by('-modified_date')
+    letter_templates = LetterTemplate.objects.all().filter(template_type=template_type,is_active=True,training_type=None).order_by('-modified_date')
     lt = None
     if len(letter_templates) > 0:
         lt = letter_templates[0]
@@ -37,3 +38,40 @@ def generate_document(request, template_type, context):
     
     response = docx_to_pdf_stream(lt, context)
     return response
+
+def generate_document_file(request, template_type, context):
+    letter_templates = LetterTemplate.objects.all().filter(template_type=template_type,is_active=True,training_type=None).order_by('-modified_date')
+    lt = None
+    if len(letter_templates) > 0:
+        lt = letter_templates[0]
+    else:
+        messages.warning(request,'Letter template not found. Please insert the letter template and set it to active to generate the document.')
+        return None
+    
+    response = docx_to_pdf_file(lt, context)
+    return response
+
+def generate_training_document(request, training_type, context):
+    letter_templates = LetterTemplate.objects.all().filter(training_type=training_type).order_by('-modified_date')
+    lt = None
+    if len(letter_templates) > 0:
+        lt = letter_templates[0]
+    else:
+        messages.warning(request,'Letter template not found. Please insert the letter template and set it to active to generate the document.')
+        return None
+    
+    response = docx_to_pdf_stream(lt, context)
+    return response
+
+def generate_training_document_file(request, training_type, context):
+    letter_templates = LetterTemplate.objects.all().filter(training_type=training_type).order_by('-modified_date')
+    lt = None
+    if len(letter_templates) > 0:
+        lt = letter_templates[0]
+    else:
+        messages.warning(request,'Letter template not found. Please insert the letter template and set it to active to generate the document.')
+        return None
+    
+    response = docx_to_pdf_file(lt, context)
+    file_data = ContentFile(response.read())
+    return file_data
