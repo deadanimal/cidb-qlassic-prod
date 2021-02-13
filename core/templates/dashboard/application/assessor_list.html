@@ -1,0 +1,120 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard - Assessor Management {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <!-- Header -->
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">CIDB</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Assessor Management</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+        <!-- Card stats -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+
+    <div class="row">
+      {% if mode == 'list_all' %}
+      <div class="offset-md-1 col-md-10">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">Manage Assessor</h2>
+          </div>
+          <div class="table-responsive py-4">
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Project Title</th>
+                  <th>Assessor</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for qaa in qaas %}
+                <tr>
+                  <th>{{ qaa.pi.project_title }}</th>
+                  <th>{{ qaa.pi.sector }}</th>
+                  <th>{{ qaa.project_value }}</th>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-info w-100 mb-2">View</button>
+                    {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' %}
+                    <a href="{% url 'dashboard_application_assessor_assign' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Assign</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% if mode == 'list_own' %}
+      <div class="offset-md-1 col-md-10">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">Manage Assessor</h2>
+          </div>
+          <div class="table-responsive py-4">
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Project Title</th>
+                  <th>Location</th>
+                  <th>Acception</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sa in suggested_assessors %}
+                <tr>
+                  <th>{{ sa.qaa.project_title }}</th>
+                  <th>{{ sa.qaa.get_project_location_display }}</th>
+                  <th>{% if sa.get_acception_display %}{{ sa.get_acception_display }}{% else %}Pending{% endif %}</th>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-info w-100 mb-2">View</button>
+                    {% if not sa.acception %}
+                    <a href="{% url 'dashboard_application_assessor_approve' sa.id %}" class="btn btn-sm btn-success w-100 mb-2">Verify</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% include 'includes/footer-dashboard.html' %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+{% endblock javascripts %}

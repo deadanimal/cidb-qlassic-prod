@@ -1,0 +1,155 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard - Application List {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% load humanize %}
+
+{% block content %}
+
+  <!-- Header -->
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">CIDB</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Application List</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+        <!-- Card stats -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+
+    <div class="row">
+      <div class="offset-md-1 col-md-10">
+
+        <!-- All Applications -->
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">List of Applications</h2>
+          </div>
+          <div class="table-responsive py-4">
+            <!-- Table Data Filter -->
+            <div class="d-flex justify-content-center" style="width:100%;">
+              <label class="mr-2 mb-0">Filter by:</label>
+              <form action="" method="GET" style="width:150px;">
+                <select name="sector" class="form-control form-control-sm" onchange="this.form.submit()">
+                    <option value="" {% if sector == '' or sector == None %}selected{% endif %}>ALL</option>
+                    <option value="GOVERNMENT" {% if sector == 'GOVERNMENT' %}selected{% endif %}>GOVERNMENT</option>
+                    <option value="PRIVATE" {% if sector == 'PRIVATE' %}selected{% endif %}>PRIVATE</option>
+                </select>
+              </form>
+            </div>
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Application Date</th>
+                  <th>QAA Number</th>
+                  <th>Project Title</th>
+                  <th>Sector</th>
+                  <th>Project Value</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for qaa in qaas %}
+                  {% if qaa.application_status %}
+                  <tr>
+                    <th>
+                      <span style="font-size:0;">{{ qaa.created_date|date:'Ymd' }}</span>
+                      {{ qaa.created_date|date:'d M Y' }}
+                    </th>
+                    <th>{{ qaa.qaa_number }}</th>
+                    <th>{{ qaa.pi.project_title|truncatechars:150 }}</th>
+                    <th>{{ qaa.pi.get_project_type_display }}</th>
+                    <th>RM {{ qaa.pi.contract_value|intcomma  }}</th>
+                    <th>
+                      {% if role_type == 'staff' %}
+                        {{ qaa.get_application_status_display }}
+                      {% endif %}
+                      {% if role_type == 'applicant' %}
+                        {% if qaa.application_status == 'need_payment' %}
+                          {{ qaa.get_application_status_display }}
+                        {% elif qaa.application_status == 'rejected' %}
+                          {{ qaa.get_application_status_display }}
+                        {% elif qaa.application_status == 'rejected_amendment' %}
+                          {{ qaa.get_application_status_display }}
+                        {% elif qaa.application_status == 'approved' %}
+                          {{ qaa.get_application_status_display }}
+                        {% elif qaa.application_status == 'in_progress' %}
+                          On-going
+                        {% elif qaa.application_status == 'completed' %}
+                          {{ qaa.get_application_status_display }}
+                        {% else %}
+                          Pending
+                        {% endif %}
+                      {% endif %}
+                    </th>
+                    <td>
+                      <a href="{% url 'dashboard_application_info' qaa.id %}" class="btn btn-sm btn-info w-100 mb-2">View</a>
+                      {% if role_type == 'staff' %}
+                        <!-- Staff button -->
+                        {% if request.user.role == 'casc_reviewer' or request.user.role == 'superadmin' %}
+                          {% if qaa.application_status == 'pending' %}
+                          <a href="{% url 'dashboard_application_review' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Review</a>
+                          {% endif %}
+                        {% endif %}
+                        {% if request.user.role == 'casc_verifier' or request.user.role == 'superadmin' %}
+                          {% if qaa.application_status == 'reviewed' %}
+                          <a href="{% url 'dashboard_application_verify' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Verify</a>
+                          {% endif %}
+                        {% endif %}
+                      {% endif %}
+
+                      {% if role_type == 'applicant' %}
+                        <!-- Applicant button -->
+                        {% if qaa.application_status == 'rejected_amendment' or qaa.application_status == 'rejected' %}
+                          {% if qaa.pi %}
+                            <a href="{% url 'dashboard_application_new' qaa.pi.contractor_cidb_registration_no qaa.pi.project_reference_number %}" class="btn btn-sm btn-success w-100 mb-2">Reapply</a>
+                          {% endif %}
+                        {% endif %}
+                        {% if qaa.application_status == 'need_payment' %}
+                        <form action="" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" name="id" value="{{ qaa.id }}">
+                          <button type="submit" name="payment" class="btn btn-sm btn-success w-100 mb-2">Pay</button>
+                        </form>
+                        {% endif %}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {% include 'includes/footer-dashboard.html' %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+{% endblock javascripts %}

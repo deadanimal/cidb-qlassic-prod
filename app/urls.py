@@ -1,0 +1,55 @@
+# -*- encoding: utf-8 -*-
+"""
+Copyright (c) 2019 - present AppSeed.us
+"""
+
+from django.urls import path, re_path
+from app import views, views_pdf
+
+urlpatterns = [
+
+    # The home page
+    path('', views.index, name='home'),
+    path('assessment/', views.assessment, name='assessment'),
+    path('training/', views.training, name='training'),
+    path('contact/', views.contact, name='contact'),
+    
+    path('announcement/detail/<str:id>/', views.announcement, name='announcement'),
+    path('publication/detail/<str:id>/', views.publication, name='publication'),
+
+    # Admin Reporting & Certification
+    path('dashboard/report/list/', views.dashboard_report_list, name="dashboard_report_list"),
+    path('dashboard/report/view/<str:report_type>/<str:id>/', views.dashboard_qlassic_report_view, name="dashboard_qlassic_report_view"),
+    path('dashboard/report/review/<str:report_type>/<str:id>/', views.dashboard_report_review, name="dashboard_report_review"),
+    path('dashboard/report/verify/<str:report_type>/<str:id>/', views.dashboard_report_verify, name="dashboard_report_verify"),
+    path('dashboard/report/approve/<str:report_type>/<str:id>/', views.dashboard_report_approve, name="dashboard_report_approve"),
+    
+    # PDF
+    path('report/<str:report_type>/view/<str:id>/', views.qlassic_report_generate, name="qlassic_report_generate"),
+    path('report/<str:report_type>/generate/<str:id>/', views.report_generate, name="report_generate"),
+    # path('report/generate/test/', views_pdf.report_generate_test, name="report_generate_test"),
+
+    # Admin Management
+    path('dashboard/management/defect_group/', views.dashboard_defect_group, name="dashboard_defect_group"),
+    path('dashboard/management/defect_group/<str:id>/', views.dashboard_defect_group_id, name="dashboard_defect_group_id"),
+    path('dashboard/management/sub-component/', views.dashboard_sub_component, name="dashboard_sub_component"),
+    path('dashboard/management/sub-component/<str:id>/', views.dashboard_sub_component_id, name="dashboard_sub_component_id"),
+    path('dashboard/management/component/', views.dashboard_component, name="dashboard_component"),
+    path('dashboard/management/component/<str:id>/', views.dashboard_component_id, name="dashboard_component_id"),
+    path('dashboard/management/element/', views.dashboard_element, name="dashboard_element"),
+    path('dashboard/management/element/<str:id>/', views.dashboard_element_id, name="dashboard_element_id"),
+    path('dashboard/management/verified-contractor/', views.dashboard_verified_contractor, name="dashboard_verified_contractor"),
+    path('dashboard/management/verified-contractor/<str:id>/', views.dashboard_verified_contractor_id, name="dashboard_verified_contractor_id"),
+    path('dashboard/management/letter-template/', views.dashboard_letter_template, name="dashboard_letter_template"),
+    path('dashboard/management/letter-template/<str:id>', views.dashboard_letter_template_id, name="dashboard_letter_template_id"),
+    path('dashboard/management/training-type/', views.dashboard_training_type, name="dashboard_training_type"),
+    path('dashboard/management/training-type/<str:id>', views.dashboard_training_type_id, name="dashboard_training_type_id"),
+
+    # path('pdf/generate/<str:report_type>/', views_pdf.report_generate, name='report_view'),
+    # path('pdf/view/<str:report_type>/', views_pdf.report_edit, name='generate_view'),
+    path('docx/view/', views_pdf.doc_test, name='doc_test'),
+    # path('test/email/', views.test_email, name="test_email"),
+    # Matches any html file
+    # re_path(r'^.*\.*', views.pages, name='pages'),
+
+]

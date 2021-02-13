@@ -1,0 +1,144 @@
+import uuid
+import os
+import datetime
+from django.core.mail import EmailMessage
+
+from django.utils.deconstruct import deconstructible
+
+@deconstructible
+class PathAndRename(object):
+
+    def __init__(self, sub_path):
+        self.path = "cidb-qlassic/" + sub_path
+
+    def __call__(self, instance, filename):
+        ext = filename.split('.')[-1]
+        # set filename as random string
+        filename_ = str(datetime.datetime.utcnow().timestamp()).split('.',1)[0] + uuid.uuid4().hex
+        filename = '{}.{}'.format(filename_, ext)
+        # return the whole path to the file
+        return os.path.join(self.path, filename)
+
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from core.settings import skip_email
+
+def send_email_default(subject, to, context, template):
+    skip = skip_email
+    print(skip)
+    if skip == 0:
+        message = render_to_string(
+            template,
+            context
+        )
+        send_mail(subject, message, None, to, fail_silently=False)
+    else:
+        print('Send email: ' + subject)
+
+def send_email_with_attachment(subject, to, context, template, attachments):
+    message = render_to_string(
+        template,
+        context
+    )
+    email = EmailMessage(subject, message, None, to)
+    for attachment in attachments:
+        email.attach_file(attachment)
+    email.send()
+
+# State Choice in Malaysia
+STATE_CHOICES = [
+    ('MELAKA','MELAKA'),
+    ('JOHOR','JOHOR'),
+    ('NEGERI SEMBILAN','NEGERI SEMBILAN'),
+    ('PAHANG','PAHANG'),
+    ('TERENGGANU','TERENGGANU'),
+    ('KELANTAN','KELANTAN'),
+    ('PERAK','PERAK'),
+    ('PERLIS','PERLIS'),
+    ('KEDAH','KEDAH'),
+    ('SELANGOR','SELANGOR'),
+    ('WILAYAH PERSEKUTUAN KUALA LUMPUR','KUALA LUMPUR'),
+    ('SABAH','SABAH'),
+    ('SARAWAK','SARAWAK'),
+    ('PULAU PINANG','PULAU PINANG'),
+]
+
+def get_state_code(state):
+    code = ''
+    if state == 'MELAKA':
+        code = 'ML'
+    elif state == 'JOHOR':
+        code = 'JH'
+    elif state == 'NEGERI SEMBILAN':
+        code = 'NS'
+    elif state == 'PAHANG':
+        code = 'PH'
+    elif state == 'TERENGGANU':
+        code = 'TR'
+    elif state == 'KELANTAN':
+        code = 'KN'
+    elif state == 'PERAK':
+        code = 'PR'
+    elif state == 'PERLIS':
+        code = 'PL'
+    elif state == 'KEDAH':
+        code = 'KD'
+    elif state == 'SELANGOR':
+        code = 'SL'
+    elif state == 'WILAYAH PERSEKUTUAN KUALA LUMPUR':
+        code = 'WP'
+    elif state == 'SABAH':
+        code = 'SB'
+    elif state == 'SARAWAK':
+        code = 'SR'
+    elif state == 'PULAU PINANG':
+        code = 'PP'
+    else:
+        code = ''
+    return code
+
+def get_sector_code(sector):
+    code = ''
+    if sector == 'GOVERNMENT':
+        code = 'G'
+    elif sector == 'PRIVATE':
+        code = 'P'
+    else:
+        code = ''
+    return code
+
+def translate_malay_date(date):
+    str_date = str(date)
+    str_date = translate_month(str_date)
+    str_date = translate_day(str_date)
+    return str_date
+
+def standard_date(date):
+    return date.strftime("%d %B %Y")
+
+def translate_month(str_date):
+    str_date = str_date.replace('January','Januari')
+    str_date = str_date.replace('February','Februari')
+    str_date = str_date.replace('March','Mac')
+    str_date = str_date.replace('April','April')
+    str_date = str_date.replace('May','Mei')
+    str_date = str_date.replace('June','Jun')
+    str_date = str_date.replace('July','Julai')
+    str_date = str_date.replace('August','Ogos')
+    str_date = str_date.replace('September','September')
+    str_date = str_date.replace('October','Oktober')
+    str_date = str_date.replace('November','November')
+    str_date = str_date.replace('December','Disember')
+    
+    return str_date
+
+def translate_day(str_date):
+    str_date = str_date.replace('Sunday','Ahad')
+    str_date = str_date.replace('Monday','Isnin')
+    str_date = str_date.replace('Tuesday','Selesa')
+    str_date = str_date.replace('Wednesday','Rabu')
+    str_date = str_date.replace('Thursday','Khamis')
+    str_date = str_date.replace('Friday','Jumaat')
+    str_date = str_date.replace('Saturday','Sabtu')
+
+    return str_date
