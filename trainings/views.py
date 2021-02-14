@@ -155,10 +155,7 @@ def dashboard_training_application_new(request, application_type, step):
                 return redirect('dashboard_training_application_new', application_type, step)
 
             if 'submit' in request.POST:
-                if application_type == 'trainer':
-                    application.application_status = 'pending'
-                if application_type == 'qca':
-                    application.application_status = 'need_payment'
+                application.application_status = 'pending'
                 # generate_role_application_number(application)
                 application.save()
 
@@ -339,7 +336,16 @@ def dashboard_training_role_application_review(request, id, step):
             messages.info(request, 'Successfully sent the rejection letter to applicant via email.')
         
         if 'accreditation' in request.POST:
-            pass
+            application.application_status = 'approved'
+            application.save()
+            if application.application_type == 'trainer':
+                Trainer.objects.create(user=application.user)
+            if application.application_type == 'qca':
+                assessor, created = Assessor.get_or_create(user=application.user)
+                assessor.assessor_type = 'QCA'
+                assessor.save()
+
+            messages.info(request, 'Successfully approved the role application.')
 
     return render(request, "dashboard/training/role_application_form.html", context)
 
