@@ -379,7 +379,6 @@ def dashboard_training_role_application_review(request, id, step):
                 'address1': application.user.address1,
                 'address2': application.user.address2,
                 'postcode': application.user.postcode,
-                'postcode': application.user.postcode,
                 'city': application.user.city,
                 'state': application.user.state,
                 'duration_year': application.accreditation_duration_year,
