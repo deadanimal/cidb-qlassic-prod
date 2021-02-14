@@ -23,4 +23,5 @@ urlpatterns = [
     #path('dashboard/user/', views.dashboard_user, name="dashboard_user"),
 
     path('certificate/role-application/<str:id>/', views.certificate_role_application, name="certificate_role_application"),
+    path('certificate/qia/<str:id>/', views.certificate_qia, name="certificate_qia"),
 ]

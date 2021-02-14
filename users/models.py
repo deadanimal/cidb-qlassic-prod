@@ -79,6 +79,22 @@ class CustomUser(AbstractUser):
         max_length=50
     )
 
+    # Assessor
+    # qia_eligible = models.BooleanField(default=False, null=True)
+    QIA_STATUS = [
+        # To follow SRS
+        ('','Not Eligible'),
+        ('need_review','Need Review'),
+        ('need_payment','Need Payment'),
+        ('approved','Approved'),
+    ]
+    qia_status = models.CharField(
+        null=True,
+        default='',
+        choices=QIA_STATUS,
+        max_length=50
+    )
+
     # Transportation Detail
     transport_model = models.CharField(null=True, blank=True, max_length=50, verbose_name='Transport Model')
     transport_cc = models.FloatField(null=True, blank=True, verbose_name='CC')
@@ -196,6 +212,9 @@ class Assessor(models.Model):
     qca_id = models.CharField(null=True,blank=True, max_length=50)
     assessor_no = models.CharField(null=True,blank=True, max_length=50, verbose_name='Assessor number')
     
+    qia_certificate_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='QIA Certificate File')
+    qia_certificate_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('interview_letter/qr/'), verbose_name='QIA Certificate QR File')
+
     ASSESSOR_TYPE = [
         # To follow SRS
         ('QIA', 'QLASSIC Industry Assessor'),

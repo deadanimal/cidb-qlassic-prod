@@ -16,7 +16,7 @@ from .models import (
     RegistrationTraining,
     JoinedTraining,
     ORGANIZATION_TYPE_CHOICES,
-    Feedback,
+    Feedback, TrainingType,
 )
 
 from users.models import (
@@ -177,53 +177,6 @@ def dashboard_training_application_new(request, application_type, step):
                 return redirect('dashboard_training_application_dashboard')
 
     return render(request, "dashboard/training/role_application_form.html", context)
-
-@login_required(login_url="/login/")
-@allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor'])
-def dashboard_role_application_pay(request, id):
-    mode = 'payment'
-    ra = get_object_or_404(RoleApplication, id=id)
-    response = create_transaction(request, 1000, 0, 'QLC-PUP', ra.application_number, request.user)
-    proforma = response.Code
-    
-    # Create Payment
-    payment, created = Payment.objects.get_or_create(order_id=proforma)
-    payment.user = request.user
-    payment.customer_name = request.user.name
-    payment.customer_email = request.user.email
-    payment.ra = ra
-    payment.currency = 'MYR'
-    payment.payment_amount = ra.training.fee
-    payment.save()
-
-    context = {
-        'title': 'Payment - QLASSIC CIDB Assessor Application',
-        'mode': mode,
-        'ra': ra,
-        'proforma': proforma,
-        'response': response,
-        'url': payment_gateway_url,
-    }
-    return render(request, "dashboard/training/enroll_training.html", context)
-
-@csrf_exempt
-def dashboard_role_application_pay_response(request, id):
-    mode = 'payment_response'
-    payment = None
-    ra = get_object_or_404(RoleApplication, id=id)
-    if request.method == 'POST':
-        payment = payment_response_process(request)
-        if payment.payment_status == 1:
-            ra.status = 'accepted'
-            ra.save()
-    context = {
-        'title': 'Payment Response - QLASSIC CIDB Assessor Application',
-        'mode': mode,
-        'ra': ra,
-        'payment': payment,
-    }
-    return render(request, "dashboard/training/enroll_training.html", context)
-
 
 @login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
@@ -389,16 +342,20 @@ def dashboard_training_role_application_review(request, id, step):
                 'date_accreditation': translate_malay_date(standard_date(datetime.now())),
             }
             if application.application_type == 'trainer':
+                # Generate Report
                 response_letter = generate_document_file(request, 'trainer_accreditation_letter', template_ctx, None)
                 application.accreditation_letter_file.save('pdf', response_letter)
             if application.application_type == 'qca':
+                # Generate QR
                 qr_path = request.build_absolute_uri('/certificate/role-application/'+str(application.id)+'/')
                 generate_and_save_qr(qr_path, application.certificate_qr_file)
+                # Generate Report
                 response_letter = generate_document_file(request, 'qca_accreditation_letter', template_ctx, None)
                 response_certificate = generate_document_file(request, 'qca_accreditation_certificate', template_ctx, application.certificate_qr_file.path)
                 application.accreditation_letter_file.save('pdf', response_letter)
                 application.accreditation_certificate_file.save('pdf', response_certificate)
 
+            # Email
             to = [application.user.email]
             subject = "Role Application Result - " + application.get_application_type_display()
             attachments = []
@@ -859,12 +816,37 @@ def dashboard_training_attendance_review(request, id):
                     if training.cert_type == 'pass':
                         generate_pdf = True
                     
-                if generate_pdf == True:   
+                if generate_pdf == True:
+                    pass_status = ""
+                    training_location = training.address1 + ' ' + training.address2 + ', ' + training.postcode + ' ' + training.city + ', ' + training.state
+                    # Check if PASS or FAIL
+                    if attendance.pass_status == True:
+                        pass_status = 'LULUS'
+                    else:
+                        pass_status = 'GAGAL'
+                    
+                    # Set training date display
+                    training_date = None
+                    if training.from_date == training.to_date:
+                        training_date = translate_malay_date(standard_date(training.from_date))
+                    else:
+                        training_date = translate_malay_date(standard_date(training.from_date)) + ' - ' + translate_malay_date(standard_date(training.to_date))
+                    
                     template_ctx = {
+                        'pass': pass_status,
                         'name': attendance.user.name,
+                        'hp_no': attendance.user.hp_no,
+                        'fax_no': attendance.user.fax_no,
                         'ic': attendance.user.icno,
+                        'address1': attendance.user.address1,
+                        'address2': attendance.user.address2,
+                        'postcode': attendance.user.postcode,
+                        'city': attendance.user.city,
+                        'state': attendance.user.state,
                         'company': attendance.user.organization,
-                        'date': translate_malay_date(standard_date(datetime.now())),
+                        'location': training_location,
+                        'date_now': translate_malay_date(standard_date(datetime.now())),
+                        'date': training_date,
                     }
                     response = generate_training_document_file(request, training.training_type, template_ctx, None)
                     attendance.certificate_file.save('pdf', response)
@@ -874,7 +856,60 @@ def dashboard_training_attendance_review(request, id):
         if 'approve' in request.POST:
             training.attendance_review_status = 'approved'
             training.save()
-            messages.info(request, 'Successfully approved the attendance.')  
+
+            training_types = TrainingType.objects.all().filter(required_for_assessor=True)
+
+            # Email
+            for attendance in attendances:
+                
+                # Email
+                to = [attendance.user.email]
+                subject = "Training Certificate - " + training.training_name
+                attachments = [attendance.certificate_file.path]
+                email_ctx = {
+                    'training': training,
+                    'attendance': attendance,
+                }
+                send_email_with_attachment(subject, to, email_ctx, 'email/training-certificate.html', attachments)
+
+                # Check Eligible for QIA
+                qia_eligible = True
+                all_trainings = RegistrationTraining.objects.all().filter(user=attendance.user)
+                if len(all_trainings) > 1:
+                    for training_type in training_types:
+                        found = False
+                        for all_training in all_trainings:
+                            if training_type == all_training.training.training_type:
+                                found = True
+                                break
+                        if found == False:
+                            qia_eligible = False
+                            break
+                else:
+                    qia_eligible = False
+
+                if qia_eligible == True:
+                    user = attendance.user
+                    user.qia_status = 'need_review'
+                    user.save()  
+
+                    # Email
+                    cidb_reviewers = CustomUser.objects.all().filter(
+                        Q(role='superadmin')|
+                        Q(role='cidb_reviewer')
+                    )
+                    to = []
+                    for cidb_reviewer in cidb_reviewers:
+                        to.append(cidb_reviewer.email)
+
+                    subject = "Request for QIA Certificate - " + attendance.code_id
+                    email_ctx = {
+                        'attendance': attendance,
+                    }
+                    send_email_default(subject, to, email_ctx, 'email/training-qia-review.html')
+
+
+            messages.info(request, 'Successfully approved the attendance.')
         return redirect('dashboard_training_attendance_review', training.id)
 
     return render(request, "dashboard/training/attendance.html", context)
@@ -965,10 +1000,132 @@ def dashboard_training_feedback_review(request, id):
 @allowed_users(allowed_roles=['superadmin', 'cidb_reviewer', 'trainee', 'applicant', 'trainer', 'assessor'])
 def dashboard_joined_training_certificate(request):
     trainings = RegistrationTraining.objects.all().filter(user=request.user, pass_status=True)
-
+    assessor_all = Assessor.objects.all().filter(user=request.user)
+    assessor = None
+    if len(assessor_all) > 0:
+        assessor = assessor_all[0]
     context = {
-        'role': 'staff',
+        'title': 'Training Certificate List',
+        'mode': 'trainee',
         'trainings':trainings,
+        'assessor': assessor,
+        'user': request.user,
     }
 
     return render(request, "dashboard/training/certificate_list.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
+def dashboard_qia_application_list(request):
+    users = CustomUser.objects.all().filter(qia_status='need_review')
+    context = {
+        'title': 'QLASSIC Industry Assessor Candidates',
+        'mode': 'list',
+        'users':users,
+    }
+    return render(request, "dashboard/training/qia_application.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
+def dashboard_qia_application_review(request, id):
+    user = get_object_or_404(CustomUser, id=id, qia_status='need_review')
+    trainings = RegistrationTraining.objects.all().filter(user=user, pass_status=True)
+
+    context = {
+        'title': 'QIA Candidate Review',
+        'mode': 'review',
+        'trainings':trainings,
+        'user': user,
+    }
+
+    if request.method == 'POST':
+        user.qia_status = 'need_payment'
+        user.save()
+
+        to = [user.email]
+        subject = "Payment for QLASSIC Industry Assessor Certificate"
+        email_ctx = {
+            'user': user,
+        }
+        send_email_default(subject, to, email_ctx, 'email/training-qia-payment.html')
+
+        messages.info(request, 'Successfully notify the trainee to make payment.')
+        return redirect('dashboard_qia_application_list')
+    return render(request, "dashboard/training/certificate_list.html", context)
+
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor', 'trainee', 'applicant'])
+def dashboard_qia_application_pay(request, id):
+    mode = 'payment'
+    user = get_object_or_404(CustomUser, id=id)
+    amount = 50
+    response = create_transaction(request, amount, 0, 'QLC-PUP', 'QIA-'+user.code_id, request.user)
+    proforma = response.Code
+    
+    # Create Payment
+    payment, created = Payment.objects.get_or_create(order_id=proforma)
+    payment.user = request.user
+    payment.customer_name = request.user.name
+    payment.customer_email = request.user.email
+    payment.currency = 'MYR'
+    payment.payment_amount = amount
+    payment.save()
+
+    context = {
+        'title': 'Payment - QLASSIC Industry Assessor Certificate',
+        'mode': mode,
+        'user': user,
+        'proforma': proforma,
+        'amount': amount,
+        'response': response,
+        'url': payment_gateway_url,
+    }
+    return render(request, "dashboard/training/qia_application.html", context)
+
+@csrf_exempt
+def dashboard_qia_application_pay_response(request, id):
+    mode = 'payment_response'
+    payment = None
+    user = get_object_or_404(CustomUser, id=id)
+    if request.method == 'POST':
+        payment = payment_response_process(request)
+        if payment.payment_status == 1:
+            user.qia_status = 'accepted'
+            user.save()
+            assessor, created = Assessor.objects.get_or_create(user=user)
+            assessor.assessor_type = 'QIA'
+            assessor.save()
+            # Generate QR
+            qr_path = request.build_absolute_uri('/certificate/qia/'+str(user.id)+'/')
+            generate_and_save_qr(qr_path, assessor.qia_certificate_qr_file)
+
+            # Cert Generation
+            template_ctx = {
+                'name': user.name,
+                'ic': user.icno,
+                'assessor_number': assessor.qia_id,
+                'date_accreditation': translate_malay_date(standard_date(datetime.now())),
+            }
+            response = generate_document_file(request, 'qia_accreditation_certificate', template_ctx, assessor.qia_certificate_qr_file.path)
+            assessor.qia_certificate_file.save('pdf', response)
+            
+            # Email
+            to = [user.email]
+            subject = "QLASSIC Industry Application Successful"
+            attachments = [assessor.qia_certificate_file.path]
+            email_ctx = {
+                'assessor': assessor,
+                'user': user,
+            }
+            send_email_with_attachment(subject, to, email_ctx, 'email/training-qia-accreditation.html', attachments)
+
+            messages.info(request, 'You are successfully certified as QLASSIC Industry Assessor.')
+    context = {
+        'title': 'Payment Response - QLASSIC Industry Assessor Certificate',
+        'mode': mode,
+        'user': user,
+        'payment': payment,
+    }
+    return render(request, "dashboard/training/qia_application.html", context)
+

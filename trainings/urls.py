@@ -33,4 +33,9 @@ urlpatterns = [
     path('dashboard/training/review/<str:id>/', views.dashboard_training_review, name="dashboard_training_review"),
     path('dashboard/training/attendance/<str:id>/', views.dashboard_training_attendance_trainer, name="dashboard_training_attendance_trainer"),
     path('dashboard/training/attendance/<str:id>/review/', views.dashboard_training_attendance_review, name="dashboard_training_attendance_review"),
+    
+    path('dashboard/training/qia/application/list/', views.dashboard_qia_application_list, name="dashboard_qia_application_list"),
+    path('dashboard/training/qia/application/review/<str:id>/', views.dashboard_qia_application_review, name="dashboard_qia_application_review"),
+    path('dashboard/training/qia/application/payment/<str:id>/', views.dashboard_qia_application_pay, name="dashboard_qia_application_pay"),
+    path('dashboard/training/qia/application/payment/<str:id>/response/', views.dashboard_qia_application_pay_response, name="dashboard_qia_application_pay_response"),
 ]

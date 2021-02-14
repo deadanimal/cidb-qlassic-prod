@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard - Training Certificate List Dashboard {% endblock %}
+{% block title %} Dashboard - {{ title }} {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -20,7 +20,7 @@
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Training List Dashboard</li>
+                <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
               </ol>
             </nav>
           </div>
@@ -33,37 +33,105 @@
   <!-- Page content -->
   <div class="container-fluid mt--6">
     <div class="row">
-      <div class="col-lg-10 offset-md-1">
+      <div class="col-lg-6">
         <div class="card">
-            <div class="card-header">
-              <h2 class="text-center mb-0 pb-0">
-                List of Training Certificates
-              </h2>
+          <div class="card-header">
+            <h2 class="text-center mb-0 pb-0">
+              List of Training Certificates
+            </h2>
+          </div>
+          <div class="table-responsive py-4">    
+            <table class="table table-custom-simplified">
+              <thead class="thead-light">
+                <tr>
+                  <th>Training Name</th>
+                  <th>Training Type</th>
+                  <th>Date</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for aa in trainings %}
+                <tr>
+                  <th>{{ aa.training.training_name }}</th>
+                  <th>{{ aa.training.training_type }}</th>
+                  <th>{{ aa.training.from_date }} - {{ aa.training.to_date }}</th>
+                  <th>{% if aa.pass_status %}{{ aa.get_pass_status_display }}{% else %}In Progress{% endif %}</th>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="text-center mb-0 pb-0">
+              QLASSIC Industry Assessor
+            </h2>
+          </div>
+          <div class="card-body text-center">
+            {% if mode == 'review' %}
+              <p class="mb-0"><strong>Trainee: </strong>{{ user.name }}</p>
+              <p class="mb-0"><strong>IC: </strong>{{ user.icno }}</p>
+              <p class="mb-0"><strong>Email: </strong>{{ user.email }}</p>
+            {% endif %}
+            <p class="mb-0">
+              <strong>Status: </strong>
+              {% if assessor %}
+              <span class="text-success">Certified</span>
+              {% elif user.qia_status == 'need_review' %}
+              <span class="">Pending</span>
+              {% elif user.qia_status == 'need_payment' %}
+              <span class="">Need Payment</span>
+              {% else %}
+              <span class="text-danger">Not Certified</span>
+              {% endif %}
+            </p>
+            {% if assessor.qia_certificate_file %}
+              <p class=""><strong>Certificate File: </strong>
+                <a href="{{ assessor.qia_certificate_file.url }}">Download</a>
+              </p>
+            {% endif %}
+            <div>
+              <hr>
+              {% if mode == 'trainee' %}
+                {% if user.qia_status == 'need_payment' %}
+                <a href="{% url 'dashboard_qia_application_pay' user.id %}" class="btn btn-primary">Pay Certificate</a>
+                {% endif %}
+              {% endif %}
+              {% if mode == 'review' %}
+                <a href="#" class="btn btn-primary mb-2" data-toggle="modal" data-target="#modal_approve">Notify Trainee to Make Payment</a>
+                <!-- Modal Reject -->
+                <form action="" method="POST">
+                  {% csrf_token %}
+                  <div class="modal fade" id="modal_approve" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Approve QIA Certificate</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <p class="mb-0">Are you sure you want to approve the QLASSIC Industry Certificate of this trainee?</p>
+                        </div>
+                        <div class="modal-footer">
+                          <div class="d-flex" style="place-items:center;">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" name="reject" class="btn btn-primary">Send</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              {% endif %}
             </div>
-            <div class="table-responsive py-4">    
-              <table class="table table-custom-simplified">
-                <thead class="thead-light">
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Application Type</th>
-                    <th>Application Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for aa in applications %}
-                  <tr>
-                    <th>{{ aa.user.name }}</th>
-                    <td>{{ aa.user.email }}</td>
-                    <td>{{ aa.get_application_type_display }}</td>
-                    <td>{{ aa.get_application_status_display }}</td>
-                    <td><a href="{% url 'dashboard_training_role_application_review' aa.id 'step-1' %}" class="btn btn-sm btn-info">Review</a></td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+          </div>
         </div>
       </div>
     </div>

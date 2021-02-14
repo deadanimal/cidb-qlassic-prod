@@ -254,6 +254,14 @@
                             </a>
                         </li>
                         {% endif %}
+                        {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' %}
+                        <li class="nav-item">
+                            <a href="{% url 'dashboard_qia_application_list' %}" class="nav-link">
+                            <span class="sidenav-mini-icon"> Q </span>
+                            <span class="sidenav-normal"> QIA Application </span>
+                            </a>
+                        </li>
+                        {% endif %}
                         {% if request.user.role == 'applicant' or request.user.role == 'trainee' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_training_feedback_list_trainee' %}" class="nav-link">

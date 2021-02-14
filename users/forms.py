@@ -42,6 +42,7 @@ class UserUpdateForm(ModelForm):
         exclude = (
             'code_id',
             'password',
+            'qia_status',
             'email',
             'last_login',
             'groups',

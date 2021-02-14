@@ -13,7 +13,7 @@ from users.forms import UserUpdateForm, WorkExperienceCreateForm, AcademicQualif
 from portal.forms import AnnouncementCreateForm, PublicationCreateForm, TrainingCreateForm
 
 # Models
-from users.models import WorkExperience, AcademicQualification
+from users.models import Assessor, WorkExperience, AcademicQualification
 from portal.models import Announcement, Publication, Training
 
 # Decorators
@@ -254,3 +254,7 @@ def dashboard_training_id(request, id):
 def certificate_role_application(request, id):
     role_application = get_object_or_404(RoleApplication, id=id)
     return redirect(role_application.accreditation_certificate_file.url)
+
+def certificate_qia(request, id):
+    assessor = get_object_or_404(Assessor,user__id=id)
+    return redirect(assessor.qia_certificate_file.url)
