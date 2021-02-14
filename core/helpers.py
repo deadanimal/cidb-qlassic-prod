@@ -145,11 +145,24 @@ def translate_day(str_date):
 
     return str_date
     
+import qrcode, io
+from core import settings
+
+def generate_and_save_qr(url, file):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=6,
+        border=0,
+    )
+    qr.add_data(url)
+    img_content = io.BytesIO(b'')
     
-
-
-
-
+    # the following line "saves" to a bytearray
+    qr.make_image().save(img_content, format='png')
+    print(type(img_content.seek(0)))
+    # saves to the FileField
+    file.save("qr_code.png", img_content)
 
 
 

@@ -3,6 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from trainings.models import RoleApplication
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -63,7 +64,7 @@ def dashboard_profile(request):
     
     if request.user.icno == None or request.user.icno == '':
         messages.warning(request,'Please update your profile to complete the registration.')
-        
+
     context = { 'form_user': form_user,'form_we':form_we,'form_aq':form_aq,'work_experiences':work_experiences,'academic_qualifications':academic_qualifications}
     return render(request, "dashboard/portal/profile.html", context)
 
@@ -249,3 +250,7 @@ def dashboard_training_id(request, id):
         return redirect('dashboard_training_id', id)
     context = {"training": training,'form_training':form_training}
     return render(request, "dashboard/portal/training_id.html", context)
+
+def certificate_role_application(request, id):
+    role_application = get_object_or_404(RoleApplication, id=id)
+    return redirect(role_application.accreditation_certificate_file.url)

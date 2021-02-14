@@ -52,7 +52,7 @@ from .helpers import (
 )
 from billings.helpers import payment_response_process
 
-from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment
+from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr
 from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
 from api.soap.create_transaction import create_transaction, payment_gateway_url
 
@@ -268,15 +268,24 @@ def dashboard_training_role_application_review(request, id, step):
 
                 # Get Session
                 session = ""
-                if application.time_from.hour < 12:
-                    session = "PAGI"
-                elif application.time_from.hour < 2:
-                    session = "TENGAH HARI"
+                if application.interview_time_from.hour < 12:
+                    session = "SESI PAGI"
+                elif application.interview_time_from.hour < 2:
+                    session = "SESI TENGAH HARI"
                 else:
-                    session = "PETANG"
+                    session = "SESI PETANG"
 
                 # Interview Letter
                 template_ctx = {
+                    'name': application.user.name,
+                    'company': application.user.organization,
+                    'address1': application.user.address1,
+                    'address2': application.user.address2,
+                    'postcode': application.user.postcode,
+                    'city': application.user.city,
+                    'state': application.user.state,
+                    'hp_no': application.user.hp_no,
+                    'fax_no': application.user.fax_no,
                     'date_now': translate_malay_date(standard_date(datetime.now())),
                     'date': translate_malay_date(standard_date(application.interview_date)),
                     'time_from': application.interview_time_from,
@@ -285,17 +294,20 @@ def dashboard_training_role_application_review(request, id, step):
                     'session': session,
                 }
                 if application.application_type == 'trainer':
-                    response = generate_document_file(request, 'trainer_interview_letter', template_ctx)
+                    response = generate_document_file(request, 'trainer_interview_letter', template_ctx, None)
                     application.interview_letter_file.save('pdf', response)
                 if application.application_type == 'qca':
-                    response = generate_document_file(request, 'qca_interview_letter', template_ctx)
+                    response = generate_document_file(request, 'qca_interview_letter', template_ctx, None)
                     application.interview_letter_file.save('pdf', response)
 
                 # Email
-                to = ['muhaafidz@gmail.com']
+                to = [application.user.email]
                 subject = "Interview Invitation"
                 attachments = [application.interview_letter_file.path]
-                send_email_with_attachment(subject, to, {}, 'email/interview-invitation.html', attachments)
+                email_ctx = {
+                    'application': application,
+                }
+                send_email_with_attachment(subject, to, email_ctx, 'email/role-application-interview.html', attachments)
         
                 messages.info(request, 'Successfully invite the applicant for interview session via email.')
         if 'reject' in request.POST:
@@ -321,29 +333,84 @@ def dashboard_training_role_application_review(request, id, step):
                 'location': application.interview_location,
             }
             if application.application_type == 'trainer':
-                response = generate_document_file(request, 'trainer_reject_letter', template_ctx)
-                application.interview_letter_file.save('pdf', response)
+                response = generate_document_file(request, 'trainer_reject_letter', template_ctx, None)
+                application.reject_letter_file.save('pdf', response)
             if application.application_type == 'qca':
-                response = generate_document_file(request, 'qca_reject_letter', template_ctx)
-                application.interview_letter_file.save('pdf', response)
+                response = generate_document_file(request, 'qca_reject_letter', template_ctx, None)
+                application.reject_letter_file.save('pdf', response)
 
             # Email
-
-            to = ['muhaafidz@gmail.com']
-            subject = "Role Application Result - " + application.get_application_type_display
-            attachments = [application.interview_letter_file.path]
-            send_email_with_attachment(subject, to, {}, 'email/interview-trainer-invitation.html', attachments)
+            to = [application.user.email]
+            subject = "Role Application Result - " + application.get_application_type_display()
+            attachments = [application.reject_letter_file.path]
+            email_ctx = {
+                'application': application,
+            }
+            send_email_with_attachment(subject, to, email_ctx, 'email/role-application-reject.html', attachments)
             messages.info(request, 'Successfully sent the rejection letter to applicant via email.')
         
         if 'accreditation' in request.POST:
-            application.application_status = 'approved'
-            application.save()
+            assessor_number = ""
+            
             if application.application_type == 'trainer':
-                Trainer.objects.create(user=application.user)
+                trainer, created = Trainer.objects.get_or_create(user=application.user)
+                user = application.user
+                user.role = 'trainer'
+                user.save()
             if application.application_type == 'qca':
                 assessor, created = Assessor.objects.get_or_create(user=application.user)
                 assessor.assessor_type = 'QCA'
                 assessor.save()
+                assessor_number = assessor.qca_id
+                user = application.user
+                user.role = 'assessor'
+                user.save()
+
+            application.application_status = 'approved'
+            if application.application_type == 'trainer':
+                application.accreditation_duration_year = request.POST["accreditation_duration_year"]
+                application.accreditation_duration_month = request.POST["accreditation_duration_month"]
+            application.save()
+            template_ctx = {
+                'name': application.user.name,
+                'ic': application.user.icno,
+                'assessor_number': assessor_number,
+                'company': application.user.organization,
+                'address1': application.user.address1,
+                'address2': application.user.address2,
+                'postcode': application.user.postcode,
+                'postcode': application.user.postcode,
+                'city': application.user.city,
+                'state': application.user.state,
+                'duration_year': application.accreditation_duration_year,
+                'duration_month': application.accreditation_duration_month,
+                'hp_no': application.user.hp_no,
+                'fax_no': application.user.fax_no,
+                'date_now': translate_malay_date(standard_date(datetime.now())),
+                'date_accreditation': translate_malay_date(standard_date(datetime.now())),
+            }
+            if application.application_type == 'trainer':
+                response_letter = generate_document_file(request, 'trainer_accreditation_letter', template_ctx, None)
+                application.accreditation_letter_file.save('pdf', response_letter)
+            if application.application_type == 'qca':
+                qr_path = request.build_absolute_uri('/certificate/role-application/'+str(application.id)+'/')
+                generate_and_save_qr(qr_path, application.certificate_qr_file)
+                response_letter = generate_document_file(request, 'qca_accreditation_letter', template_ctx, None)
+                response_certificate = generate_document_file(request, 'qca_accreditation_certificate', template_ctx, application.certificate_qr_file.path)
+                application.accreditation_letter_file.save('pdf', response_letter)
+                application.accreditation_certificate_file.save('pdf', response_certificate)
+
+            to = [application.user.email]
+            subject = "Role Application Result - " + application.get_application_type_display()
+            attachments = []
+            if application.application_type == 'trainer':
+                attachments = [application.accreditation_letter_file.path]
+            if application.application_type == 'qca':
+                attachments = [application.accreditation_letter_file.path,application.accreditation_certificate_file.path]
+            email_ctx = {
+                'application': application,
+            }
+            send_email_with_attachment(subject, to, email_ctx, 'email/role-application-accreditation.html', attachments)
 
             messages.info(request, 'Successfully approved the role application.')
 
@@ -800,7 +867,7 @@ def dashboard_training_attendance_review(request, id):
                         'company': attendance.user.organization,
                         'date': translate_malay_date(standard_date(datetime.now())),
                     }
-                    response = generate_training_document_file(request, training.training_type, template_ctx)
+                    response = generate_training_document_file(request, training.training_type, template_ctx, None)
                     attendance.certificate_file.save('pdf', response)
 
                 attendance.save()

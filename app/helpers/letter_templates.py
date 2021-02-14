@@ -39,7 +39,7 @@ def generate_document(request, template_type, context):
     response = docx_to_pdf_stream(lt, context)
     return response
 
-def generate_document_file(request, template_type, context):
+def generate_document_file(request, template_type, context, qr_url):
     letter_templates = LetterTemplate.objects.all().filter(template_type=template_type,is_active=True,training_type=None).order_by('-modified_date')
     lt = None
     if len(letter_templates) > 0:
@@ -48,7 +48,7 @@ def generate_document_file(request, template_type, context):
         messages.warning(request,'Letter template not found. Please insert the letter template and set it to active to generate the document.')
         return None
     
-    response = docx_to_pdf_file(lt, context)
+    response = docx_to_pdf_file(lt, context, qr_url)
     return response
 
 def generate_training_document(request, training_type, context):
@@ -63,7 +63,7 @@ def generate_training_document(request, training_type, context):
     response = docx_to_pdf_stream(lt, context)
     return response
 
-def generate_training_document_file(request, training_type, context):
+def generate_training_document_file(request, training_type, context, qr_url):
     letter_templates = LetterTemplate.objects.all().filter(training_type=training_type).order_by('-modified_date')
     lt = None
     if len(letter_templates) > 0:
@@ -72,6 +72,6 @@ def generate_training_document_file(request, training_type, context):
         messages.warning(request,'Letter template not found. Please insert the letter template and set it to active to generate the document.')
         return None
     
-    response = docx_to_pdf_file(lt, context)
+    response = docx_to_pdf_file(lt, context, qr_url)
     file_data = ContentFile(response.read())
     return file_data

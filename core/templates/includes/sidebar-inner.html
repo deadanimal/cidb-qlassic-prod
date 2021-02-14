@@ -169,7 +169,7 @@
                     </a>
                 </li>
                 {% endif %}
-                {% if request.user.role == 'applicant' or request.user.role == 'cidb_reviewer' or request.user.role == 'trainer' or request.user.role == 'trainee' or request.user.role == 'superadmin' %}
+                {% if request.user.role == 'applicant' or request.user.role == 'assessor' or request.user.role == 'cidb_reviewer' or request.user.role == 'trainer' or request.user.role == 'trainee' or request.user.role == 'superadmin' %}
                 <li class="nav-item">
                     <a class="nav-link" href="#navbar-training" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="navbar-dashboards">
                         <i class="fas fa-user-tie text-primary"></i>
@@ -230,12 +230,14 @@
                             <span class="sidenav-normal dropdown-header ml--4">Join Training</span>
                             </div>
                         </li>
+                        {% if request.user.role == 'superadmin' or request.user.role == 'trainer' or request.user.role == 'applicant' or request.user.role == 'trainee' or request.user.role == 'cidb_reviewer' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_available_training_list' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> L </span>
                             <span class="sidenav-normal"> List of Training </span>
                             </a>
                         </li>
+                        {% endif %}
                         {% if request.user.role == 'superadmin' or request.user.role == 'trainer' or request.user.role == 'applicant' or request.user.role == 'trainee' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_joined_training_list' %}" class="nav-link">

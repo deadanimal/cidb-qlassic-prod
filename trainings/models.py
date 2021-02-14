@@ -61,9 +61,17 @@ class RoleApplication(models.Model):
     interview_time_from = models.TimeField(null=True,blank=True)
     interview_time_to = models.TimeField(null=True,blank=True)
     interview_location = models.TextField(null=True,blank=True, max_length=2000)
-    interview_letter_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Interview Letter')
     interview_sent = models.BooleanField(null=True, default=False)
 
+    accreditation_duration_month = models.IntegerField(null=True,blank=True)
+    accreditation_duration_year = models.IntegerField(null=True,blank=True)
+    
+    interview_letter_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Interview Letter')
+    reject_letter_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Rejection Letter')
+    accreditation_letter_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Accreditation Letter')
+    accreditation_certificate_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('interview_letter'), verbose_name='Accreditation Certificate')
+    certificate_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('interview_letter/qr/'), verbose_name='QR File')
+    
     reviewed_by = models.CharField(null=True, max_length=255)
     approved_by = models.CharField(null=True, max_length=255)
     remarks = models.CharField(null=True, max_length=255)
