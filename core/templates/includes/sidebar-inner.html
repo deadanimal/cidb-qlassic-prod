@@ -184,12 +184,14 @@
                             <span class="sidenav-normal dropdown-header ml--4">Trainer/QIA/QCA Application</span>
                             </div>
                         </li>
+                        {% if request.user.role == 'trainer' or request.user.role == 'trainee' or request.user.role == 'applicant' or request.user.role == 'assessor' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_training_application_dashboard' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> D </span>
                             <span class="sidenav-normal"> Dashboard </span>
                             </a>
                         </li>
+                        {% endif %}
                         {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' %}
                         <li class="nav-item">
                             <a href="{% url 'dashboard_training_role_application_list' %}" class="nav-link">

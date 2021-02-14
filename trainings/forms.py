@@ -2,7 +2,7 @@ from django.forms import ModelForm
 from django import forms
 
 from .models import (
-    Training, 
+    RoleApplication, Training, 
     RegistrationTraining, 
     Coach, 
     TrainingType,
@@ -109,4 +109,14 @@ class FeedbackCreateForm(ModelForm):
         fields = {
             'description_1',
             'description_2',
+        }
+
+class RoleApplicationInterviewForm(ModelForm):
+    class Meta:
+        model = RoleApplication
+        fields = {
+            'interview_date',
+            'interview_time_from',
+            'interview_time_to',
+            'interview_location',
         }

@@ -36,6 +36,7 @@ from .forms import (
     RegistrationTrainingCreateForm,
     RegistrationTrainingReviewForm,
     FeedbackCreateForm,
+    RoleApplicationInterviewForm,
 )
 
 # Helpers
@@ -154,7 +155,10 @@ def dashboard_training_application_new(request, application_type, step):
                 return redirect('dashboard_training_application_new', application_type, step)
 
             if 'submit' in request.POST:
-                application.application_status = 'pending'
+                if application_type == 'trainer':
+                    application.application_status = 'pending'
+                if application_type == 'qca':
+                    application.application_status = 'need_payment'
                 # generate_role_application_number(application)
                 application.save()
 
@@ -178,14 +182,63 @@ def dashboard_training_application_new(request, application_type, step):
     return render(request, "dashboard/training/role_application_form.html", context)
 
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor'])
+def dashboard_role_application_pay(request, id):
+    mode = 'payment'
+    ra = get_object_or_404(RoleApplication, id=id)
+    response = create_transaction(request, 1000, 0, 'QLC-PUP', ra.application_number, request.user)
+    proforma = response.Code
+    
+    # Create Payment
+    payment, created = Payment.objects.get_or_create(order_id=proforma)
+    payment.user = request.user
+    payment.customer_name = request.user.name
+    payment.customer_email = request.user.email
+    payment.ra = ra
+    payment.currency = 'MYR'
+    payment.payment_amount = ra.training.fee
+    payment.save()
+
+    context = {
+        'title': 'Payment - QLASSIC CIDB Assessor Application',
+        'mode': mode,
+        'ra': ra,
+        'proforma': proforma,
+        'response': response,
+        'url': payment_gateway_url,
+    }
+    return render(request, "dashboard/training/enroll_training.html", context)
+
+@csrf_exempt
+def dashboard_role_application_pay_response(request, id):
+    mode = 'payment_response'
+    payment = None
+    ra = get_object_or_404(RoleApplication, id=id)
+    if request.method == 'POST':
+        payment = payment_response_process(request)
+        if payment.payment_status == 1:
+            ra.status = 'accepted'
+            ra.save()
+    context = {
+        'title': 'Payment Response - QLASSIC CIDB Assessor Application',
+        'mode': mode,
+        'ra': ra,
+        'payment': payment,
+    }
+    return render(request, "dashboard/training/enroll_training.html", context)
+
+
+@login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin', 'cidb_reviewer'])
 def dashboard_training_role_application_review(request, id, step):
     application = get_object_or_404(RoleApplication, id=id)
+    interview_form = RoleApplicationInterviewForm()
     context = {
         'review': True,
         'id': id,
         'application': application,
         'mode': step,
+        'interview_form':interview_form,
     }
 
     if step == 'step-2':
@@ -201,74 +254,90 @@ def dashboard_training_role_application_review(request, id, step):
         joined_trainings = JoinedTraining.objects.all().filter(user=request.user)
         context['registration_trainings'] = registration_trainings
         context['joined_trainings'] = joined_trainings
-        # if request.method == 'POST':
-        #     if 'add' in request.POST:
-        #         jt_year = request.POST['year']
-        #         jt_course = request.POST['course']
-        #         jt_place = request.POST['place']
-        #         jt = JoinedTraining.objects.create(user=request.user, year=jt_year, course=jt_course, place=jt_place)
-        #         messages.info(request, 'Added the joined training info.')
-        #     if 'delete' in request.POST:
-        #         jt_id = request.POST['id']
-        #         jt = JoinedTraining.objects.get(id=jt_id)
-        #         jt.delete()
-        #         messages.info(request, 'Deleted the joined training.')
-        #     return redirect('dashboard_training_application_new', application_type, step)
 
     if step == 'step-5':
         work_experiences = WorkExperience.objects.all().filter(user=request.user)
         context['supporting_documents'] = get_role_application_supporting_documents(application)
-        # if request.method == 'POST':
-        #     save_role_application_supporting_documents(request, application)
-        #     if 'save' in request.POST:
-        #         return redirect('dashboard_training_application_new', application_type, step)
-        #     if 'submit' in request.POST:
-        #         application.application_status = 'pending'
-        #         # generate_role_application_number(application)
-        #         application.save()
-        #         return redirect('dashboard_training_application_dashboard')
 
     if request.method == "POST":
         if 'interview' in request.POST:
             # Save Data
-            date = request.POST['date']
-            time_from = request.POST['time_from']
-            time_to = request.POST['time_to']
-            location = request.POST['location']
-            application.interview_date = date
-            application.interview_time_from = time_from
-            application.interview_time_to = time_to
-            application.interview_location = location
-            application.application_status = 'interview_invitation'
+            interview_form = RoleApplicationInterviewForm(request.POST, instance=application)
+            if interview_form.is_valid():
+                application = interview_form.save()
+                application.application_status = 'interview_invitation'
+                application.reviewed_by = request.user.name
+                application.save()
+
+                # Get Session
+                session = ""
+                if application.time_from.hour < 12:
+                    session = "PAGI"
+                elif application.time_from.hour < 2:
+                    session = "TENGAH HARI"
+                else:
+                    session = "PETANG"
+
+                # Interview Letter
+                template_ctx = {
+                    'date_now': translate_malay_date(standard_date(datetime.now())),
+                    'date': translate_malay_date(standard_date(application.interview_date)),
+                    'time_from': application.interview_time_from,
+                    'time_to': application.interview_time_to,
+                    'location': application.interview_location,
+                    'session': session,
+                }
+                if application.application_type == 'trainer':
+                    response = generate_document_file(request, 'trainer_interview_letter', template_ctx)
+                    application.interview_letter_file.save('pdf', response)
+                if application.application_type == 'qca':
+                    response = generate_document_file(request, 'qca_interview_letter', template_ctx)
+                    application.interview_letter_file.save('pdf', response)
+
+                # Email
+                to = ['muhaafidz@gmail.com']
+                subject = "Interview Invitation"
+                attachments = [application.interview_letter_file.path]
+                send_email_with_attachment(subject, to, {}, 'email/interview-invitation.html', attachments)
+        
+                messages.info(request, 'Successfully invite the applicant for interview session via email.')
+        if 'reject' in request.POST:
+            application.application_status = 'reject'
             application.reviewed_by = request.user.name
             application.save()
-
-            # Create Letter Template
 
             # Interview Letter
             template_ctx = {
                 'name': application.user.name,
-                'ic': application.user.icno,
                 'company': application.user.organization,
-                'date': translate_malay_date(standard_date(datetime.now())),
+                'address1': application.user.address1,
+                'address2': application.user.address2,
+                'postcode': application.user.postcode,
+                'city': application.user.city,
+                'state': application.user.state,
+                'hp_no': application.user.hp_no,
+                'fax_no': application.user.fax_no,
+                'date_now': translate_malay_date(standard_date(datetime.now())),
+                'date': translate_malay_date(standard_date(application.interview_date)),
+                'time_from': application.interview_time_from,
+                'time_to': application.interview_time_to,
+                'location': application.interview_location,
             }
             if application.application_type == 'trainer':
-                response = generate_document_file(request, 'interview_trainer', template_ctx)
+                response = generate_document_file(request, 'trainer_reject_letter', template_ctx)
                 application.interview_letter_file.save('pdf', response)
             if application.application_type == 'qca':
-                response = generate_document_file(request, 'interview_qca', template_ctx)
+                response = generate_document_file(request, 'qca_reject_letter', template_ctx)
                 application.interview_letter_file.save('pdf', response)
 
             # Email
+
             to = ['muhaafidz@gmail.com']
-            subject = "Interview Invitation"
+            subject = "Role Application Result - " + application.get_application_type_display
             attachments = [application.interview_letter_file.path]
-            messages.info(request, 'Successfully delivered an email to trainer(s).')
             send_email_with_attachment(subject, to, {}, 'email/interview-trainer-invitation.html', attachments)
-      
-            
-        if 'reject' in request.POST:
-            pass
+            messages.info(request, 'Successfully sent the rejection letter to applicant via email.')
+        
         if 'accreditation' in request.POST:
             pass
 
