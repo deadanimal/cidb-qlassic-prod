@@ -341,7 +341,7 @@ def dashboard_training_role_application_review(request, id, step):
             if application.application_type == 'trainer':
                 Trainer.objects.create(user=application.user)
             if application.application_type == 'qca':
-                assessor, created = Assessor.get_or_create(user=application.user)
+                assessor, created = Assessor.objects.get_or_create(user=application.user)
                 assessor.assessor_type = 'QCA'
                 assessor.save()
 
