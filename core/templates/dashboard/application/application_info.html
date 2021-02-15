@@ -615,12 +615,12 @@
                   </div>
                   <div class="form-group">
                     <label for="input_file">Proposed date - by CASC Reviewer</label>
-                    <input type="date" value="{{ qaa.proposed_date }}" class="dateinput form-control" required="" readonly>
+                    <input type="text" value="{{ qaa.proposed_date }}" class="dateinput form-control" required="" readonly>
                   </div>
                   {{ form_verify.remarks2|as_crispy_field }}
                   <div class="form-group">
                     <label for="input_file">Proposed date - by CASC Verifier</label>
-                    <input type="date" name="assessment_date" value="{{ qaa.proposed_date }}" class="dateinput form-control" required="">
+                    <input type="text" name="assessment_date" value="{{ qaa.proposed_date }}" class="dateinput form-control" required="">
                   </div>
                 {% endif %}
 
