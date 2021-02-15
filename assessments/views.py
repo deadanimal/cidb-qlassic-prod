@@ -334,7 +334,7 @@ def dashboard_application_new_3(request, contractor_registration_number, id):
                 'qaa': qaa,
                 'user': request.user,
             }
-            to = [request.user.name]
+            to = [request.user.email]
             send_email_default(subject, to, context, 'email/qaa-sent.html')
             
             # Email send to reviewer
@@ -474,7 +474,7 @@ def dashboard_application_review(request, id):
                 'qaa': qaa,
                 'user': request.user,
             }
-            to = [request.user.name]
+            to = [request.user.email]
             send_email_default(subject, to, context, 'email/qaa-rejected.html')
 
             return redirect('dashboard_application_list')
@@ -565,7 +565,7 @@ def dashboard_application_verify(request, id):
                 'qaa': qaa,
                 'user': request.user,
             }
-            to = [request.user.name]
+            to = [request.user.email]
             send_email_default(subject, to, context, 'email/qaa-rejected.html')
 
             return redirect('dashboard_application_list')
