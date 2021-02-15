@@ -2,6 +2,7 @@ import uuid
 import os
 import datetime
 from django.core.mail import EmailMessage
+from django.contrib.sites.shortcuts import get_current_site
 
 from django.utils.deconstruct import deconstructible
 
@@ -164,8 +165,8 @@ def generate_and_save_qr(url, file):
     # saves to the FileField
     file.save("qr_code.png", img_content)
 
-
-
-
+def get_domain(request):
+    current_site = get_current_site(request)
+    return 'http://' + current_site.domain
 
 

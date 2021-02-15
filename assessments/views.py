@@ -18,7 +18,7 @@ from api.soap.create_transaction import create_transaction, payment_gateway_url
 from billings.helpers import payment_response_process
 from billings.models import Payment
 
-from core.helpers import get_state_code, get_sector_code, send_email_default
+from core.helpers import get_state_code, get_sector_code, send_email_default, get_domain
 
 # Forms
 from users.forms import UserUpdateForm
@@ -679,7 +679,7 @@ def dashboard_application_payment(request, id):
     response = create_transaction(request, 1000, 0, 'QLC', qaa.qaa_number, request.user)
     proforma = response.Code
     
-    response_url = request.build_absolute_uri('/dashboard/application/payment/'+id+'/response/')
+    response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
 
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)

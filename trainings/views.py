@@ -52,7 +52,7 @@ from .helpers import (
 )
 from billings.helpers import payment_response_process
 
-from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr
+from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr, get_domain
 from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
 from api.soap.create_transaction import create_transaction, payment_gateway_url
 
@@ -542,7 +542,8 @@ def dashboard_joined_training_pay(request, id):
     response = create_transaction(request, rt.training.fee, 0, 'QLC-PUP', rt.code_id, request.user)
     proforma = response.Code
     
-    response_url = request.build_absolute_uri('/dashboard/training/joined/payment/'+id+'/response/')
+    
+    response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
 
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
@@ -1066,7 +1067,7 @@ def dashboard_qia_application_pay(request, id):
     response = create_transaction(request, amount, 0, 'QLC-PUP', 'QIA-'+user.code_id, request.user)
     proforma = response.Code
 
-    response_url = request.build_absolute_uri('/dashboard/training/qia/application/payment/'+id+'/response/')
+    response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
     
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
