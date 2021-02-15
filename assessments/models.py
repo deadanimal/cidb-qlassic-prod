@@ -158,6 +158,13 @@ class QlassicAssessmentApplication(models.Model):
    
     def __str__(self):
         return "%s - %s" % (self.created_date, self.qaa_number)
+    
+    def get_amount(self):
+        multiply = self.no_of_blocks
+        if multiply == None:
+            return 1000.00
+        else:
+            return 1000.00 * multiply
 
 class Component(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

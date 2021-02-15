@@ -201,13 +201,17 @@ def test_create_transaction(request):
 #     return middleware_response_json['soap11:Envelope']['soap11`:Body']['CreateTransactionResponse']
 
 # Create Transaction
-def create_transaction(request, amount, tax, kod_hasil, ref_id, user):
+def create_transaction(request, amount, quantity, tax, kod_hasil, description, ref_id, user):
     ## Notes
     # KOD HASIL : QLC - assessment, QLC-PUP - training
 
     wsdl = create_transaction_wsdl
 
-    total_amount = tax + amount
+    unit_amout = amount
+    unit_amout_with_tax = amount + tax
+    total_amount = unit_amout_with_tax * quantity
+    total_tax = tax * quantity
+
     history = HistoryPlugin()
     client = Client(wsdl,plugins=[history])
     now_date = datetime.datetime.now()
@@ -228,7 +232,7 @@ def create_transaction(request, amount, tax, kod_hasil, ref_id, user):
             'Amount': total_amount,
             'AmountDec': 2,
             'DiscountAmount': 0,
-            'Tax': tax,
+            'Tax': total_tax,
             'TaxDec': 2,
             'SMISRefId': ref_id,
             'CreatedBy': 'Admin',
@@ -252,20 +256,20 @@ def create_transaction(request, amount, tax, kod_hasil, ref_id, user):
                     'DiscountAmount': 0,
                     'DiscountPer': 0,
                     'KodHasil': kod_hasil,
-                    'Qty': 1,
-                    'QtyAmount': amount,
+                    'Qty': quantity,
+                    'QtyAmount': unit_amout,
                     'QtyAmountDec': 2,
-                    'UnitPrice': amount,
+                    'UnitPrice': unit_amout,
                     'UnitPriceDec': 2,
                     'TaxCode': kod_hasil,
                     'TaxPerAmount': tax,
                     'TaxPerAmountDec': 2,
                     'TaxAmount': tax,
                     'TaxAmountDec': 2,
-                    'Amount': total_amount,
+                    'Amount': unit_amout_with_tax,
                     'AmountDec': 2,
                     'CMISRefId': ref_id,
-                    'Description': 'PERMOHONAN PENILAIAN QLASSIC',
+                    'Description': description,
                 }]
             }
         }

@@ -676,7 +676,7 @@ def dashboard_application_list(request):
 def dashboard_application_payment(request, id):
     mode = 'payment'
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    response = create_transaction(request, 1000, 0, 'QLC', qaa.qaa_number, request.user)
+    response = create_transaction(request, qaa.get_amount(), 1, 0, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
     proforma = response.Code
     
     response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
@@ -688,7 +688,7 @@ def dashboard_application_payment(request, id):
     payment.customer_email = request.user.email
     payment.qaa = qaa
     payment.currency = 'MYR'
-    payment.payment_amount = 1000
+    payment.payment_amount = qaa.get_amount()
     payment.save()
 
     context = {

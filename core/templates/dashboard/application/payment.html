@@ -62,7 +62,7 @@
                     <input type="hidden" name="ClientRef9" value="">
                     <div class="form-group">
                         <label for="">Amount (MYR)</label>
-                        <input type="text" name="Amount" value="1000.00" readonly required>
+                        <input type="text" name="Amount" value="{{ qaa.get_amount|floatformat:2 }}" readonly required>
                     </div>
                     <div class="form-group">
                         <label for="">Customer Name</label>

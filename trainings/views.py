@@ -539,7 +539,7 @@ def dashboard_joined_training_list(request):
 def dashboard_joined_training_pay(request, id):
     mode = 'payment'
     rt = get_object_or_404(RegistrationTraining, id=id)
-    response = create_transaction(request, rt.training.fee, 0, 'QLC-PUP', rt.code_id, request.user)
+    response = create_transaction(request, rt.training.fee, 1, 0, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
     proforma = response.Code
     
     
@@ -1064,7 +1064,7 @@ def dashboard_qia_application_pay(request, id):
     mode = 'payment'
     user = get_object_or_404(CustomUser, id=id)
     amount = 50
-    response = create_transaction(request, amount, 0, 'QLC-PUP', 'QIA-'+user.code_id, request.user)
+    response = create_transaction(request, amount, 1, 0, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
     proforma = response.Code
 
     response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
