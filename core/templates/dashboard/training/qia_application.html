@@ -72,7 +72,7 @@
             </div>
             <div class="card-body">
               <form action="{{ url }}" method="POST">
-                <input type="hidden" name="ClientReturnURL" value="{{ request.scheme }}://{{ request.get_host }}{% url 'dashboard_qia_application_pay_response' user.id %}">
+                <input type="hidden" name="ClientReturnURL" value="{{ response_url }}">
                 <input type="hidden" name="IcOrRoc" value="{{ user.code_id }}">
                 <input type="hidden" name="OrderID" value="{{ proforma }}">
                 <input type="hidden" name="Currency" value="MYR">

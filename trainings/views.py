@@ -542,6 +542,8 @@ def dashboard_joined_training_pay(request, id):
     response = create_transaction(request, rt.training.fee, 0, 'QLC-PUP', rt.code_id, request.user)
     proforma = response.Code
     
+    response_url = request.build_absolute_uri('/dashboard/training/joined/payment/'+id+'/response/')
+
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
     payment.user = request.user
@@ -559,6 +561,7 @@ def dashboard_joined_training_pay(request, id):
         'proforma': proforma,
         'response': response,
         'url': payment_gateway_url,
+        'response_url': response_url,
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
@@ -1062,6 +1065,8 @@ def dashboard_qia_application_pay(request, id):
     amount = 50
     response = create_transaction(request, amount, 0, 'QLC-PUP', 'QIA-'+user.code_id, request.user)
     proforma = response.Code
+
+    response_url = request.build_absolute_uri('/dashboard/training/qia/application/payment/'+id+'/response/')
     
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
@@ -1080,6 +1085,7 @@ def dashboard_qia_application_pay(request, id):
         'amount': amount,
         'response': response,
         'url': payment_gateway_url,
+        'response_url': response_url,
     }
     return render(request, "dashboard/training/qia_application.html", context)
 

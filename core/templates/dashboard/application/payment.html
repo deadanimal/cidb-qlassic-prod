@@ -45,7 +45,7 @@
                     <h4 class="mb-0">{{ qaa.pi.project_title }}</h4>
                     <hr>
                     <form action="{{ url }}" method="POST">
-                    <input type="hidden" name="ClientReturnURL" value="{{ request.scheme }}://{{ request.get_host }}{% url 'dashboard_application_payment_response' qaa.id %}">
+                    <input type="hidden" name="ClientReturnURL" value="{{ response_url }}">
                     <input type="hidden" name="IcOrRoc" value="{{ request.user.code_id }}">
                     <input type="hidden" name="OrderID" value="{{ proforma }}">
                     <input type="hidden" name="Currency" value="MYR">

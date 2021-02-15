@@ -679,6 +679,8 @@ def dashboard_application_payment(request, id):
     response = create_transaction(request, 1000, 0, 'QLC', qaa.qaa_number, request.user)
     proforma = response.Code
     
+    response_url = request.build_absolute_uri('/dashboard/application/payment/'+id+'/response/')
+
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
     payment.user = request.user
@@ -696,6 +698,7 @@ def dashboard_application_payment(request, id):
         'proforma': proforma,
         'response': response,
         'url': payment_gateway_url,
+        'response_url': response_url,
     }
     return render(request, "dashboard/application/payment.html",context)
 
