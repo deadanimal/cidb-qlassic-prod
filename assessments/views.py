@@ -707,7 +707,7 @@ def dashboard_application_payment_response(request, id):
     if request.method == 'POST':
         payment = payment_response_process(request)
         if payment.payment_status == 1:
-            qaa.status = 'verified'
+            qaa.application_status = 'verified'
             qaa.save()
             messages.info(request, 'Payment is successful. Your application will be reviewed soon.')
             
