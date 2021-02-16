@@ -22,7 +22,7 @@ from .views import (
 
 )
 
-from api.soap.create_transaction import test_create_transaction
+# from api.soap.create_transaction import test_create_transaction
 from api.soap.get_contractor import test_request_contractor
 
 from .schedulers import start_jobs
@@ -52,8 +52,8 @@ urlpatterns = [
     url('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
     
     # SOAP
-    path('soap/create-transaction/', views.test_create_transaction, name='soap_test_create_transaction'),
-    path('soap/contractor/', test_request_contractor, name='soap_contractor'),
+    # path('soap/create-transaction/', views.test_create_transaction, name='soap_test_create_transaction'),
+    # path('soap/contractor/', test_request_contractor, name='soap_contractor'),
 ]
 
 # CRON JOBS

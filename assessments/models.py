@@ -336,7 +336,7 @@ class SuggestedAssessor(models.Model):
     modified_by = models.CharField(null=True, max_length=50)
    
     def __str__(self):
-        return self.assessor_no
+        return str(self.id)
 
 class AssignedAssessor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

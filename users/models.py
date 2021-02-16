@@ -90,6 +90,7 @@ class CustomUser(AbstractUser):
     ]
     qia_status = models.CharField(
         null=True,
+        blank=True,
         default='',
         choices=QIA_STATUS,
         max_length=50

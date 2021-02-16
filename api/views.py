@@ -192,9 +192,9 @@ class UserViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 #     # result = client.service.Search(**request_data, _soapheaders=header_value)
 #     return HttpResponse('SOAP')
 
-from .soap.create_transaction import create_transaction
+# from .soap.create_transaction import create_transaction
 
-def test_create_transaction(request):
-    response = create_transaction(request, 1000, 6, 'QLC', '10001', request.user)
-    print(response.Code)
-    return HttpResponse(str(response))
+# def test_create_transaction(request):
+#     response = create_transaction(request, 1000, 6, 'QLC', '10001', request.user)
+#     print(response.Code)
+#     return HttpResponse(str(response))
