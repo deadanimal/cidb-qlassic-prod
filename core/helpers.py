@@ -167,6 +167,9 @@ def generate_and_save_qr(url, file):
 
 def get_domain(request):
     current_site = get_current_site(request)
-    return request.scheme + '://' + current_site.domain
+    if request.is_secure():
+        return 'https://' + current_site.domain
+    else:
+        return 'http://' + current_site.domain
 
 
