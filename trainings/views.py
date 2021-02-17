@@ -573,9 +573,14 @@ def dashboard_joined_training_pay_response(request, id):
     rt = get_object_or_404(RegistrationTraining, id=id)
     if request.method == 'POST':
         payment = payment_response_process(request)
-        if payment.payment_status == 1:
-            rt.status = 'accepted'
-            rt.save()
+        if payment != None:   
+            if payment.payment_status == 1:
+                rt.status = 'accepted'
+                rt.save()
+            else:
+                messages.warning(request, 'Payment unsuccessful. Please try again.')
+        else:
+            messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     context = {
         'title': 'Payment Response - Joined Training',
         'mode': mode,
@@ -1097,37 +1102,42 @@ def dashboard_qia_application_pay_response(request, id):
     user = get_object_or_404(CustomUser, id=id)
     if request.method == 'POST':
         payment = payment_response_process(request)
-        if payment.payment_status == 1:
-            user.qia_status = 'accepted'
-            user.save()
-            assessor, created = Assessor.objects.get_or_create(user=user)
-            assessor.assessor_type = 'QIA'
-            assessor.save()
-            # Generate QR
-            qr_path = request.build_absolute_uri('/certificate/qia/'+str(user.id)+'/')
-            generate_and_save_qr(qr_path, assessor.qia_certificate_qr_file)
+        if payment != None:
+            if payment.payment_status == 1:
+                user.qia_status = 'accepted'
+                user.save()
+                assessor, created = Assessor.objects.get_or_create(user=user)
+                assessor.assessor_type = 'QIA'
+                assessor.save()
+                # Generate QR
+                qr_path = request.build_absolute_uri('/certificate/qia/'+str(user.id)+'/')
+                generate_and_save_qr(qr_path, assessor.qia_certificate_qr_file)
 
-            # Cert Generation
-            template_ctx = {
-                'name': user.name,
-                'ic': user.icno,
-                'assessor_number': assessor.qia_id,
-                'date_accreditation': translate_malay_date(standard_date(datetime.now())),
-            }
-            response = generate_document_file(request, 'qia_accreditation_certificate', template_ctx, assessor.qia_certificate_qr_file.path)
-            assessor.qia_certificate_file.save('pdf', response)
-            
-            # Email
-            to = [user.email]
-            subject = "QLASSIC Industry Application Successful"
-            attachments = [assessor.qia_certificate_file.path]
-            email_ctx = {
-                'assessor': assessor,
-                'user': user,
-            }
-            send_email_with_attachment(subject, to, email_ctx, 'email/training-qia-accreditation.html', attachments)
+                # Cert Generation
+                template_ctx = {
+                    'name': user.name,
+                    'ic': user.icno,
+                    'assessor_number': assessor.qia_id,
+                    'date_accreditation': translate_malay_date(standard_date(datetime.now())),
+                }
+                response = generate_document_file(request, 'qia_accreditation_certificate', template_ctx, assessor.qia_certificate_qr_file.path)
+                assessor.qia_certificate_file.save('pdf', response)
+                
+                # Email
+                to = [user.email]
+                subject = "QLASSIC Industry Application Successful"
+                attachments = [assessor.qia_certificate_file.path]
+                email_ctx = {
+                    'assessor': assessor,
+                    'user': user,
+                }
+                send_email_with_attachment(subject, to, email_ctx, 'email/training-qia-accreditation.html', attachments)
 
-            messages.info(request, 'You are successfully certified as QLASSIC Industry Assessor.')
+                messages.info(request, 'You are successfully certified as QLASSIC Industry Assessor.')
+            else:
+                messages.warning(request, 'Payment unsuccessful. Please try again.')
+        else:
+            messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     context = {
         'title': 'Payment Response - QLASSIC Industry Assessor Certificate',
         'mode': mode,

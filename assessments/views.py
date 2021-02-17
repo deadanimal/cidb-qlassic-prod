@@ -709,38 +709,41 @@ def dashboard_application_payment_response(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     if request.method == 'POST':
         payment = payment_response_process(request)
-        if payment.payment_status == 1:
-            qaa.application_status = 'verified'
-            qaa.save()
-            messages.info(request, 'Payment is successful. Your application will be reviewed soon.')
+        if payment != None:
+            if payment.payment_status == 1:
+                qaa.application_status = 'verified'
+                qaa.save()
+                messages.info(request, 'Payment is successful. Your application will be reviewed soon.')
+                
+                # Email
+                reviewers = CustomUser.objects.all().filter(role='casc_reviewer')
+                to = []
+                for reviewer in reviewers:
+                    to.append(reviewer.email)
+                subject = "New Transaction for QLASSIC Assessment Application - " + qaa.qaa_number
+                ctx_email = {
+                    'qaa':qaa,
+                    'payment':payment,
+                }
+                send_email_default(subject, to, ctx_email, 'email/qaa-payment-response.html')
             
-            # Email
-            reviewers = CustomUser.objects.all().filter(role='casc_reviewer')
-            to = []
-            for reviewer in reviewers:
-                to.append(reviewer.email)
-            subject = "New Transaction for QLASSIC Assessment Application - " + qaa.qaa_number
-            ctx_email = {
-                'qaa':qaa,
-                'payment':payment,
-            }
-            send_email_default(subject, to, ctx_email, 'email/qaa-payment-response.html')
-        
-            # Email CASC Verifier
-            verifiers = CustomUser.objects.all().filter(
-                Q(role='casc_verifier')|
-                Q(role='superadmin')
-            )
-            to = []
-            for verifier in verifiers:
-                to.append(verifier.email)
-            subject = "Assessor Assignation - " + qaa.qaa_number
-            ctx_email = {
-                'qaa':qaa,
-            }
-            send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
+                # Email CASC Verifier
+                verifiers = CustomUser.objects.all().filter(
+                    Q(role='casc_verifier')|
+                    Q(role='superadmin')
+                )
+                to = []
+                for verifier in verifiers:
+                    to.append(verifier.email)
+                subject = "Assessor Assignation - " + qaa.qaa_number
+                ctx_email = {
+                    'qaa':qaa,
+                }
+                send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
+            else:
+                messages.warning(request, 'Payment unsuccessful. Please try again.')
         else:
-            messages.warning(request, 'Payment unsuccessful. Please try again.')
+            messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction')
     context = {
         'title': 'Payment Response - QLASSIC Assessment Application',
         'mode': mode,
