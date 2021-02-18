@@ -22,10 +22,14 @@ router = NestedDefaultRouter()
 
 # Users app
 from users.views_api import (
-    CustomUserViewSet
+    CustomUserViewSet,
+    AssessorViewSet
 )
 users_router = router.register(
     'users', CustomUserViewSet
+)
+users_router = router.register(
+    'assessors', AssessorViewSet
 )
 
 # Wire up our API using automatic URL routing.

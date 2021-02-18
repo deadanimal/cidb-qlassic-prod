@@ -10,7 +10,8 @@ from django.utils.timezone import now
 #from api.settings import AWS_S3_ENDPOINT_URL, AWS_STORAGE_BUCKET_NAME
 
 from .models import (
-    CustomUser
+    CustomUser,
+    Assessor,
 )
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -20,9 +21,20 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = (
             'name', 
             'email', 
-            'icno',
             'created_date',
             'is_active'
+        )
+        read_only_fields = ('email', 'id')
+
+
+class AssessorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Assessor
+        fields = (
+            'user', 
+            'assessor_no', 
+            'created_date'
         )
         read_only_fields = ('email', 'id')
 

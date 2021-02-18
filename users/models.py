@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code_id = models.CharField(null=True,blank=True, max_length=50)
 
-    icno = models.CharField(null=True, max_length=14, verbose_name='Identity Card Number')
+    icno = models.CharField(null=True, unique=True, max_length=14, verbose_name='Identity Card Number')
     name = models.CharField(null=True, max_length=100)
 
     GENDER = [
@@ -145,6 +145,13 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+    
+    def is_assessor(self):
+        assessor = Assessor.objects.all().filter(user=self)
+        if len(assessor) > 0:
+            return True
+        else:
+            return False
 
 
 # @receiver(post_save, sender=SubComponent)
