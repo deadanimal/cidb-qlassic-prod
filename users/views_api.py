@@ -12,6 +12,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -40,15 +41,15 @@ class CustomUserViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_fields = [
-        'user_type',
+        'role',
         'is_active'
     ]
 
     def get_permissions(self):
         if self.action == 'list':
-            permission_classes = [AllowAny]
+            permission_classes = [AllowAny] #IsAuthenticated
         else:
-            permission_classes = [AllowAny]
+            permission_classes = [IsAuthenticated]
 
         return [permission() for permission in permission_classes]    
 
