@@ -113,7 +113,7 @@ class UserViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         if self.action == 'list':
             permission_classes = [AllowAny]
         else:
-            permission_classes = [AllowAny]
+            permission_classes = [IsAuthenticated]
 
         return [permission() for permission in permission_classes]    
     
