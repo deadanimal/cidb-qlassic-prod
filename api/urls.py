@@ -31,6 +31,10 @@ users_router = router.register(
 users_router = router.register(
     'assessors', AssessorViewSet
 )
+# Is Alive
+from users.views_api import (
+    IsAlive,
+)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -40,6 +44,7 @@ urlpatterns = [
     url(r'auth/', include('rest_auth.urls')),
     url(r'auth/registration/', include('rest_auth.registration.urls')),
 
+    url('isAlive/', IsAlive.as_view(), name='isAlive'),
     url('auth/obtain/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     url('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     url('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),

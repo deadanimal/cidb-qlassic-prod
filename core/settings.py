@@ -274,6 +274,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1',
     'https://103.245.90.20',
     'https://10.10.128.172',
+    'https://localhost:8100',
     'http://localhost'
 ]
 CORS_ORIGIN_REGEX_WHITELIST = [
@@ -283,6 +284,7 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'https://103.245.90.20',
     'https://10.10.128.172',
     'http://127.0.0.1',
+    'https://localhost:8100',
     'http://localhost'
 ]
 
