@@ -31,9 +31,9 @@ from trainings.forms import TrainingTypeCreateForm
 
 # Models
 from assessments.models import DefectGroup, SubComponent, Element, Component, QlassicAssessmentApplication, SupportingDocuments
-from trainings.models import TrainingType
+from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
-from portal.models import Announcement, Publication, Training, LetterTemplate
+from portal.models import Announcement, Publication, LetterTemplate
 
 # Generate Document
 from core.helpers import translate_malay_date, standard_date
@@ -57,7 +57,7 @@ def assessment(request):
     return render(request, "assessment.html")
 
 def training(request):
-    trainings = Training.objects.all()
+    trainings = Training.objects.all().filter(review_status='accepted',publish=True)
     context = {'trainings':trainings}
     return render(request, "training.html", context)
 

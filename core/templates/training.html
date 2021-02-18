@@ -22,17 +22,19 @@
                   <tr>
                     <th>ID</th>
                     <th>Name of Training</th>
-                    <th>From Date</th>
-                    <th>To Date</th>
+                    <th>Fee</th>
+                    <th>Date</th>
+                    <th>Time</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for tra in trainings %}
                   <tr>
                     <th>{{ forloop.counter }}</th>
-                    <td>{{ tra.name_of_training }}</td>
-                    <td>{{ tra.from_date|date:'d M Y' }}</td>
-                    <td>{{ tra.to_date|date:'d M Y' }}</td>
+                    <td>{{ tra.training_name }}</td>
+                    <td>RM {{ tra.fee }}</td>
+                    <td>{{ tra.from_date|date:'d M Y' }} - {{ tra.to_date|date:'d M Y' }}</td>
+                    <td>{{ tra.from_time }} - {{ tra.to_time }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
