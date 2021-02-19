@@ -8,7 +8,11 @@ from projects.models import ProjectInfo
 # from projects.models import ProjectInfo
 
 # Helper
-from core.helpers import PathAndRename, STATE_CHOICES
+from core.helpers import (
+    PathAndRename, 
+    STATE_CHOICES, 
+    file_size_validator,
+)
 
 # Signals
 from django.db.models.signals import post_save
@@ -47,7 +51,7 @@ class QlassicAssessmentApplication(models.Model):
     )
     
     organization = models.TextField(null=True, max_length=255)
-    designation = models.CharField(null=True, max_length=255)
+    designation = models.CharField(null=True, blank=True, max_length=255)
     address1 = models.CharField(null=True, max_length=255, verbose_name="Address 1")
     address2 = models.CharField(null=True, max_length=255, verbose_name="Address 2")
     postcode = models.CharField(null=True, max_length=10, verbose_name='Postal code')
@@ -84,7 +88,7 @@ class QlassicAssessmentApplication(models.Model):
         max_length=50
     )
     
-    project_declaration_number = models.CharField(null=True, max_length=50)
+    project_declaration_number = models.CharField(null=True, blank=True, max_length=50)
     
     APPLICATION_STATUS = [
         # To follow SRS
@@ -154,9 +158,9 @@ class QlassicAssessmentApplication(models.Model):
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(null=True, max_length=50)
+    created_by = models.CharField(null=True,blank=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
-    modified_by = models.CharField(null=True, max_length=50)
+    modified_by = models.CharField(null=True,blank=True, max_length=50)
    
     def __str__(self):
         return "%s - %s" % (self.created_date, self.qaa_number)
@@ -295,7 +299,7 @@ class SupportingDocuments(models.Model):
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True, blank=True)
     
     file_name = models.CharField(null=True, max_length=255)
-    file = models.FileField(null=True, max_length=255, upload_to=PathAndRename('documents'))
+    file = models.FileField(null=True, max_length=255, upload_to=PathAndRename('documents'), validators=[file_size_validator])
     
     upload_date = models.DateTimeField(auto_now_add=True)
 

@@ -219,7 +219,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
     request_data = {
         'obj': {
             'Id':'1',
-            'SubType':'CIMS',
+            'SubType':'QLASSIC',
             'Category':'PROFORMA INVOICE',
             'SubCategory':'Third Party System - QLASSIC Portal',
             'SourceType':'Third Party System - QLASSIC Portal',

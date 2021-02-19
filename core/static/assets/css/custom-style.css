@@ -33,3 +33,19 @@
 .form-control {
     color:black !important;
 }
+
+td.day.active {
+    font-weight: bold !important;
+    text-shadow: none !important;
+    color: #00aeb1 !important;
+}
+span.month.active {
+    font-weight: bold !important;
+    text-shadow: none !important;
+    color: #00aeb1 !important;
+}
+span.year.active {
+    font-weight: bold !important;
+    text-shadow: none !important;
+    color: #00aeb1 !important;
+}

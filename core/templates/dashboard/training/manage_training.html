@@ -38,7 +38,7 @@
   <div class="container-fluid mt--6">
     <div class="row">
       {% if mode == 'update' or mode == 'review' or mode == 'create' %}
-        <div class="{% if mode == 'update' or mode == 'review' %}col-lg-6{% else %}col-lg-10 offset-lg-1{% endif %}">
+        <div class="{% if mode == 'update' or mode == 'review' %}col-lg-6{% else %}col-lg-12{% endif %}">
           <div class="card">
             <div class="card-header text-center">
               <h2 class="mb-0">
@@ -259,7 +259,7 @@
         </div>
       {% endif %}
       {% if mode == 'list' %}
-        <div class="offset-md-1 col-md-10">
+        <div class="col-md-12">
           <div class="card">
             <div class="card-header text-center">
               <h2 class="mb-0">List of Trainings</h2>
