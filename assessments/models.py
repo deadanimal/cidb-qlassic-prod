@@ -108,8 +108,10 @@ class QlassicAssessmentApplication(models.Model):
         max_length=50
     )
 
-    proposed_date = models.DateField(null=True, verbose_name='Proposed date for assessment')
-    assessment_date = models.DateField(null=True, verbose_name="Assessment date")
+    proposed_date = models.DateField(null=True, verbose_name='Proposed Date for Assessment')
+    assessment_date = models.DateField(null=True, verbose_name="Assessment Date")
+
+    no_of_days = models.IntegerField(null=True, verbose_name="Number of Days")
 
     NO_OF_ASSESSOR = [
         # To follow SRS
@@ -125,7 +127,7 @@ class QlassicAssessmentApplication(models.Model):
         verbose_name="Number of assessor",
     )
 
-    no_of_blocks = models.IntegerField(null=True, verbose_name="Number of block/zone/assessment")
+    no_of_blocks = models.IntegerField(null=True, verbose_name="Number of Block/Zone/Assessment")
 
     PAYMENT_MODE = [
         # To follow SRS

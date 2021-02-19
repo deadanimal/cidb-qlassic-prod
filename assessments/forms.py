@@ -97,6 +97,7 @@ class QAAReviewForm(ModelForm):
             'proposed_date',
             'no_of_assessor',
             'no_of_blocks',
+            'no_of_days',
             'payment_mode',
             'remarks1',
         )
@@ -108,6 +109,7 @@ class QAAVerifyForm(ModelForm):
             'assessment_date',
             'no_of_assessor',
             'no_of_blocks',
+            'no_of_days',
             'payment_mode',
             'remarks2',
         )
