@@ -167,7 +167,7 @@
       });
       $('.character-input').keypress(function (e) {
         var txt = String.fromCharCode(e.which);
-        if (!txt.match(/[a-zA-Z ]|\'|\/|\@/)) {
+        if (!txt.match(/[a-zA-Z ]|\'|\/|\@|\.|\-|\(|\)/)) {
           return false;
         }
       });

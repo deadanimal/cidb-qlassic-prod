@@ -899,6 +899,16 @@ def dashboard_application_assessor_approve(request, id):
                 qaa.application_status = 'assessor_assign'
                 qaa.save()
 
+                # Assign Lead Assessor
+                highest = 0
+                lead_assigned_assessor = None
+                for all in all_suggested_assessor:
+                    count = AssignedAssessor.objects.all().filter(assessor=all.assessor).count()
+                    if count > highest:
+                        lead_assigned_assessor = all
+                lead_assigned_assessor.role_in_assessment = 'lead_assessor'
+                lead_assigned_assessor.save()
+                
             messages.info(request,'Successfully accept the assessor assignation.')
         return redirect('dashboard_application_assessor_list')    
     return render(request, "dashboard/application/application_info.html", context)

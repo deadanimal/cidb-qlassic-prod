@@ -356,6 +356,7 @@ class AssignedAssessor(models.Model):
         ('assessor','Assessor'),
     ]
     role_in_assessment = models.CharField(
+        default='assessor',
         null=True,
         choices=ROLE_IN_ASSESSMENT,
         max_length=30
