@@ -21,6 +21,7 @@ import xmltodict
 import datetime
 
 CIMS_WSDL = config('CIMS_WSDL', default='http://202.171.33.96/CIMSService/CIMSService.svc?wsdl')
+# CIMS_WSDL = config('CIMS_WSDL', default='http://cims.cidb.gov.my/CIMSService/CIMSService.svc?wsdl')
 
 def get_project(contractor_registration_number):
     check_applied_contractor(contractor_registration_number)

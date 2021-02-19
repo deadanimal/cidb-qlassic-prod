@@ -62,7 +62,11 @@
                 {% for ass in suggested_assessors %}
                   <div class="form-group d-flex">
                     <input type='text' class="form-control" value="{{ ass.assessor }} - {{ ass.assessor.user.name }}" readonly>
-                    <a class="btn btn-info" href="{% url 'dashboard_application_assessor_change' ass.id %}">Change</a>
+                    {% if ass.acception == 'accept' %}
+                      <span>Accepted</span>
+                    {% else %}
+                      <a class="btn btn-info" href="{% url 'dashboard_application_assessor_change' ass.id %}">Change</a>
+                    {% endif %}
                   </div>
                 {% endfor %}
               </div>

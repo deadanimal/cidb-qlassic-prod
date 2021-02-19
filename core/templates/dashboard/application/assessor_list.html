@@ -52,8 +52,23 @@
                 {% for qaa in qaas %}
                 <tr>
                   <th>{{ qaa.pi.project_title }}</th>
-                  <th>{{ qaa.pi.sector }}</th>
-                  <th>{{ qaa.project_value }}</th>
+                  <th>
+                    {% for sa in suggested_assessors %}
+                      {% if sa.qaa == qaa %}
+                        {{ sa.assessor.user.name }} 
+                        {% if sa.acception %}
+                          {% if sa.acception == 'accept' %}<i class="fas fa-check-circle text-success"></i>
+                          {% elif sa.acception == 'reject' %}<i class="fas fa-times-circle text-danger"></i>
+                          {% elif sa.acception == 'pending' %}<i class="fas fa-envelope text-muted"></i>
+                          {% else %}<i class="fas fa-exclamation-triangle text-warning"></i>
+                          {% endif %}
+                        {% else %}
+                          <i class="fas fa-minus-circle text-warning"></i>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </th>
+                  <th>{{ qaa.get_application_status_display }}</th>
                   <td>
                     <a href="#" class="btn btn-sm btn-info w-100 mb-2">View</button>
                     {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' %}
@@ -87,9 +102,9 @@
               <tbody>
                 {% for sa in suggested_assessors %}
                 <tr>
-                  <th>{{ sa.qaa.project_title }}</th>
-                  <th>{{ sa.qaa.get_project_location_display }}</th>
-                  <th>{% if sa.get_acception_display %}{{ sa.get_acception_display }}{% else %}Pending{% endif %}</th>
+                  <th>{{ sa.qaa.pi.project_title }}</th>
+                  <th>{{ sa.qaa.pi.get_project_location_display }}</th>
+                  <th>{% if sa.acception %}{{ sa.get_acception_display }}{% else %}Pending{% endif %}</th>
                   <td>
                     <a href="#" class="btn btn-sm btn-info w-100 mb-2">View</button>
                     {% if not sa.acception %}

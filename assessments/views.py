@@ -759,15 +759,17 @@ def dashboard_application_assessor_list(request):
     context = {}
     if request.user.role == 'assessor':
         mode = 'list_own'
-        suggested_assessors = SuggestedAssessor.objects.all().filter(assessor__user=request.user)
+        suggested_assessors = SuggestedAssessor.objects.all().filter(assessor__user=request.user).exclude(acception=None)
         context = { 
             'suggested_assessors':suggested_assessors,
             'mode':mode,
         }
     else:
         qaas = QlassicAssessmentApplication.objects.all().filter(application_status='verified')
+        suggested_assessors = AssignedAssessor.objects.all()
         context = { 
             'qaas':qaas,
+            'suggested_assessors':suggested_assessors,
             'mode':mode,
         }
     return render(request, "dashboard/application/assessor_list.html", context)
@@ -809,20 +811,16 @@ def dashboard_application_assessor_assign(request, id):
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         assessment_data.user = request.user
         assessment_data.save()
-        AssignedAssessor.objects.all().filter(ad=assessment_data).delete()
-
-        for sa in suggested_assessors:
-            AssignedAssessor.objects.create(
-                ad=assessment_data,
-                assessor=sa.assessor,
-                assessor_number=sa.assessor_no,
-                name=sa.assessor.user.name,
-                role_in_assessment='assessor',
-            )
-
+        
         # Email Assigned Assessor
         to = []
         for sa in suggested_assessors:
+            if sa.acception == 'accept' or sa.acception == 'pending':
+                pass
+            else:
+                sa.acception = 'pending'
+                sa.save()
+
             to.append(sa.assessor.user.email)
         subject = "Assessor Assignation - " + qaa.qaa_number
         ctx_email = {
@@ -830,7 +828,6 @@ def dashboard_application_assessor_assign(request, id):
         }
         send_email_default(subject, to, ctx_email, 'email/qaa-assessor-assigned.html')
 
-        qaa.application_status = 'assessor_assign'
         qaa.save()
         messages.info(request,'Successfully assigned the assessors.')
         return redirect('dashboard_application_assessor_list')
@@ -846,6 +843,7 @@ def dashboard_application_assessor_approve(request, id):
         raise Http404
 
     qaa = suggested_assessor.qaa
+    assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
 
     sd = SupportingDocuments.objects.all().filter(qaa=qaa)
     sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
@@ -881,6 +879,26 @@ def dashboard_application_assessor_approve(request, id):
             suggested_assessor.acception = 'accept'
             suggested_assessor.remarks = request.POST['remarks']
             suggested_assessor.save()
+
+            AssignedAssessor.objects.get_or_create(
+                ad=assessment_data,
+                assessor=suggested_assessor.assessor,
+                assessor_number=suggested_assessor.assessor_no,
+                name=suggested_assessor.assessor.user.name,
+                role_in_assessment='assessor',
+            )
+
+            # Check if suggested assessor is accepted
+            all_suggested_assessor = SuggestedAssessor.objects.all().filter(qaa=qaa).exclude(assessor=None)
+            complete = True
+            for all in all_suggested_assessor:
+                if all.acception != 'accept':
+                    complete = False
+                    break
+            if complete == True:
+                qaa.application_status = 'assessor_assign'
+                qaa.save()
+
             messages.info(request,'Successfully accept the assessor assignation.')
         return redirect('dashboard_application_assessor_list')    
     return render(request, "dashboard/application/application_info.html", context)
@@ -895,6 +913,7 @@ def dashboard_application_assessor_change(request, id):
         assessor = Assessor.objects.get(id=assessor_id)
         current.assessor = assessor
         current.assessor_no = assessor.assessor_no
+        current.acception = None
         current.save()
         messages.info(request,'Successfully changed the Suggested Assessor')
         return redirect('dashboard_application_assessor_assign', current.qaa.id)

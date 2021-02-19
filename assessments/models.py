@@ -322,9 +322,11 @@ class SuggestedAssessor(models.Model):
         # To follow SRS
         ('accept','Accept'),
         ('reject','Reject'),
+        ('pending','Wait For Respond'),
     ]
     acception = models.CharField(
         null=True,
+        blank=True,
         choices=ACCEPTION,
         max_length=10
     )
