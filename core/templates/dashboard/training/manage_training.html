@@ -290,7 +290,7 @@
                     <th>{{ tr.get_attendance_review_status_display }}</th>
                     <td>
                       {% if tr.review_status == 'pending' %}
-                        {% if request.user.role == 'superadmin' or request.user.role == 'trainer' %}
+                        {% if request.user.role == 'superadmin' or request.user.is_trainer %}
                           <a href="{% url 'dashboard_training_update' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Edit</button>
                         {% endif %}
                         {% if request.user.role == 'cidb_reviewer' or request.user.role == 'superadmin' %}
@@ -298,7 +298,7 @@
                         {% endif %}
                       {% endif %}
                       {% if tr.review_status == 'accepted' %}
-                        {% if request.user.role == 'trainer' or request.user.role == 'superadmin' %}
+                        {% if request.user.is_trainer or request.user.role == 'superadmin' %}
                           {% if tr.attendance_review_status == 'pending' %}
                           <a href="{% url 'dashboard_training_attendance_trainer' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Manage Attendance</button>
                           {% endif %}

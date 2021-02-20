@@ -420,6 +420,38 @@ def dashboard_application_info(request, id):
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
+def dashboard_application_info_assessor(request, id):
+    mode = ''
+
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
+    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
+    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
+    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
+    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
+    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
+    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
+    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
+    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
+    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+    context = {
+        'mode': mode,
+        'assessor_view': True,
+        'qaa':qaa,
+        'sd_1':sd_1,
+        'sd_2':sd_2,
+        'sd_3':sd_3,
+        'sd_4':sd_4,
+        'sd_5':sd_5,
+        'sd_6':sd_6,
+        'sd_7':sd_7,
+        'sd_8':sd_8,
+        'sd_9':sd_9,
+    }
+        
+    return render(request, "dashboard/application/application_info.html", context)
+
+@login_required(login_url="/login/")
 def dashboard_application_review(request, id):
     mode = 'review'
 
@@ -757,7 +789,7 @@ def dashboard_application_payment_response(request, id):
 def dashboard_application_assessor_list(request):
     mode = 'list_all'
     context = {}
-    if request.user.role == 'assessor':
+    if request.user.is_assessor:
         mode = 'list_own'
         suggested_assessors = SuggestedAssessor.objects.all().filter(assessor__user=request.user).exclude(acception=None)
         context = { 
@@ -765,8 +797,11 @@ def dashboard_application_assessor_list(request):
             'mode':mode,
         }
     else:
-        qaas = QlassicAssessmentApplication.objects.all().filter(application_status='verified')
-        suggested_assessors = AssignedAssessor.objects.all()
+        qaas = QlassicAssessmentApplication.objects.all().filter(
+            Q(application_status='verified')|
+            Q(application_status='assessor_assign')
+        )
+        suggested_assessors = SuggestedAssessor.objects.all()
         context = { 
             'qaas':qaas,
             'suggested_assessors':suggested_assessors,
@@ -858,6 +893,7 @@ def dashboard_application_assessor_approve(request, id):
     context = {
         'suggested_assessor':suggested_assessor,
         'mode': mode,
+        'assessor_view': True,
         'qaa': qaa,
         'sd_1':sd_1,
         'sd_2':sd_2,
@@ -900,15 +936,19 @@ def dashboard_application_assessor_approve(request, id):
                 qaa.save()
 
                 # Assign Lead Assessor
-                highest = 0
-                lead_assigned_assessor = None
+                highest = -1
+                lead_assessor = None
                 for all in all_suggested_assessor:
-                    count = AssignedAssessor.objects.all().filter(assessor=all.assessor).count()
+                    temp = AssignedAssessor.objects.all().filter(assessor=all.assessor)
+                    count = len(temp)
+                    print('count:'+str(count))
                     if count > highest:
-                        lead_assigned_assessor = all
+                        highest = count
+                        lead_assessor = all.assessor
+                lead_assigned_assessor = AssignedAssessor.objects.all().filter(assessor=lead_assessor,ad=assessment_data).first()
                 lead_assigned_assessor.role_in_assessment = 'lead_assessor'
                 lead_assigned_assessor.save()
-                
+
             messages.info(request,'Successfully accept the assessor assignation.')
         return redirect('dashboard_application_assessor_list')    
     return render(request, "dashboard/application/application_info.html", context)

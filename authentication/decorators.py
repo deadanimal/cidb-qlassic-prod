@@ -9,6 +9,13 @@ def allowed_users(allowed_roles=[]):
             role = request.user.role
             if role in allowed_roles:
                 exist = True
+            else:
+                if 'trainer' in allowed_roles:
+                    if request.user.is_trainer():
+                        exist = True
+                if 'assessor' in allowed_roles:
+                    if request.user.is_assessor():
+                        exist = True
             # group = request.user.groups.all()[0].name
             # if group in allowed_roles:
             if exist:

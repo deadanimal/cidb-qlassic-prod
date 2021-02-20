@@ -153,6 +153,13 @@ class CustomUser(AbstractUser):
         else:
             return False
 
+    def is_trainer(self):
+        assessor = Trainer.objects.all().filter(user=self)
+        if len(assessor) > 0:
+            return True
+        else:
+            return False
+
 
 # @receiver(post_save, sender=SubComponent)
 # def signal_sub_component(sender, instance, created, **kwargs):

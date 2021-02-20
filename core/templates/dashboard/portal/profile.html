@@ -133,7 +133,7 @@
                     {{ form_user.picture|as_crispy_field }}
                   </div>
                   {% endif %}
-                  {% if request.user.role == 'assessor' %}
+                  {% if request.user.is_assessor or request.user.is_trainer %}
                   <div class="col-sm-12">
                     <hr>
                     <h2 class="pb-0 mb-0">Transport Information</h2>

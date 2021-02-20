@@ -44,7 +44,7 @@
   <!-- JQuery -->
   <script src="/static/assets/vendor/jquery/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-  
+
   <!-- Moment JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
 
@@ -97,6 +97,15 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
   <script>
+    function FilterTableData(filter, col) {
+      var table = $('.table-custom-simplified').DataTable();
+      if ( table.column(col).search() !== filter ) {
+        table
+          .column(col)
+          .search( filter )
+          .draw();
+      }
+    }
     $(document).ready( function () {
       // initialization for custom datatables
       if ($("table").hasClass("table-custom")){

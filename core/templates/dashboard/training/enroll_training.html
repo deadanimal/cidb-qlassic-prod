@@ -58,7 +58,7 @@
                     <th>From</th>
                     <th>To</th>
                     <th>Seats</th>
-                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' or request.user.role == 'trainer' %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' or request.user.is_trainer %}
                     <th>Attendance Status</th>
                     {% endif %}
                     <th>Action</th>
@@ -73,7 +73,7 @@
                     <th>{{ tr.from_date|date:'d M Y' }}</th>
                     <th>{{ tr.to_date|date:'d M Y' }}</th>
                     <th>{{ tr.size }} pax</th>
-                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' or request.user.role == 'trainer' %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' or request.user.is_trainer %}
                     <th>{{ tr.get_attendance_review_status_display }}</th>
                     {% endif %}
                     <td>

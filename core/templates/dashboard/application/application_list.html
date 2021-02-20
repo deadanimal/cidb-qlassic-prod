@@ -43,15 +43,34 @@
           </div>
           <div class="table-responsive py-4">
             <!-- Table Data Filter -->
-            <div class="d-flex justify-content-center" style="width:100%;">
-              <label class="mr-2 mb-0">Filter by:</label>
-              <form action="" method="GET" style="width:150px;">
-                <select name="sector" class="form-control form-control-sm" onchange="this.form.submit()">
-                    <option value="" {% if sector == '' or sector == None %}selected{% endif %}>ALL</option>
-                    <option value="GOVERNMENT" {% if sector == 'GOVERNMENT' %}selected{% endif %}>GOVERNMENT</option>
-                    <option value="PRIVATE" {% if sector == 'PRIVATE' %}selected{% endif %}>PRIVATE</option>
-                </select>
-              </form>
+            <div class="d-inline-flex justify-content-center">
+              <label class="mx-2 mb-0">Sector:</label>
+              <select
+                class="form-control form-control-sm mr-2"
+                onchange="FilterTableData(value, 3)">
+                <option value="">ALL</option>
+                <option value="GOVERNMENT">GOVERNMENT</option>
+                <option value="PRIVATE">PRIVATE</option>
+              </select>
+              <label class="mx-2 mb-0">Status:</label>
+              <select
+                class="form-control form-control-sm mr-2"
+                onchange="FilterTableData(value, 5)">
+                <option value="">ALL</option>
+                <option value="On-going">On-going</option>
+                <option value="Pending">Pending</option>
+                <option value="Reviewed">Reviewed</option>
+                <option value="Verified">Verified</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Rejected (With Amendment)">Rejected (With Amendment)</option>
+                <option value="Need Payment">Need Payment</option>
+                <option value="Paid">Paid</option>
+                <option value="Assessor Assigned">Assessor Assigned</option>
+                <option value="Confirm">Confirm</option>
+                <option value="In-Progress">In-Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Approved">Approved</option>
+              </select>
             </div>
             <table class="table table-custom-simplified table-flush">
               <thead class="thead-light">
@@ -147,5 +166,4 @@
 
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
-
 {% endblock javascripts %}

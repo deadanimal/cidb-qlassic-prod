@@ -21,8 +21,13 @@
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'dashboard_application_list' %}">Application List</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Review QLASSIC Application</li>
+                {% if assessor_view %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_application_assessor_list' %}">Assessment Application List</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">QLASSIC Application Info</li>
+                {% else %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_application_list' %}">Application List</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Review QLASSIC Application</li>
+                {% endif %}
               </ol>
             </nav>
           </div>
@@ -63,7 +68,9 @@
                   <div class="form-group d-flex">
                     <input type='text' class="form-control" value="{{ ass.assessor }} - {{ ass.assessor.user.name }}" readonly>
                     {% if ass.acception == 'accept' %}
-                      <span>Accepted</span>
+                      <span class="pl-2">Accepted</span>
+                    {% elif ass.acception == 'pending' %}
+                      <span class="pl-2">Wait For Respond</span>
                     {% else %}
                       <a class="btn btn-info" href="{% url 'dashboard_application_assessor_change' ass.id %}">Change</a>
                     {% endif %}

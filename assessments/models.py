@@ -99,7 +99,7 @@ class QlassicAssessmentApplication(models.Model):
         ('rejected_amendment','Rejected (With Amendment)'),
         ('need_payment','Need Payment'),
         ('paid','Paid'),
-        ('assessor_assign','Assessor Assign'),
+        ('assessor_assign','Assessor Assigned'),
         ('confirm','Confirm'),
         ('in_progress','In-Progress'),
         ('completed','Completed'),

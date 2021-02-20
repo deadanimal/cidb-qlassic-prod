@@ -46,6 +46,10 @@
               <p><strong>Name:</strong> {{ user.name }}</p>
               <p><strong>Email:</strong> {{ user.email }}</p>
               <p><strong>Current Role:</strong> {{ user.get_role_display }}</p>
+              <p><strong>Assessor Status: </strong>{% if user.is_assessor %}<span class="text-success">Certified</span>{% else %}Not Certified{% endif %}</p>
+              <p><strong>Trainer Status: </strong>{% if user.is_trainer %}<span class="text-success">Certified</span>{% else %}Not Certified{% endif %}</p>
+              <button type="submit" name="assessor" class="btn btn-primary"{% if user.is_assessor %} disabled{% endif %}>Approve as Assessor</button>
+              <button type="submit" name="trainer" class="btn btn-primary"{% if user.is_trainer %} disabled{% endif %}>Approve as Trainer</button>
               <hr>
               {{ role_form|crispy }}
               <div class="d-flex">

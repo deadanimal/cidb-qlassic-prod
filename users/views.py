@@ -13,7 +13,7 @@ import random
 # Forms
 from users.forms import RoleUpdateForm
 # Models
-from users.models import CustomUser
+from users.models import Assessor, CustomUser, Trainer
 
 # Decorators
 from authentication.decorators import allowed_users
@@ -54,12 +54,19 @@ def dashboard_management_user_id(request, id):
     }
 
     if request.method == "POST":
-        role_form = RoleUpdateForm(request.POST, instance=user)
-        if role_form.is_valid():
-            role_form.save()
-            messages.info(request, 'Successfully updated the role of user')
-        else:
-            messages.warning(request, 'Error updating the role of user')
+        if 'update' in request.POST:
+            role_form = RoleUpdateForm(request.POST, instance=user)
+            if role_form.is_valid():
+                role_form.save()
+                messages.info(request, 'Successfully updated the role of user')
+            else:
+                messages.warning(request, 'Error updating the role of user')
+        if 'assessor' in request.POST:
+            assessor, created = Assessor.objects.get_or_create(user=user)
+            messages.info(request, 'Successfully approved as an assessor')
+        if 'trainer' in request.POST:
+            trainer, created = Trainer.objects.get_or_create(user=user)
+            messages.info(request, 'Successfully approved as a trainer')
         return redirect('dashboard_management_user_id', user.id)
 
     return render(request, "dashboard/management/user_id.html", context)
