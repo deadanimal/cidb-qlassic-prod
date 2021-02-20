@@ -207,6 +207,50 @@
                 <h4><strong>{{ qaa.get_application_status_display }}</strong></h4>
               </div>
               <hr>
+              {% if qaa.application_status == 'rejected' or qaa.application_status == 'rejected_amendment' %}
+                <div class="form-group">
+                  <label class="form-control-label" for="input_title">Reviewed by</label>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Name: </strong></p>
+                    <p>{{ qaa.reviewed_by }}</p>
+                  </div>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Remarks: </strong></p>
+                    <p>{{ qaa.remarks1 }}</p>
+                  </div>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Date: </strong></p>
+                    <p>{{ qaa.reviewed_date }}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="form-group">
+                  <label class="form-control-label" for="input_title">Verified by</label>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Name: </strong></p>
+                    <p>{{ qaa.verified_by }}</p>
+                  </div>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Remarks: </strong></p>
+                    <p>{{ qaa.remarks2 }}</p>
+                  </div>
+                  <div class="d-flex"> 
+                    <p class="pr-2"><strong>Date: </strong></p>
+                    <p>{{ qaa.verified_date }}</p>
+                  </div>
+                </div>
+              {% elif request.user.role == 'contractor' or request.user.role == 'applicant' or request.user.is_assessor %}
+              <div class="form-group">
+                <div class="d-flex"> 
+                  <p class="pr-2"><strong>Review Date: </strong></p>
+                  <p>{{ qaa.reviewed_date }}</p>
+                </div>
+                <div class="d-flex"> 
+                  <p class="pr-2"><strong>Verify Date: </strong></p>
+                  <p>{{ qaa.verified_date }}</p>
+                </div>
+              </div>
+              {% else %}
               <div class="form-group">
                 <label class="form-control-label" for="input_title">Reviewed by</label>
                 <div class="d-flex"> 
@@ -238,6 +282,7 @@
                   <p>{{ qaa.verified_date }}</p>
                 </div>
               </div>
+              {% endif %}
           </div>
         </div>
       </div>

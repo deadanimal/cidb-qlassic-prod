@@ -53,11 +53,11 @@
                 <option value="PRIVATE">PRIVATE</option>
               </select>
               <label class="mx-2 mb-0">Status:</label>
+              {% if role_type == 'staff' %}
               <select
                 class="form-control form-control-sm mr-2"
                 onchange="FilterTableData(value, 5)">
                 <option value="">ALL</option>
-                <option value="On-going">On-going</option>
                 <option value="Pending">Pending</option>
                 <option value="Reviewed">Reviewed</option>
                 <option value="Verified">Verified</option>
@@ -71,6 +71,21 @@
                 <option value="Completed">Completed</option>
                 <option value="Approved">Approved</option>
               </select>
+              {% endif %}
+              {% if role_type == 'applicant' %}
+              <select
+                class="form-control form-control-sm mr-2"
+                onchange="FilterTableData(value, 5)">
+                <option value="">ALL</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Rejected (With Amendment)">Rejected (With Amendment)</option>
+                <option value="Need Payment">Need Payment</option>
+                <option value="On-going">On-going</option>
+                <option value="Completed">Completed</option>
+                <option value="Approved">Approved</option>
+              </select>
+              {% endif %}
             </div>
             <table class="table table-custom-simplified table-flush">
               <thead class="thead-light">
