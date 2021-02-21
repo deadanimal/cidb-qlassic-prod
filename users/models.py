@@ -41,7 +41,7 @@ class CustomUser(AbstractUser):
         # To follow SRS
         ('SINGLE','SINGLE'),
         ('MARRIED','MARRIED'),
-        ('DIVORCED','DIVORCED'), 
+        ('OTHERS','OTHERS'), 
     ]
 
     marital_status = models.CharField(
