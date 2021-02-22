@@ -284,6 +284,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
             }
         }
     }
+    print(str(request_data))
 
     response = client.service.CreateTransaction(**request_data)
     # print(history.last_sent)
