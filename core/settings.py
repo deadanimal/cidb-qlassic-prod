@@ -306,8 +306,9 @@ else:
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Force HTTPS
-dev = config('DEV', default=False)
-if dev == False:
+CUSTOM_DEV_MODE = config('DEV', default=False)
+CUSTOM_STG_MODE = config('STG', default=False)
+if CUSTOM_DEV_MODE == False:
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True

@@ -7,6 +7,7 @@ from zeep.settings import Settings
 from zeep.plugins import HistoryPlugin
 
 from django.http import HttpResponse
+from django.conf import settings
 
 import json
 import requests
@@ -205,6 +206,14 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
     ## Notes
     # KOD HASIL : QLC - assessment, QLC-PUP - training
 
+    prefix = ''
+    if settings.CUSTOM_DEV_MODE == False:
+        prefix = 'PROD-'
+    elif settings.CUSTOM_STG_MODE == True:
+        prefix = 'STG-'
+    else:
+        prefix = 'DEV-'
+
     wsdl = create_transaction_wsdl
 
     unit_amout = amount
@@ -229,13 +238,13 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
             'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'Description': description,
-            'UniqueReference': description + '-' + ref_id,
+            'UniqueReference': prefix + description + '-' + ref_id,
             'Amount': total_amount,
             'AmountDec': 2,
             'DiscountAmount': 0,
             'Tax': total_tax,
             'TaxDec': 2,
-            'SMISRefId': ref_id,
+            'SMISRefId': prefix+ref_id,
             'CreatedBy': 'Admin',
             'CustomerName': user.name,
             'address': user.address1,
