@@ -257,12 +257,12 @@ ANYMAIL = {
     'SENDGRID_API_KEY': config('SENDGRID_API_KEY'),
 }
 EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
-DEFAULT_FROM_EMAIL = 'noreply@cidb.gov.my'  # if you don't already have this in settings
+DEFAULT_FROM_EMAIL = 'QLASSIC Portal <noreply@cidb.gov.my>'  # if you don't already have this in settings
 # AUTH_USER_MODEL = 'users.CustomUser' 
 # ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[QLASSIC Portal] '
 
-skip_email = os.getenv('SKIP_EMAIL', default=0)
+skip_email = config('SKIP_EMAIL', default=0)
 
 
 CORS_ORIGIN_ALLOW_ALL = True

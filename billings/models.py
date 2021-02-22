@@ -84,7 +84,7 @@ class Payment(models.Model):
         ordering = ['-created_date']
 
     def __str__(self):
-        return self.order_id
+        return str(self.order_id)
 
 class ClaimApplication(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
