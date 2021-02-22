@@ -689,7 +689,7 @@ def dashboard_training_join(request, id):
 
     available_seat, is_available = check_available_seat(request, training)
     mode = 'register'
-    print(type(ORGANIZATION_TYPE_CHOICES))
+    # print(type(ORGANIZATION_TYPE_CHOICES))
     context = {
         'title': 'Join Training',
         'mode': mode,

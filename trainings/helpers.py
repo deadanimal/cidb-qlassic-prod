@@ -188,12 +188,12 @@ def save_role_application_supporting_documents(request, application):
         data_sd_4 = form.cleaned_data.get('sd_ra_4')
         data_sd_5 = form.cleaned_data.get('sd_ra_5')
         data_sd_6 = form.cleaned_data.get('sd_ra_6')
-        print(type(data_sd_1))
-        print(type(data_sd_2))
-        print(type(data_sd_3))
-        print(type(data_sd_4))
-        print(type(data_sd_5))
-        print(type(data_sd_6))
+        # print(type(data_sd_1))
+        # print(type(data_sd_2))
+        # print(type(data_sd_3))
+        # print(type(data_sd_4))
+        # print(type(data_sd_5))
+        # print(type(data_sd_6))
         if data_sd_1 != None:
             sd_1.file = data_sd_1
             sd_1.save()

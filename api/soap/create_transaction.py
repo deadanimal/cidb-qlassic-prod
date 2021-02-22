@@ -207,12 +207,12 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
     # KOD HASIL : QLC - assessment, QLC-PUP - training
 
     prefix = ''
-    if settings.CUSTOM_DEV_MODE == True:
-        prefix = 'DEV-'
-    elif settings.CUSTOM_STG_MODE == True:
-        prefix = 'STG-'
+    if settings.CUSTOM_DEV_MODE == 1:
+        prefix = 'DEV'
+    elif settings.CUSTOM_STG_MODE == 1:
+        prefix = 'STG'
     else:
-        prefix = 'PROD-'
+        prefix = 'PROD'
 
     wsdl = create_transaction_wsdl
 
@@ -278,7 +278,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
                     'TaxAmountDec': 2,
                     'Amount': unit_amout_with_tax,
                     'AmountDec': 2,
-                    'CMISRefId': prefix+ref_id,
+                    'CMISRefId': "1-"+prefix+ref_id,
                     'Description': description,
                 }]
             }

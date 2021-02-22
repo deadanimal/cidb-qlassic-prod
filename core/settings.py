@@ -27,9 +27,8 @@ PROJECT_DIR = Path(__file__).parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False)
+DEBUG = int(config('DEBUG', default=0))
 
 # load production server from .env
 ALLOWED_HOSTS = [
@@ -306,9 +305,10 @@ else:
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Force HTTPS
-CUSTOM_DEV_MODE = config('DEV', default=False)
-CUSTOM_STG_MODE = config('STG', default=False)
-if CUSTOM_DEV_MODE == False:
+CUSTOM_DEV_MODE = int(config('DEV', default=0))
+CUSTOM_STG_MODE = int(config('STG', default=0))
+if CUSTOM_DEV_MODE == 0:
+    print('live')
     USE_X_FORWARDED_HOST = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
@@ -318,6 +318,8 @@ if CUSTOM_DEV_MODE == False:
         'qlassicstg.cidb.gov.my'
     ]
     ABSOLUTEURI_PROTOCOL = 'https'
+else:
+    print('dev')
 
 REST_USE_JWT = True
 
