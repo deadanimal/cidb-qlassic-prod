@@ -238,7 +238,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
             'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'Description': description,
-            'UniqueReference': prefix + description + '-' + ref_id,
+            'UniqueReference': prefix+ref_id,
             'Amount': total_amount,
             'AmountDec': 2,
             'DiscountAmount': 0,
@@ -278,7 +278,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
                     'TaxAmountDec': 2,
                     'Amount': unit_amout_with_tax,
                     'AmountDec': 2,
-                    'CMISRefId': ref_id,
+                    'CMISRefId': prefix+ref_id,
                     'Description': description,
                 }]
             }
