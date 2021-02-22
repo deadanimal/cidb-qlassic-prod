@@ -541,7 +541,7 @@ def dashboard_joined_training_pay(request, id):
     rt = get_object_or_404(RegistrationTraining, id=id)
     response = create_transaction(request, rt.training.fee, 1, 0, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
     proforma = response.Code
-    
+    print(str(response))
     
     response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
 

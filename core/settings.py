@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'qr_code',
     'django_apscheduler',
     'widget_tweaks',
+    'absoluteuri',
     
     # REST
     'anymail',
@@ -315,6 +316,7 @@ if dev == False:
     CSRF_TRUSTED_ORIGINS = [
         'qlassicstg.cidb.gov.my'
     ]
+    ABSOLUTEURI_PROTOCOL = 'https'
 
 REST_USE_JWT = True
 

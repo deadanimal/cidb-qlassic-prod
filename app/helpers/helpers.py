@@ -2,6 +2,7 @@ import io, os
 from docxtpl import DocxTemplate
 from app.helpers.docx2pdf import StreamingConvertedPdf, ConvertFileModelField
 from django.conf import settings
+import absoluteuri
 
 def docx_to_pdf_stream(letter_template, context):
     response = docx_to_pdf_process_stream(letter_template, context, False)
@@ -12,8 +13,11 @@ def docx_to_pdf_download(letter_template, context):
     return response
 
 def docx_to_pdf_process_stream(letter_template, context, download):
-    template_path = letter_template.template_file.path
-    fileName, fileExtension = os.path.splitext(settings.MEDIA_URL + letter_template.template_file.url)
+    template_path = letter_template.template_file.location
+
+    # template_path = os.path.abspath(letter_template.template_file.url)
+    # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
+    fileName, fileExtension = os.path.splitext(letter_template.template_file.name)
 
     doc = DocxTemplate(template_path)
     print(template_path)
