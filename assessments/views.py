@@ -709,6 +709,7 @@ def dashboard_application_payment(request, id):
     mode = 'payment'
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     response = create_transaction(request, qaa.get_amount(), 1, 0, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
+    print(response)
     proforma = response.Code
     
     response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'

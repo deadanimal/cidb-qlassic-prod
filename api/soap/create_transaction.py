@@ -238,14 +238,14 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
             'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'Description': description,
-            'UniqueReference': prefix+ref_id,
             'Amount': total_amount,
             'AmountDec': 2,
             'DiscountAmount': 0,
             'Tax': total_tax,
             'TaxDec': 2,
+            'UniqueReference': prefix+ref_id,
             'SMISRefId': prefix+ref_id,
-            'CreatedBy': 'Admin',
+            'CreatedBy': user.name,
             'CustomerName': user.name,
             'address': user.address1,
             'address1': user.address2,
@@ -278,8 +278,8 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
                     'TaxAmountDec': 2,
                     'Amount': unit_amout_with_tax,
                     'AmountDec': 2,
-                    'CMISRefId': "1-"+prefix+ref_id,
-                    'Description': description,
+                    'CMISRefId': prefix+ref_id,
+                    'Description': "1. "+description,
                 }]
             }
         }
