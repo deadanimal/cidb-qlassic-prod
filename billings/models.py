@@ -51,7 +51,7 @@ class Payment(models.Model):
 
     PAYMENT_STATUS = [
         # To follow SRS
-        ("1",'Successfull'),
+        ("1",'Successful'),
         ("0",'Fail'),
         ("-1",'Pending'),
     ]
