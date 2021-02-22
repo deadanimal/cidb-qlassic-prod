@@ -207,12 +207,12 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
     # KOD HASIL : QLC - assessment, QLC-PUP - training
 
     prefix = ''
-    if settings.CUSTOM_DEV_MODE == False:
-        prefix = 'PROD-'
+    if settings.CUSTOM_DEV_MODE == True:
+        prefix = 'DEV-'
     elif settings.CUSTOM_STG_MODE == True:
         prefix = 'STG-'
     else:
-        prefix = 'DEV-'
+        prefix = 'PROD-'
 
     wsdl = create_transaction_wsdl
 
