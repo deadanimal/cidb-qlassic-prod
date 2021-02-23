@@ -27,6 +27,13 @@ class StreamingConvertedPdf:
             tmp.write(self.doc.read())
             print("Name:"+tmp.name)
             print("PAth TMP:"+self.tmp_path)
+
+            try:
+                with open(tmp.name):
+                    print('file_existttt')
+            except Exception:
+                print('nooooott_existttt')
+
             process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
             process.wait()
             self.tmp_path = tmp.name + '.pdf'
