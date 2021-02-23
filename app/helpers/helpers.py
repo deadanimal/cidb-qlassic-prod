@@ -16,11 +16,11 @@ def docx_to_pdf_process_stream(letter_template, context, download):
     # Method 1
     # base_url = settings.MEDIA_ROOT + '/'
     # template_path = base_url + letter_template.template_file.name
-    template_path = letter_template.template_file.path
+    # template_path = letter_template.template_file
 
     # Method 2
     # template_path = os.path.abspath(letter_template.template_file.url)
-    # template_path = letter_template.template_file.url
+    template_path = letter_template.template_file.url
     
     # Method 5
     # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
