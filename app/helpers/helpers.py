@@ -20,7 +20,7 @@ def docx_to_pdf_process_stream(letter_template, context, download):
 
     # Method 2
     # template_path = os.path.abspath(letter_template.template_file.url)
-    template_path = letter_template.template_file.url
+    template_path = letter_template.template_file.file
     
     # Method 5
     # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
