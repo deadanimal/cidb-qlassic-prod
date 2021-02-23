@@ -25,6 +25,7 @@ class StreamingConvertedPdf:
         self.check_tmp_folder()
         with tempfile.NamedTemporaryFile(prefix=self.tmp_path) as tmp:
             tmp.write(self.doc.read())
+            print(self.tmp_path)
             process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
             process.wait()
             self.tmp_path = tmp.name + '.pdf'
