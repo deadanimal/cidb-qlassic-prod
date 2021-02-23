@@ -10,7 +10,9 @@ class StreamingConvertedPdf:
     def __init__(self, dock_obj, download=True):
         self.doc = dock_obj
         self.download = download
-        self.tmp_path = settings.BASE_DIR + settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+        self.tmp_path = settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+        if os.name == 'nt':
+            self.tmp_path = settings.BASE_DIR + settings.MEDIA_ROOT + '\\media\\tmp\\'
 
     def validate_document(self):
         if not self.doc.name.split('.')[-1] in ('doc', 'docm', 'docx'):
