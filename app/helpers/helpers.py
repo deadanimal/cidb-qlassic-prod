@@ -19,16 +19,13 @@ def docx_to_pdf_process_stream(letter_template, context, download):
 
     # Method 2
     # template_path = os.path.abspath(letter_template.template_file.url)
+    # template_path = letter_template.template_file.url
     
     # Method 5
-    # template_path = requests.get(absoluteuri.build_absolute_uri(letter_template.template_file.url))
+    template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
 
-    template_path = os.path.join(settings.MEDIA_ROOT,letter_template.template_file.name)
-    if os.name == 'nt':
-        template_path = os.path.join(settings.MEDIA_ROOT,settings.MEDIA_url,letter_template.template_file.name)
-        template_path = template_path.replace('/','\\')
+    # template_path = os.path.join(settings.MEDIA_ROOT,letter_template.template_file.name)
 
-    print(template_path)
     # Method 3
     # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
     
