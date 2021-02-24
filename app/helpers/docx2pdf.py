@@ -26,9 +26,9 @@ class StreamingConvertedPdf:
     def convert_to_pdf(self):
         self.validate_document()
         self.check_tmp_folder()
-        with tempfile.NamedTemporaryFile(prefix=self.tmp_path) as tmp:
+        with tempfile.NamedTemporaryFile(prefix=self.tmp_path, delete=False) as tmp:
             tmp.write(self.doc.read())
-            print(type(tmp))
+
             print("Name:"+tmp.name)
             print("PAth TMP:"+self.tmp_path)
 
@@ -37,9 +37,13 @@ class StreamingConvertedPdf:
                     print('file_existttt')
             except Exception:
                 print('nooooott_existttt')
-
-            process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
-            process.wait()
+            if os.name == 'nt':
+                process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
+                process.wait()
+            else:
+                process = Popen(['C:\\Program Files\\LibreOffice\\program\\soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
+                process.wait()
+            # process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
             self.tmp_path = tmp.name + '.pdf'
 
     def get_file_name(self):
