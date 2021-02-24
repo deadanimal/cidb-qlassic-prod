@@ -38,10 +38,10 @@ class StreamingConvertedPdf:
             except Exception:
                 print('nooooott_existttt')
             if os.name == 'nt':
-                process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
+                process = Popen(['C:\\Program Files\\LibreOffice\\program\\soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
                 process.wait()
             else:
-                process = Popen(['C:\\Program Files\\LibreOffice\\program\\soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
+                process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
                 process.wait()
             # process = Popen(['soffice', '--convert-to', 'pdf', tmp.name, '--outdir', self.tmp_path])
             self.tmp_path = tmp.name + '.pdf'
