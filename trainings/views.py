@@ -256,7 +256,7 @@ def dashboard_training_role_application_review(request, id, step):
                 # Email
                 to = [application.user.email]
                 subject = "Interview Invitation"
-                attachments = [application.interview_letter_file.path]
+                attachments = [application.interview_letter_file.file.name]
                 email_ctx = {
                     'application': application,
                 }
@@ -295,7 +295,7 @@ def dashboard_training_role_application_review(request, id, step):
             # Email
             to = [application.user.email]
             subject = "Role Application Result - " + application.get_application_type_display()
-            attachments = [application.reject_letter_file.path]
+            attachments = [application.reject_letter_file.file.name]
             email_ctx = {
                 'application': application,
             }
@@ -351,7 +351,7 @@ def dashboard_training_role_application_review(request, id, step):
                 generate_and_save_qr(qr_path, application.certificate_qr_file)
                 # Generate Report
                 response_letter = generate_document_file(request, 'qca_accreditation_letter', template_ctx, None)
-                response_certificate = generate_document_file(request, 'qca_accreditation_certificate', template_ctx, application.certificate_qr_file.path)
+                response_certificate = generate_document_file(request, 'qca_accreditation_certificate', template_ctx, application.certificate_qr_file.file.name)
                 application.accreditation_letter_file.save('pdf', response_letter)
                 application.accreditation_certificate_file.save('pdf', response_certificate)
 
@@ -360,9 +360,9 @@ def dashboard_training_role_application_review(request, id, step):
             subject = "Role Application Result - " + application.get_application_type_display()
             attachments = []
             if application.application_type == 'trainer':
-                attachments = [application.accreditation_letter_file.path]
+                attachments = [application.accreditation_letter_file.file.name]
             if application.application_type == 'qca':
-                attachments = [application.accreditation_letter_file.path,application.accreditation_certificate_file.path]
+                attachments = [application.accreditation_letter_file.file.name,application.accreditation_certificate_file.file.name]
             email_ctx = {
                 'application': application,
             }
@@ -874,7 +874,7 @@ def dashboard_training_attendance_review(request, id):
                 # Email
                 to = [attendance.user.email]
                 subject = "Training Certificate - " + training.training_name
-                attachments = [attendance.certificate_file.path]
+                attachments = [attendance.certificate_file.file.name]
                 email_ctx = {
                     'training': training,
                     'attendance': attendance,
@@ -1120,13 +1120,13 @@ def dashboard_qia_application_pay_response(request, id):
                     'assessor_number': assessor.qia_id,
                     'date_accreditation': translate_malay_date(standard_date(datetime.now())),
                 }
-                response = generate_document_file(request, 'qia_accreditation_certificate', template_ctx, assessor.qia_certificate_qr_file.path)
+                response = generate_document_file(request, 'qia_accreditation_certificate', template_ctx, assessor.qia_certificate_qr_file.file.name)
                 assessor.qia_certificate_file.save('pdf', response)
                 
                 # Email
                 to = [user.email]
                 subject = "QLASSIC Industry Application Successful"
-                attachments = [assessor.qia_certificate_file.path]
+                attachments = [assessor.qia_certificate_file.file.name]
                 email_ctx = {
                     'assessor': assessor,
                     'user': user,
