@@ -315,7 +315,7 @@ class RegistrationTraining(models.Model):
         choices=ORGANIZATION_TYPE_CHOICES,
     )
     
-    reviewed_by = models.CharField(null=True, max_length=255)
+    reviewed_by = models.CharField(null=True, blank=True, max_length=255)
     remarks = models.TextField(null=True, blank=True, max_length=255, verbose_name="Remarks")
 
     PAYMENT_MODE = [
@@ -355,7 +355,7 @@ class RegistrationTraining(models.Model):
 
     marks = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
 
-    amount = models.DecimalField(null=True, max_digits=10, decimal_places=2, verbose_name="Amount (RM)")
+    amount = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2, verbose_name="Amount (RM)")
     paid = models.BooleanField(default=False)
 
     certificate_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('certificates'), verbose_name='Certificate')
