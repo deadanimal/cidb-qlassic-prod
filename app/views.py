@@ -320,11 +320,6 @@ def view_pdf(request):
     # messages.info(request, 'Successfully delivered an email to trainer(s).')
     # send_email_with_attachment(subject, to, {}, 'email/training-complaint.html', attachments)
 
-    hoho = str(datetime.utcnow().strftime('%s'))   
-    huhu = str(datetime.utcnow().timestamp()).split('.', 1)[0]  
-    print(hoho)
-    print(huhu)
-    print(type(hoho))
     return response
 
 @login_required(login_url="/login/")
