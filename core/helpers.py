@@ -45,6 +45,8 @@ def send_email_default(subject, to, context, template):
     else:
         print('Send email: ' + subject)
 
+from mimetypes import guess_type
+from os.path import basename
 def send_email_with_attachment(subject, to, context, template, attachments):
     message = render_to_string(
         template,
@@ -52,7 +54,12 @@ def send_email_with_attachment(subject, to, context, template, attachments):
     )
     email = EmailMessage(subject, message, None, to)
     for attachment in attachments:
-        email.attach_file(attachment)
+        f = attachment
+        f.open()
+        # msg.attach(filename, content, mimetype)
+        email.attach(basename(f.name), f.read(), guess_type(f.name)[0])
+        f.close()
+        # email.attach_file(attachment)
     email.send()
 
 # State Choice in Malaysia
