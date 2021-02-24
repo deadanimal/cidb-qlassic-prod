@@ -28,6 +28,7 @@ class StreamingConvertedPdf:
         self.check_tmp_folder()
         with tempfile.NamedTemporaryFile(prefix=self.tmp_path) as tmp:
             tmp.write(self.doc.read())
+            print(type(tmp))
             print("Name:"+tmp.name)
             print("PAth TMP:"+self.tmp_path)
 
