@@ -871,16 +871,6 @@ def dashboard_training_attendance_review(request, id):
             # Email
             for attendance in attendances:
                 
-                # Email
-                to = [attendance.user.email]
-                subject = "Training Certificate - " + training.training_name
-                attachments = [attendance.certificate_file.file.name]
-                email_ctx = {
-                    'training': training,
-                    'attendance': attendance,
-                }
-                send_email_with_attachment(subject, to, email_ctx, 'email/training-certificate.html', attachments)
-
                 # Check Eligible for QIA
                 qia_eligible = True
                 all_trainings = RegistrationTraining.objects.all().filter(user=attendance.user)
@@ -916,6 +906,17 @@ def dashboard_training_attendance_review(request, id):
                         'attendance': attendance,
                     }
                     send_email_default(subject, to, email_ctx, 'email/training-qia-review.html')
+                
+                # Email
+                to = [attendance.user.email]
+                subject = "Training Certificate - " + training.training_name
+                attachments = [attendance.certificate_file.file.name]
+                email_ctx = {
+                    'training': training,
+                    'attendance': attendance,
+                }
+                send_email_with_attachment(subject, to, email_ctx, 'email/training-certificate.html', attachments)
+
 
 
             messages.info(request, 'Successfully approved the attendance.')
