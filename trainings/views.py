@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
+import absoluteuri
 
 # Decorators
 from django.contrib.auth.decorators import login_required
@@ -349,7 +350,7 @@ def dashboard_training_role_application_review(request, id, step):
                 application.accreditation_letter_file.save('pdf', response_letter)
             if application.application_type == 'qca':
                 # Generate QR
-                qr_path = request.build_absolute_uri('/certificate/role-application/'+str(application.id)+'/')
+                qr_path = absoluteuri.build_absolute_uri('/certificate/role-application/'+str(application.id)+'/')
                 generate_and_save_qr(qr_path, application.certificate_qr_file)
                 # Generate Report
                 response_letter = generate_document_file(request, 'qca_accreditation_letter', template_ctx, None)
@@ -1113,7 +1114,7 @@ def dashboard_qia_application_pay_response(request, id):
                 assessor.assessor_type = 'QIA'
                 assessor.save()
                 # Generate QR
-                qr_path = request.build_absolute_uri('/certificate/qia/'+str(user.id)+'/')
+                qr_path = absoluteuri.build_absolute_uri('/certificate/qia/'+str(user.id)+'/')
                 generate_and_save_qr(qr_path, assessor.qia_certificate_qr_file)
 
                 # Cert Generation
