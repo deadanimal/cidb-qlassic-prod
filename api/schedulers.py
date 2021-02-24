@@ -1,5 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .jobs import some_task
+from .jobs import job_remove_temp
+
 def start_jobs():
     scheduler = BackgroundScheduler()
     
@@ -7,6 +8,6 @@ def start_jobs():
     cron_job = {'month': '*', 'day': '*', 'hour': '*', 'minute':'*/1'}
     
     #Add our task to scheduler.
-    scheduler.add_job(some_task, 'cron', **cron_job)
+    scheduler.add_job(job_remove_temp, 'cron', **cron_job)
 #And finally start.    
     scheduler.start()

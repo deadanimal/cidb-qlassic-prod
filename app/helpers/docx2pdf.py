@@ -5,15 +5,18 @@ from subprocess import  Popen
 from django.conf import settings
 from django.http import StreamingHttpResponse
 
+TEMPLATE_TEMP_PATH = ''
+if os.name == 'nt':
+    TEMPLATE_TEMP_PATH = settings.BASE_DIR + settings.MEDIA_ROOT + '\\media\\tmp\\'
+else:
+    TEMPLATE_TEMP_PATH = settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+
 class StreamingConvertedPdf:
 
     def __init__(self, dock_obj, download=True):
         self.doc = dock_obj
         self.download = download
-        if os.name == 'nt':
-            self.tmp_path = settings.BASE_DIR + settings.MEDIA_ROOT + '\\media\\tmp\\'
-        else:
-            self.tmp_path = settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+        self.tmp_path = TEMPLATE_TEMP_PATH
 
     def validate_document(self):
         if not self.doc.name.split('.')[-1] in ('doc', 'docm', 'docx'):

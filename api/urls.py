@@ -51,4 +51,5 @@ urlpatterns = [
 ]
 
 # CRON JOBS
-# start_jobs()
+from api.schedulers import start_jobs
+start_jobs()

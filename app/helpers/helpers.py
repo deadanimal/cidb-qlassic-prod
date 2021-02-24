@@ -4,6 +4,12 @@ from app.helpers.docx2pdf import StreamingConvertedPdf, ConvertFileModelField
 from django.conf import settings
 import absoluteuri
 
+TEMP_PATH = ''
+if os.name == 'nt':
+    TEMP_PATH = settings.BASE_DIR + settings.MEDIA_ROOT + '\\media\\tmp\\'
+else:
+    TEMP_PATH = settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+
 def docx_to_pdf_stream(letter_template, context):
     response = docx_to_pdf_process_stream(letter_template, context, False)
     return response
@@ -13,25 +19,8 @@ def docx_to_pdf_download(letter_template, context):
     return response
 
 def docx_to_pdf_process_stream(letter_template, context, download):
-    # Method 1
-    # base_url = settings.MEDIA_ROOT + '/'
-    # template_path = base_url + letter_template.template_file.name
-    # template_path = letter_template.template_file
-
-    # Method 2
-    # template_path = os.path.abspath(letter_template.template_file.url)
     template_path = letter_template.template_file.file
     
-    # Method 5
-    # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
-
-    # template_path = os.path.join(settings.MEDIA_ROOT,letter_template.template_file.name)
-
-    # Method 3
-    # template_path = absoluteuri.build_absolute_uri(letter_template.template_file.url)
-    
-    # Method 4
-    # template_path = settings.MEDIA_ROOT + letter_template.template_file.name
     fileName, fileExtension = os.path.splitext(letter_template.template_file.name)
 
     doc = DocxTemplate(template_path)
@@ -60,7 +49,7 @@ def docx_to_pdf_file(letter_template, context, qr_url):
     return response
 
 def docx_to_pdf_process_file(letter_template, context, download, qr_url):
-    template_path = letter_template.template_file.path
+    template_path = letter_template.template_file.file
     fileName, fileExtension = os.path.splitext(letter_template.template_file.name)
     doc = DocxTemplate(template_path)
     doc.render(context)
