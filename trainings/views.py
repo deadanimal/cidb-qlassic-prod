@@ -68,8 +68,8 @@ def dashboard_training_application_dashboard(request):
     # application, applicable = get_trainer_application(request, request.user, 'trainer')
     application_trainer, applicable_trainer = get_trainer_application_status(request.user)
     application_assessor, applicable_assessor = get_assessor_application_status(request.user)
-    assessor = Assessor.objects.all().filter(user=request.user)
-    trainer = Trainer.objects.all().filter(user=request.user)
+    assessor = Assessor.objects.all().filter(user=request.user).first()
+    trainer = Trainer.objects.all().filter(user=request.user).first()
     context = {
         'assessor':assessor,
         'trainer':trainer,
