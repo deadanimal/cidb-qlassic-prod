@@ -71,6 +71,7 @@
               <h2 class="mb-0">QLASSIC Industry Assessor Certificate - Payment</h2>
             </div>
             <div class="card-body">
+              {% if proforma %}
               <form action="{{ url }}" method="POST">
                 <input type="hidden" name="ClientReturnURL" value="{{ response_url }}">
                 <input type="hidden" name="IcOrRoc" value="{{ user.code_id }}">
@@ -103,6 +104,9 @@
                   <button type="submit" class="btn btn-primary text-right">Pay</button>
                 </div>
               </form>
+              {% else %}
+                <p>Problem with creating proforma. Please try again later</p>
+              {% endif %}
             </div>
           </div>
         </div>

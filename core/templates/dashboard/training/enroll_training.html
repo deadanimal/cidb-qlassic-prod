@@ -408,6 +408,7 @@
               <h2 class="mb-0">Training Name</h2>
               <h4 class="mb-0">{{ training.training.training_name }}</h4>
               <hr>
+              {% if proforma %}
               <form action="{{ url }}" method="POST">
                 <input type="hidden" name="ClientReturnURL" value="{{ response_url }}">
                 <input type="hidden" name="IcOrRoc" value="{{ request.user.code_id }}">
@@ -440,6 +441,9 @@
                   <button type="submit" class="btn btn-primary text-right">Pay</button>
                 </div>
               </form>
+              {% else %}
+                <p>Problem with creating proforma. Please try again later</p>
+              {% endif %}
             </div>
           </div>
         </div>
