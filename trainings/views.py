@@ -62,7 +62,7 @@ from api.soap.create_transaction import create_transaction, payment_gateway_url
 @login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin', 'trainer', 'assessor', 'trainee', 'applicant'])
 def dashboard_training_application_dashboard(request):
-    if request.user.role != 'assessor' and request.user.role != 'trainer' and request.user.role != 'superadmin':
+    if not request.user.is_assessor and not request.user.is_trainer and request.user.role != 'superadmin':
         messages.warning(request, 'You must be either QLASSIC Industry Assessor (QIA), QLASSIC CIDB Assessor (QCA) or Trainer in order to apply the role(s) below.')
     # application, applicable = get_trainer_application(request, request.user, 'trainer')
     application_trainer, applicable_trainer = get_trainer_application_status(request.user)

@@ -72,7 +72,7 @@ def get_trainer_application_status(user):
     application = None
     applicable = True
 
-    if user.role != 'assessor' and user.role != 'trainer' and user.role != 'superadmin':
+    if not user.is_assessor and not user.is_trainer and user.role != 'superadmin':
         applicable = False
         return (application, applicable)
 
@@ -98,7 +98,7 @@ def get_assessor_application_status(user):
     application = None
     applicable = True
 
-    if user.role != 'assessor' and user.role != 'trainer' and user.role != 'superadmin':
+    if not user.is_assessor and not user.is_trainer and user.role != 'superadmin':
         applicable = False
         return (application, applicable)
         
