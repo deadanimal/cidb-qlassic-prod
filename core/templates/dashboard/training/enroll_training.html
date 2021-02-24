@@ -406,7 +406,8 @@
             </div>
             <div class="card-body">
               <h2 class="mb-0">Training Name</h2>
-              <h4 class="mb-0">{{ training.training.training_name }}</h4>
+              <h4 class="">{{ training.training.training_name }}</h4>
+              <p class="mb-0"><strong>Registration Number:</strong> {{ training.code_id }}</p>
               <hr>
               {% if proforma %}
               <form action="{{ url }}" method="POST">

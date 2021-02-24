@@ -42,7 +42,8 @@
                 </div>
                 <div class="card-body">
                     <h2 class="mb-0">Project Title</h2>
-                    <h4 class="mb-0">{{ qaa.pi.project_title }}</h4>
+                    <h4 class="">{{ qaa.pi.project_title }}</h4>
+                    <p class="mb-0">Application Number: {{ qaa.qaa_number }}</p>
                     <hr>
                     {% if proforma %}
                     <form action="{{ url }}" method="POST">
