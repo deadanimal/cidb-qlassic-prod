@@ -46,6 +46,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     # Add extra responses here
                     
                     data['name'] = self.user.name
+                    data['email'] = self.user.email
                     data['nric'] = self.user.icno
                     data['role'] = self.user.role
                     data['token'] = access_token
