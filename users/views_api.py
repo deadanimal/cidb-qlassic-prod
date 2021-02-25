@@ -32,31 +32,37 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 from rest_framework import serializers, status
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-	def validate(self, attrs):
-		user = authenticate(username=attrs['email'], password=attrs['password'])
-		if user is not None:
-			if user.is_active:
-				data = super().validate(attrs)
-				refresh = self.get_token(self.user)
-				refresh['username'] = self.user.email
-				try:
-					data["refresh"] = str(refresh)
-					data["access"] = str(refresh.access_token)
-					data["name"] = self.user.name
-					data["nric"] = self.user.icno
-					data["status"] = 'success'
-				except Exception as e:
+    def validate(self, attrs):
+        user = authenticate(username=attrs['email'], password=attrs['password'])
+        if user is not None:
+            if user.is_active:
+                data = super().validate(attrs)
+                refresh = self.get_token(self.user)
+                refresh['username'] = self.user.email
+                try:
+                    access_token = str(refresh.access_token)
+                    data["refresh"] = str(refresh)
+                    data["access"] = access_token
+                    # Add extra responses here
+                    
+                    data['name'] = self.user.name
+                    data['nric'] = self.user.icno
+                    data['role'] = self.user.role
+                    data['token'] = access_token
+                    data['status'] = 'success'
+                    data['projects'] = []
+                except Exception as e:
                     # return data
-					raise serializers.ValidationError('Something Wrong!')
-				return data
-			else:
-				raise serializers.ValidationError('Account is Blocked')
-		else:
-			data = {
+                    raise serializers.ValidationError('Something Wrong!')
+                return data
+            else:
+                raise serializers.ValidationError('Account is Blocked')
+        else:
+            data = {
                 'status': 'failed'
             }
-			return data
-			# raise serializers.ValidationError('Incorrect userid/email and password combination!')
+            return data
+            # raise serializers.ValidationError('Incorrect userid/email and password combination!')
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
