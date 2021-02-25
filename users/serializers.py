@@ -14,6 +14,52 @@ from .models import (
     Assessor,
 )
 
+from django.contrib.auth import authenticate, login
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import update_last_login
+
+# class UserLoginSerializer(serializers.Serializer):
+#     email = serializers.EmailField()
+#     password = serializers.CharField(max_length=128, write_only=True)
+#     access = serializers.CharField(read_only=True)
+#     refresh = serializers.CharField(read_only=True)
+#     role = serializers.CharField(read_only=True)
+
+#     def validate(self, data):
+#         email = data['email']
+#         password = data['password']
+#         user = authenticate(email=email, password=password)
+
+#         if user is None:
+#             raise serializers.ValidationError("Invalid login credentials")
+
+#         try:
+#             refresh = RefreshToken.for_user(user)
+#             refresh_token = str(refresh)
+#             access_token = str(refresh.access_token)
+
+#             update_last_login(None, user)
+
+#             validation = {
+#                 'access': access_token,
+#                 'refresh': refresh_token,
+#                 'email': user.email,
+#                 'role': user.role,
+#             }
+
+#             return validation
+#         except CustomUser.DoesNotExist:
+#             raise serializers.ValidationError("Invalid login credentials")
+
+# class LoginSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(
+#         max_length=65, min_length=8, write_only=True)
+#     email = serializers.EmailField(max_length=255, min_length=2)
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ['email', 'password']
+
 class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:

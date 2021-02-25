@@ -34,6 +34,7 @@ users_router = router.register(
 # Is Alive
 from users.views_api import (
     IsAlive,
+    # LoginView,
 )
 
 # Wire up our API using automatic URL routing.
@@ -43,6 +44,7 @@ urlpatterns = [
     url(r'api/v1/', include(router.urls)),
     url(r'auth/', include('rest_auth.urls')),
     url(r'auth/registration/', include('rest_auth.registration.urls')),
+    # url(r'auth/login/', LoginView.as_view(), name='api_login'),
 
     url('isAlive/', IsAlive.as_view(), name='isAlive'),
     url('auth/obtain/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),

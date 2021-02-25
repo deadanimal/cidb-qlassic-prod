@@ -1,33 +1,67 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     def validate(self, attrs):
+#         data = super().validate(attrs)
+#         if self.user.is_authenticated:
+#             data['authentication_status'] = 'Authenticated'
+#         else:
+#             data['authentication_status'] = 'No'
+#         refresh = self.get_token(self.user)
+#         data['refresh'] = str(refresh)
+#         data['access'] = str(refresh.access_token)
+
+#         # Add extra responses here
+#         data['name'] = self.user.name
+#         data['nric'] = self.user.icno
+#         data['role'] = self.user.role
+#         data['token'] = str(refresh.access_token)
+#         data['status'] = 'success'
+#         data['projects'] = []
+#         return data
+
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+#         token['email'] = user.email
+#         token['role'] = user.role
+#         return token
+
+
+from django.contrib.auth import authenticate
+from rest_framework import serializers, status
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        refresh = self.get_token(self.user)
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-
-        # Add extra responses here
-        data['name'] = self.user.name
-        data['nric'] = self.user.icno
-        data['role'] = self.user.role
-        data['token'] = str(refresh.access_token)
-        data['status'] = 'success'
-        data['projects'] = []
-        return data
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['email'] = user.email
-        token['role'] = user.role
-        return token
+	def validate(self, attrs):
+		user = authenticate(username=attrs['email'], password=attrs['password'])
+		if user is not None:
+			if user.is_active:
+				data = super().validate(attrs)
+				refresh = self.get_token(self.user)
+				refresh['username'] = self.user.email
+				try:
+					data["refresh"] = str(refresh)
+					data["access"] = str(refresh.access_token)
+					data["name"] = self.user.name
+					data["nric"] = self.user.icno
+					data["status"] = 'success'
+				except Exception as e:
+                    # return data
+					raise serializers.ValidationError('Something Wrong!')
+				return data
+			else:
+				raise serializers.ValidationError('Account is Blocked')
+		else:
+			data = {
+                'status': 'failed'
+            }
+			return data
+			# raise serializers.ValidationError('Incorrect userid/email and password combination!')
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
-
+    
 from django.shortcuts import render
 from django.db.models import Q
 
@@ -38,6 +72,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework import viewsets, status
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -50,6 +85,62 @@ from users.serializers import (
     CustomUserSerializer,
     AssessorSerializer,
 )
+
+# class UserLoginView(APIView):
+#     serializer_class = UserLoginSerializer
+#     permission_classes = (AllowAny, )
+
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         valid = serializer.is_valid(raise_exception=True)
+
+#         if valid:
+#             status_code = status.HTTP_200_OK
+
+#             response = {
+#                 'success': True,
+#                 'statusCode': status_code,
+#                 'message': 'User logged in successfully',
+#                 'access': serializer.data['access'],
+#                 'refresh': serializer.data['refresh'],
+#                 'authenticatedUser': {
+#                     'email': serializer.data['email'],
+#                     'role': serializer.data['role']
+#                 }
+#             }
+
+#             return Response(response, status=status_code)
+
+# from django.contrib import auth
+# import jwt
+# from django.conf import settings
+# class LoginView(GenericAPIView):
+#     serializer_class = LoginSerializer
+
+#     def post(self, request):
+#         data = request.data
+#         email = data.get('email', '')
+#         password = data.get('password', '')
+#         user = auth.authenticate(username=email, password=password)
+#         if user:
+#             print('authenticated ddd')
+#             auth_token = jwt.encode(
+#                 # {'username': user.username}
+#                 {'username': user.email}
+#             , settings.JWT_SECRET_KEY)
+
+#             serializer = CustomUserSerializer(user)
+
+#             data = {
+#                 'user': serializer.data,
+#                 'token': auth_token,
+#                 'status': True,
+#             }
+
+#             return Response(data, status=status.HTTP_200_OK)
+
+#             # SEND RES
+#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class CustomUserViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
