@@ -260,6 +260,7 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
             'isWriteOff': False,
             'isRefund': False,
             'isDoubtfulDebts': False,
+            'isCancel': False,
             'Items' : {
                 'TransactionDetail': [{
                     'Id': '1',
