@@ -37,6 +37,18 @@ from users.views_api import (
     # LoginView,
 )
 
+# Assesssments App
+from assessments.views_api import (
+    AssignedAssessorViewSet,
+    AssessmentDataViewSet,
+)
+assessors_router = router.register(
+    'assigend_assessor', AssignedAssessorViewSet
+)
+assessors_router = router.register(
+    'assessment_data', AssessmentDataViewSet
+)
+
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [

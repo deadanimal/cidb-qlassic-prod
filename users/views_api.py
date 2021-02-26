@@ -31,6 +31,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers, status
+from assessments.models import AssignedAssessor
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         user = authenticate(username=attrs['email'], password=attrs['password'])
@@ -43,8 +45,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     access_token = str(refresh.access_token)
                     data["refresh"] = str(refresh)
                     data["access"] = access_token
-                    # Add extra responses here
+
                     
+                    # Add extra responses here
                     data['name'] = self.user.name
                     data['email'] = self.user.email
                     data['nric'] = self.user.icno
@@ -52,6 +55,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     data['token'] = access_token
                     data['status'] = 'success'
                     data['projects'] = []
+                    # projects = AssignedAssessor.objects.all().filter(assessor__user=user)
+                    # for project in projects:
+                    #     data.update({'projects':project.ad})
+                
                 except Exception as e:
                     # return data
                     raise serializers.ValidationError('Something Wrong!')
