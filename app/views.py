@@ -287,10 +287,13 @@ from .helpers.letter_templates import generate_training_document
 
 from core.helpers import send_email_with_attachment
 from trainings.models import RegistrationTraining
+from api.soap.create_transaction import get_kodhasil
 
 @login_required(login_url="/login/")
 def view_pdf(request):
     # response = generate_document_file(request, 'training_certificate', {})
+    response = get_kodhasil('QLC-PUP')
+    response = get_kodhasil('QLC')
     training_type = TrainingType.objects.all().filter(name="Exam")[0]
     template_ctx = {
         'name': 'Abu bin Ali',

@@ -201,6 +201,26 @@ payment_gateway_url = "http://202.171.33.96:8085/Payment/MakePayment"
 #         json.dumps(xmltodict.parse(response_xml)))
 #     return middleware_response_json['soap11:Envelope']['soap11`:Body']['CreateTransactionResponse']
 
+# Get KodHasil By Code
+def get_kodhasil(code):
+
+    wsdl = create_transaction_wsdl
+
+    history = HistoryPlugin()
+    client = Client(wsdl,plugins=[history])
+    request_data = {
+        'code':code,
+    }
+    print(str(request_data))
+
+    response = client.service.GetKodHasilbyCode(**request_data)
+    # print(history.last_sent)
+    # print(history.last_received)
+    # response_xml = response.content
+    print(response)
+    # print(type(response_xml))
+    return response
+
 # Create Transaction
 def create_transaction(request, amount, quantity, tax, kod_hasil, description, ref_id, user):
     ## Notes

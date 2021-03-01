@@ -790,8 +790,15 @@ def dashboard_application_payment_response(request, id):
 def dashboard_application_assessor_list(request):
     mode = 'list_all'
     context = {}
-    if request.user.is_assessor:
+    if request.user.role == 'superadmin' or request.user.role == 'casc_verifier':
+        mode = 'list_all'
+
+    elif request.user.is_assessor:
         mode = 'list_own'
+    else:
+        mode = 'list_all'
+
+    if mode == 'list_own':
         suggested_assessors = SuggestedAssessor.objects.all().filter(assessor__user=request.user).exclude(acception=None)
         context = { 
             'suggested_assessors':suggested_assessors,
