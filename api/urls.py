@@ -33,7 +33,10 @@ users_router = router.register(
 )
 # Is Alive
 from users.views_api import (
-    IsAlive,
+    IsAliveView,
+    ReadySyncView,
+    ReadyCompleteView,
+    GetDocumentView,
     # LoginView,
 )
 
@@ -41,6 +44,7 @@ from users.views_api import (
 from assessments.views_api import (
     AssignedAssessorViewSet,
     AssessmentDataViewSet,
+    GetProjectDataView,
 )
 assessors_router = router.register(
     'assigend_assessor', AssignedAssessorViewSet
@@ -58,8 +62,12 @@ urlpatterns = [
     url(r'auth/registration/', include('rest_auth.registration.urls')),
     # url(r'auth/login/', LoginView.as_view(), name='api_login'),
 
-    url('isAlive/', IsAlive.as_view(), name='isAlive'),
+    url('isAlive/', IsAliveView.as_view(), name='isAlive'),
+    url('readySync/<str:projectID>', ReadySyncView.as_view(), name='readySync'),
+    url('readyComplete/<str:projectID>', ReadyCompleteView.as_view(), name='readyComplete'),
+    url('getDocument/<str:projectID>', GetDocumentView.as_view(), name='getDocument'),
     url('auth/obtain/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url('api/v1/getProjectData/', GetProjectDataView.as_view(), name='api_get_project_data'),
     url('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     url('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]

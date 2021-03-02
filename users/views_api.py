@@ -31,7 +31,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers, status
-from assessments.models import AssignedAssessor
+from assessments.models import AssignedAssessor, QlassicAssessmentApplication
+
+from assessments.serializers import (
+    AssignedAssessorSerializer
+)
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -41,32 +45,71 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data = super().validate(attrs)
                 refresh = self.get_token(self.user)
                 refresh['username'] = self.user.email
-                try:
-                    access_token = str(refresh.access_token)
-                    data["refresh"] = str(refresh)
-                    data["access"] = access_token
+                # try:
+                access_token = str(refresh.access_token)
+                data["refresh"] = str(refresh)
+                data["access"] = access_token
 
+                
+                # Add extra responses here
+                data['name'] = self.user.name
+                data['email'] = self.user.email
+                data['nric'] = self.user.icno
+                data['role'] = self.user.role
+                data['token'] = access_token
+                data['status'] = 'success'
+                print(type(data))
+                data['projects'] = []
+                # projects = AssignedAssessor.objects.all().filter(assessor__user=user).values()
+                # data['projects'] = list(projects)
+                projects = AssignedAssessor.objects.all().filter(assessor__user=user)
+                
+                for project in projects:
+                    qaa = project.ad.qaa
+                    assessors = AssignedAssessor.objects.all().filter(ad=project.ad)
+                    lead_assessor = assessors.filter(role_in_assessment='lead_assessor').first()
                     
-                    # Add extra responses here
-                    data['name'] = self.user.name
-                    data['email'] = self.user.email
-                    data['nric'] = self.user.icno
-                    data['role'] = self.user.role
-                    data['token'] = access_token
-                    data['status'] = 'success'
-                    data['projects'] = []
-                    # projects = AssignedAssessor.objects.all().filter(assessor__user=user)
+                    project_json = {
+                        'name': qaa.pi.project_title,
+                        'id': qaa.id,
+                        'status': qaa.application_status,
+                        'phase': 'haha',
+                        'location': qaa.pi.project_location,
+                        'sample': 30,
+                        'days': qaa.no_of_days,
+                        'date': qaa.assessment_date,
+                        'leadName': lead_assessor.assessor.user.name,
+                        'leadNric': lead_assessor.assessor.user.icno,
+                        'assessors': [],
+                    }
+                    for assessor in assessors:
+                        assessor_json = {
+                            'name': assessor.assessor.user.name,
+                            'nric': assessor.assessor.user.icno
+                        }
+                        project_json['assessors'].append(assessor_json)
+
+                    data['projects'].append(project_json)
+                        
                     # for project in projects:
                     #     data.update({'projects':project.ad})
                 
-                except Exception as e:
-                    # return data
-                    raise serializers.ValidationError('Something Wrong!')
+                # except Exception as e:
+                #     data = {
+                #         'description': 'Data Error',
+                #         'status': 'failed'
+                #     }
+                #     return data
                 return data
             else:
-                raise serializers.ValidationError('Account is Blocked')
+                data = {
+                    'description': 'Invalid email or password',
+                    'status': 'failed'
+                }
+                return data
         else:
             data = {
+                'description': 'Invalid email or password',
                 'status': 'failed'
             }
             return data
@@ -167,9 +210,11 @@ class CustomUserViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'list':
-            permission_classes = [IsAuthenticated] #AllowAny IsAuthenticated
+            # permission_classes = [IsAuthenticated] #AllowAny IsAuthenticated
+            permission_classes = [AllowAny] #AllowAny IsAuthenticated
         else:
-            permission_classes = [IsAuthenticated]
+            # permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny] #AllowAny IsAuthenticated
 
         return [permission() for permission in permission_classes]    
 
@@ -230,7 +275,7 @@ class AssessorViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         """
         return queryset    
  
-class IsAlive(APIView):
+class IsAliveView(APIView):
     def get_permissions(self):
         permission_classes = [AllowAny]
 
@@ -239,3 +284,73 @@ class IsAlive(APIView):
     def get(self, request):
         content = {'status': 'OK'}
         return Response(content, status=status.HTTP_200_OK)
+
+class ReadySyncView(APIView):
+    def get_permissions(self):
+        permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]    
+ 
+    def get(self, request, projectID):
+        context = {}
+        try:
+            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+            context = {'readySync': 'OK'}
+        except QlassicAssessmentApplication.DoesNotExist:
+            context = {'readySync': 'NOT OK'}
+        return Response(context, status=status.HTTP_200_OK)
+
+class ReadyCompleteView(APIView):
+    def get_permissions(self):
+        permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]    
+ 
+    def get(self, request, projectID):
+        context = {}
+        try:
+            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+            context = {'readyComplete': 'OK'}
+        except QlassicAssessmentApplication.DoesNotExist:
+            context = {'readyComplete': 'NOT OK'}
+        return Response(context, status=status.HTTP_200_OK)
+
+class GetDocumentView(APIView):
+    def get_permissions(self):
+        permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]    
+ 
+    def get(self, request, projectID):
+        context = {}
+        try:
+            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+            context = {'readyComplete': 'OK'}
+        except QlassicAssessmentApplication.DoesNotExist:
+            context = {}
+        return Response(context, status=status.HTTP_200_OK)
+
+# class UserLoginView(APIView):
+#     serializer_class = UserLoginSerializer
+#     permission_classes = (AllowAny, )
+
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         valid = serializer.is_valid(raise_exception=True)
+
+#         if valid:
+#             status_code = status.HTTP_200_OK
+
+#             response = {
+#                 'success': True,
+#                 'statusCode': status_code,
+#                 'message': 'User logged in successfully',
+#                 'access': serializer.data['access'],
+#                 'refresh': serializer.data['refresh'],
+#                 'authenticatedUser': {
+#                     'email': serializer.data['email'],
+#                     'role': serializer.data['role']
+#                 }
+#             }
+
+#             return Response(response, status=status_code)

@@ -16,3 +16,9 @@ class AssessmentDataSerializer(serializers.ModelSerializer):
         model = AssessmentData
         fields = '__all__'
         # read_only_fields = ('email', 'id')
+
+class QlassicAssessmentApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QlassicAssessmentApplication
+        fields = '__all__'
+        # read_only_fields = ('email', 'id')

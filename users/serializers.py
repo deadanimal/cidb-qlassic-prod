@@ -1,3 +1,4 @@
+from assessments.serializers import AssessmentDataSerializer
 from datetime import datetime
 from calendar import timegm
 import json
@@ -12,6 +13,10 @@ from django.utils.timezone import now
 from .models import (
     CustomUser,
     Assessor,
+)
+
+from assessments.models import (
+    AssessmentData,
 )
 
 from django.contrib.auth import authenticate, login
@@ -61,16 +66,22 @@ from django.contrib.auth.models import update_last_login
 #         fields = ['email', 'password']
 
 class CustomUserSerializer(serializers.ModelSerializer):
-
+    projects = serializers.SerializerMethodField('get_project')
     class Meta:
         model = CustomUser
         fields = (
             'name', 
             'email', 
             'created_date',
-            'is_active'
+            'is_active',
+            'projects',
         )
         read_only_fields = ('email', 'id')
+
+    def get_project(self, obj):
+        projects = AssessmentData.objects.all()
+        serialized = AssessmentDataSerializer(projects.data)
+        return serialized
 
 
 class AssessorSerializer(serializers.ModelSerializer):

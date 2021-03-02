@@ -160,7 +160,6 @@ class CustomUser(AbstractUser):
         else:
             return False
 
-
 # @receiver(post_save, sender=SubComponent)
 # def signal_sub_component(sender, instance, created, **kwargs):
 #     if instance.
