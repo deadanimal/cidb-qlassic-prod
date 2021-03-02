@@ -542,7 +542,7 @@ def dashboard_joined_training_list(request):
 def dashboard_joined_training_pay(request, id):
     mode = 'payment'
     rt = get_object_or_404(RegistrationTraining, id=id)
-    response = create_transaction(request, rt.training.fee, 1, 0, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
+    response = create_transaction(request, 1, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
     proforma = response.Code
     print(str(response))
     
@@ -555,13 +555,14 @@ def dashboard_joined_training_pay(request, id):
     payment.customer_email = request.user.email
     payment.rt = rt
     payment.currency = 'MYR'
-    payment.payment_amount = rt.training.fee
+    payment.payment_amount = response.Amount
     payment.save()
 
     context = {
         'title': 'Payment - Joined Training',
         'mode': mode,
         'training': rt,
+        'amount': payment.payment_amount,
         'proforma': proforma,
         'response': response,
         'url': payment_gateway_url,
@@ -1072,8 +1073,7 @@ def dashboard_qia_application_review(request, id):
 def dashboard_qia_application_pay(request, id):
     mode = 'payment'
     user = get_object_or_404(CustomUser, id=id)
-    amount = 50
-    response = create_transaction(request, amount, 1, 0, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
+    response = create_transaction(request, 1, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
     proforma = response.Code
 
     response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
@@ -1084,7 +1084,7 @@ def dashboard_qia_application_pay(request, id):
     payment.customer_name = request.user.name
     payment.customer_email = request.user.email
     payment.currency = 'MYR'
-    payment.payment_amount = amount
+    payment.payment_amount = response.Amount
     payment.save()
 
     context = {
@@ -1092,7 +1092,7 @@ def dashboard_qia_application_pay(request, id):
         'mode': mode,
         'user': user,
         'proforma': proforma,
-        'amount': amount,
+        'amount': response.Amount,
         'response': response,
         'url': payment_gateway_url,
         'response_url': response_url,

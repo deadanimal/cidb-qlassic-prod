@@ -222,7 +222,7 @@ def get_kodhasil(code):
     return response
 
 # Create Transaction
-def create_transaction(request, amount, quantity, tax, kod_hasil, description, ref_id, user):
+def create_transaction_old(request, amount, quantity, tax, kod_hasil, description, ref_id, user):
     ## Notes
     # KOD HASIL : QLC - assessment, QLC-PUP - training
 
@@ -298,6 +298,122 @@ def create_transaction(request, amount, quantity, tax, kod_hasil, description, r
                     'TaxAmount': tax,
                     'TaxAmountDec': 2,
                     'Amount': unit_amout_with_tax,
+                    'AmountDec': 2,
+                    'CMISRefId': prefix+ref_id,
+                    'Description': "1. "+description,
+                }]
+            }
+        }
+    }
+    print(str(request_data))
+
+    response = client.service.CreateTransaction(**request_data)
+    # print(history.last_sent)
+    # print(history.last_received)
+    # response_xml = response.content
+    # print(response_xml)
+    # print(type(response_xml))
+    return response
+
+# Get KodHasil By Code
+def get_transaction_detail(code):
+
+    wsdl = create_transaction_wsdl
+
+    history = HistoryPlugin()
+    client = Client(wsdl,plugins=[history])
+    request_data = {
+        'code':code,
+    }
+    print(str(request_data))
+
+    response = client.service.GetKodHasilbyCode(**request_data)
+    # print(history.last_sent)
+    # print(history.last_received)
+    # response_xml = response.content
+    # print(type(response_xml))
+    return response
+
+# Create Transaction
+def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
+    ## Notes
+    # KOD HASIL : QLC - assessment, QLC-PUP - training
+    kh_response = get_transaction_detail(kod_hasil)
+    prefix = ''
+    if settings.CUSTOM_DEV_MODE == 1:
+        prefix = 'DEV'+datetime.datetime.now().strftime('%y')+"-"
+    elif settings.CUSTOM_STG_MODE == 1:
+        prefix = 'STG'+datetime.datetime.now().strftime('%y')+"-"
+    else:
+        prefix = 'P'+datetime.datetime.now().strftime('%y')+"-"
+
+    print(kh_response)
+    wsdl = create_transaction_wsdl
+
+    unit_amount = kh_response[0].unitPrice
+    unit_amount_with_tax = unit_amount + ( unit_amount * kh_response[0].taxPercentage)
+    tax_amount_per_unit = unit_amount * kh_response[0].taxPercentage
+    total_tax =  tax_amount_per_unit * quantity
+    total_amount = unit_amount_with_tax * quantity
+
+    discount_amount = kh_response[0].discountAmount
+    history = HistoryPlugin()
+    client = Client(wsdl,plugins=[history])
+    now_date = datetime.datetime.now()
+    due_date = now_date + datetime.timedelta(days=30)
+    request_data = {
+        'obj': {
+            'Id':'1',
+            'SubType':'QLASSIC',
+            'Category':'PROFORMA INVOICE',
+            'SubCategory':'Third Party System - QLASSIC Portal',
+            'SourceType':'Third Party System - QLASSIC Portal',
+            'CustomerId': user.code_id,
+            'CreatedDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+            'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+            'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+            'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
+            'Description': ref_id+'-'+description,
+            'Amount': total_amount,
+            'AmountDec': 2,
+            'DiscountAmount': discount_amount,
+            'Tax': total_tax,
+            'TaxDec': 2,
+            'UniqueReference': prefix+ref_id,
+            'SMISRefId': prefix+ref_id,
+            'CreatedBy': user.name,
+            'CustomerName': user.name,
+            'address': user.address1,
+            'address1': user.address2,
+            'address2': '',
+            'city': user.city,
+            'state': user.state,
+            'zipCode': user.postcode,
+            'BranchCode': 'HQ',
+            'ModuleCode': 'B4',
+            # 'ComId': 0,
+            'PaymentTerm': '1',
+            'isWriteOff': False,
+            'isRefund': False,
+            'isDoubtfulDebts': False,
+            'isCancel': False,
+            'Items' : {
+                'TransactionDetail': [{
+                    'Id': '1',
+                    'DiscountAmount': 0,
+                    'DiscountPer': 0,
+                    'KodHasil': kod_hasil,
+                    'Qty': quantity,
+                    'QtyAmount': unit_amount,
+                    'QtyAmountDec': 2,
+                    'UnitPrice': unit_amount,
+                    'UnitPriceDec': 2,
+                    'TaxCode': kod_hasil,
+                    'TaxPerAmount': tax_amount_per_unit,
+                    'TaxPerAmountDec': 2,
+                    'TaxAmount': total_tax,
+                    'TaxAmountDec': 2,
+                    'Amount': total_amount,
                     'AmountDec': 2,
                     'CMISRefId': prefix+ref_id,
                     'Description': "1. "+description,

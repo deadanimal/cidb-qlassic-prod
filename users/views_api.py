@@ -31,7 +31,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers, status
-from assessments.models import AssignedAssessor, QlassicAssessmentApplication
+from assessments.models import AssignedAssessor, QlassicAssessmentApplication, SupportingDocuments
 
 from assessments.serializers import (
     AssignedAssessorSerializer
@@ -59,7 +59,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data['token'] = access_token
                 data['status'] = 'success'
                 print(type(data))
-                data['projects'] = []
+                data['project'] = []
                 # projects = AssignedAssessor.objects.all().filter(assessor__user=user).values()
                 # data['projects'] = list(projects)
                 projects = AssignedAssessor.objects.all().filter(assessor__user=user)
@@ -89,7 +89,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                         }
                         project_json['assessors'].append(assessor_json)
 
-                    data['projects'].append(project_json)
+                    data['project'].append(project_json)
                         
                     # for project in projects:
                     #     data.update({'projects':project.ad})
@@ -325,7 +325,15 @@ class GetDocumentView(APIView):
         context = {}
         try:
             qaa = QlassicAssessmentApplication.objects.get(id=projectID)
-            context = {'readyComplete': 'OK'}
+            documents = SupportingDocuments.objects.all().filter(qaa=qaa)
+            for doc in documents:
+                doc_json = {
+                    'id': doc.id,
+                    'name': doc.file_name,
+                    'link': doc.url,
+                }
+                context.append(doc_json)
+
         except QlassicAssessmentApplication.DoesNotExist:
             context = {}
         return Response(context, status=status.HTTP_200_OK)

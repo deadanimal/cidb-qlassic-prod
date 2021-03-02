@@ -428,7 +428,7 @@
                 <input type="hidden" name="ClientRef9" value="">
                 <div class="form-group">
                   <label for="">Amount (MYR)</label>
-                  <input type="text" name="Amount" value="{{ training.training.fee }}" readonly required>
+                  <input type="text" name="Amount" value="{{ amount|floatformat:2 }}" readonly required>
                 </div>
                 <div class="form-group">
                   <label for="">Customer Name</label>

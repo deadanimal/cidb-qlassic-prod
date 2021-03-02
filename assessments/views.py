@@ -708,7 +708,7 @@ def dashboard_application_list(request):
 def dashboard_application_payment(request, id):
     mode = 'payment'
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    response = create_transaction(request, qaa.get_amount(), 1, 0, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
+    response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
     print(response)
     proforma = response.Code
     
@@ -721,7 +721,7 @@ def dashboard_application_payment(request, id):
     payment.customer_email = request.user.email
     payment.qaa = qaa
     payment.currency = 'MYR'
-    payment.payment_amount = qaa.get_amount()
+    payment.payment_amount = response.Amount
     payment.save()
 
     context = {
@@ -729,6 +729,7 @@ def dashboard_application_payment(request, id):
         'mode': mode,
         'qaa': qaa,
         'proforma': proforma,
+        'amount': payment.payment_amount,
         'response': response,
         'url': payment_gateway_url,
         'response_url': response_url,
