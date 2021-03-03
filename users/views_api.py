@@ -70,28 +70,29 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     
                     lead_assessor = assessors.filter(role_in_assessment='lead_assessor').first()
                     
-                    project_json = {
-                        'name': qaa.pi.project_title,
-                        'id': qaa.id,
-                        'status': qaa.application_status,
-                        'phase': 'haha',
-                        'location': qaa.pi.project_location,
-                        'sample': project.ad.calculate_sample(),
-                        'days': qaa.no_of_days,
-                        'date': qaa.assessment_date,
-                        'leadName': lead_assessor.assessor.user.name,
-                        'leadNric': lead_assessor.assessor.user.icno,
-                        'assessors': [],
-                    }
-                    for assessor in assessors:
-                        assessor_json = {
-                            'name': assessor.assessor.user.name,
-                            'nric': assessor.assessor.user.icno
+                    if qaa.application_status != 'verified':
+                        project_json = {
+                            'name': qaa.pi.project_title,
+                            'id': qaa.id,
+                            'status': qaa.application_status,
+                            'phase': 'haha',
+                            'location': qaa.pi.project_location,
+                            'sample': project.ad.calculate_sample(),
+                            'days': qaa.no_of_days,
+                            'date': qaa.assessment_date,
+                            'leadName': lead_assessor.assessor.user.name,
+                            'leadNric': lead_assessor.assessor.user.icno,
+                            'assessors': [],
                         }
-                        project_json['assessors'].append(assessor_json)
+                        for assessor in assessors:
+                            assessor_json = {
+                                'name': assessor.assessor.user.name,
+                                'nric': assessor.assessor.user.icno
+                            }
+                            project_json['assessors'].append(assessor_json)
 
-                    data['project'].append(project_json)
-                        
+                        data['project'].append(project_json)
+                            
                     # for project in projects:
                     #     data.update({'projects':project.ad})
                 
