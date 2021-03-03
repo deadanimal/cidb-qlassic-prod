@@ -248,49 +248,88 @@ class DefectGroup(models.Model):
 
 class AssessmentData(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
-    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
-    assessor = models.ForeignKey(Assessor, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True, blank=True)
+    assessor = models.ForeignKey(Assessor, on_delete=models.CASCADE, null=True, blank=True)
     
-    # sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
-    # dg = models.ForeignKey(DefectGroup, on_delete=models.CASCADE, null=True)
+    # sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True, blank=True)
+    # dg = models.ForeignKey(DefectGroup, on_delete=models.CASCADE, null=True, blank=True)
     
-    block = models.IntegerField(null=True, verbose_name="Block's name")
-    unit = models.IntegerField(null=True, verbose_name="Unit number")
-    time = models.TimeField(null=True, verbose_name="Time taken to complete data for one sample")
-    count_sampling_done = models.IntegerField(null=True, verbose_name="Number of sampling done")
-    count_principle = models.IntegerField(null=True, verbose_name="Number of principles samples")
-    count_services = models.IntegerField(null=True, verbose_name="Number of services samples")
-    count_circulation = models.IntegerField(null=True, verbose_name="Number of circulation samples")
+    block = models.IntegerField(null=True, blank=True, verbose_name="Block's name")
+    unit = models.IntegerField(null=True, blank=True, verbose_name="Unit number")
+    time = models.TimeField(null=True, blank=True, verbose_name="Time taken to complete data for one sample")
+    count_sampling_done = models.IntegerField(null=True, blank=True, verbose_name="Number of sampling done")
+    count_principle = models.IntegerField(null=True, blank=True, verbose_name="Number of principles samples")
+    count_services = models.IntegerField(null=True, blank=True, verbose_name="Number of services samples")
+    count_circulation = models.IntegerField(null=True, blank=True, verbose_name="Number of circulation samples")
     
-    number_of_sample = models.IntegerField(null=True)
+    number_of_sample = models.IntegerField(null=True, blank=True)
     
-    architectural_work = models.FloatField(null=True)
-    floor_finishes = models.FloatField(null=True)
-    internal_wall = models.FloatField(null=True)
-    ceiling = models.FloatField(null=True)
-    door = models.FloatField(null=True)
-    window = models.FloatField(null=True)
-    internal_fixtures = models.FloatField(null=True)
-    roof = models.FloatField(null=True)
-    external_wall = models.FloatField(null=True)
-    apron_perimeter_drain = models.FloatField(null=True)
-    car_park = models.FloatField(null=True, verbose_name="Car park/ Car porch")
-    material_functional_test = models.FloatField(null=True, verbose_name="Material & Functional Test")
+    architectural_work = models.FloatField(null=True, blank=True)
+    floor_finishes = models.FloatField(null=True, blank=True)
+    internal_wall = models.FloatField(null=True, blank=True)
+    ceiling = models.FloatField(null=True, blank=True)
+    door = models.FloatField(null=True, blank=True)
+    window = models.FloatField(null=True, blank=True)
+    internal_fixtures = models.FloatField(null=True, blank=True)
+    roof = models.FloatField(null=True, blank=True)
+    external_wall = models.FloatField(null=True, blank=True)
+    apron_perimeter_drain = models.FloatField(null=True, blank=True)
+    car_park = models.FloatField(null=True, blank=True, verbose_name="Car park/ Car porch")
+    material_functional_test = models.FloatField(null=True, blank=True, verbose_name="Material & Functional Test")
     
-    total = models.FloatField(null=True, verbose_name="Total (1.1-5)")
-    me_fittings = models.FloatField(null=True, verbose_name="Basic M&E Fittings")
-    mock_up_score = models.FloatField(null=True, verbose_name="QLASSIC score with mock up")
-    qlassic_score = models.FloatField(null=True, verbose_name="QLASSIC score")
+    total = models.FloatField(null=True, blank=True, verbose_name="Total (1.1-5)")
+    me_fittings = models.FloatField(null=True, blank=True, verbose_name="Basic M&E Fittings")
+    mock_up_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score with mock up")
+    qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(null=True, max_length=50)
+    created_by = models.CharField(null=True, blank=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
-    modified_by = models.CharField(null=True, max_length=50)
+    modified_by = models.CharField(null=True, blank=True, max_length=50)
 
     def __str__(self):
         return str(self.qaa) if self.qaa else ''
+
+    def calculate_sample(self):
+        sample = 0
+        if sample == None or sample == 0:
+            gfa = self.qaa.pi.gfa
+            gfa_per = 70
+            min = 30
+            max = 700
+            building_type = self.qaa.building_type
+            if building_type == 'A':
+                gfa_per = 70
+                min = 30
+                max = 700
+            if building_type == 'B':
+                gfa_per =  70
+                min = 30
+                max = 600
+            if building_type == 'C':
+                gfa_per = 500
+                min = 30
+                max = 150
+            if building_type == 'D':
+                gfa_per = 500
+                min = 30
+                max = 100
+
+            sample = gfa / gfa_per
+            if sample < min:
+                sample = min
+            elif sample > max:
+                sample = max
+            else:
+                pass
+            self.number_of_sample = round(sample)
+            self.save()
+        else:
+            sample = self.number_of_sample
+
+        return round(sample)
 
 class SupportingDocuments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

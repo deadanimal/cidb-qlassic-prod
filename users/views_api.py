@@ -67,6 +67,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 for project in projects:
                     qaa = project.ad.qaa
                     assessors = AssignedAssessor.objects.all().filter(ad=project.ad)
+                    
                     lead_assessor = assessors.filter(role_in_assessment='lead_assessor').first()
                     
                     project_json = {
@@ -75,7 +76,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                         'status': qaa.application_status,
                         'phase': 'haha',
                         'location': qaa.pi.project_location,
-                        'sample': 30,
+                        'sample': project.ad.calculate_sample(),
                         'days': qaa.no_of_days,
                         'date': qaa.assessment_date,
                         'leadName': lead_assessor.assessor.user.name,
