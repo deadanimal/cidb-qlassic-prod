@@ -384,7 +384,7 @@ class WorkCompletionForm(models.Model):
     ad = models.ForeignKey(AssessmentData, on_delete=models.CASCADE, null=True)
 
     name = models.CharField(null=True, max_length=255)
-    icno = models.CharField(null=True, max_length=14, verbose_name="IC number")
+    icno = models.CharField(null=True, max_length=12, verbose_name="IC number (without '-')")
     company = models.CharField(null=True, max_length=255)
     position = models.CharField(null=True, max_length=255)
     hp_no = models.CharField(null=True, max_length=255, verbose_name="Contact number")

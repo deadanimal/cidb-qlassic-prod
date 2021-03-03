@@ -303,7 +303,7 @@ class RegistrationTraining(models.Model):
     # )
     
     participant_name = models.CharField(null=True, max_length=200, verbose_name="Participant's name")
-    participant_icno = models.CharField(null=True, max_length=14, verbose_name="Participant's IC number")
+    participant_icno = models.CharField(null=True, max_length=12, verbose_name="Participant's IC number (without '-')")
     participant_email = models.CharField(null=True, max_length=100, verbose_name="Participant's email")
     participant_hpno = models.CharField(null=True, max_length=15, verbose_name="Participant's phone number")
     participant_designation = models.CharField(null=True, max_length=200, verbose_name="Participant's designation")

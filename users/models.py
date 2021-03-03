@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code_id = models.CharField(null=True,blank=True, max_length=50)
 
-    icno = models.CharField(null=True, max_length=14, verbose_name='Identity Card Number')
+    icno = models.CharField(null=True, max_length=12, verbose_name='Identity Card Number (without \'-\')')
     name = models.CharField(null=True, max_length=100)
 
     GENDER = [
