@@ -15,7 +15,8 @@ import xmltodict
 import datetime
 
 create_transaction_wsdl = "http://202.171.33.96/Financeservice/?wsdl"
-payment_gateway_url = "http://202.171.33.96:8085/Payment/MakePayment"
+payment_gateway_url = "https://cimsdev.cidb.gov.my/pmscart/Payment/MakePayment"
+# payment_gateway_url = "http://202.171.33.96:8085/Payment/MakePayment"
 # payment_gateway_url = "http://202.171.33.96/securepay/Listener.aspx"
 
 # Production
