@@ -29,3 +29,24 @@ def calculate_sample(qaa):
         sample = max
 
     return sample
+
+def get_qaa_sd_name(name):
+    if name == 'sd_1':
+        return 'SURAT PENGESAHAN PEMILIKAN KOSONG ATAU VACANT(VP) OLEH PEMILIK PROJEK/KLIEN'
+    if name == 'sd_2':
+        return 'SURAT PERAKUAN SIAP KERJA OLEH ARKITEK'
+    if name == 'sd_3':
+        return 'SURAT PENGESAHAN OLEH ARKITEK'
+    if name == 'sd_4':
+        return 'SALINAN SURAT TAWARAN PROJEK/PROJECTS LETTER OF AWARD'
+    if name == 'sd_5':
+        return 'SALINAN PELAN LOKASI TAPAK/SITE LOCATION MAP'
+    if name == 'sd_6':
+        return 'SALINAN PROJECT LAYOUT'
+    if name == 'sd_7':
+        return 'SALINAN FLOOR PLAN'
+    if name == 'sd_8':
+        return 'SALINAN EXTERNAL WORKS LAYOUT PLAN'
+    if name == 'sd_9':
+        return 'SURAT PERAKUAN'
+    return name

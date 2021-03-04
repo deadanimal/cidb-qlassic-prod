@@ -318,6 +318,7 @@ class AssessmentData(models.Model):
                 max = 100
 
             sample = gfa / gfa_per
+            print(sample)
             if sample < min:
                 sample = min
             elif sample > max:

@@ -33,7 +33,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers, status
 from django.http import Http404
 from assessments.models import AssignedAssessor, QlassicAssessmentApplication, SupportingDocuments
-
+from assessments.helpers import get_qaa_sd_name
 from assessments.serializers import (
     AssignedAssessorSerializer
 )
@@ -42,7 +42,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         user = authenticate(username=attrs['email'], password=attrs['password'])
         if user is not None:
-            if user.is_active:
+            if user.is_active and user.is_assessor():
                 data = super().validate(attrs)
                 refresh = self.get_token(self.user)
                 refresh['username'] = self.user.email
@@ -318,7 +318,7 @@ class GetDocumentView(APIView):
             for doc in documents:
                 doc_json = {
                     'id': doc.id,
-                    'name': doc.file_name,
+                    'name': get_qaa_sd_name(doc.file_name),
                     'link': doc.file.url,
                 }
                 context.append(doc_json)
