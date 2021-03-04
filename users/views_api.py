@@ -31,6 +31,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from django.contrib.auth import authenticate
 from rest_framework import serializers, status
+from django.http import Http404
 from assessments.models import AssignedAssessor, QlassicAssessmentApplication, SupportingDocuments
 
 from assessments.serializers import (
@@ -286,6 +287,45 @@ class IsAliveView(APIView):
     def get(self, request):
         content = {'status': 'OK'}
         return Response(content, status=status.HTTP_200_OK)
+ 
+# class GetDocumentView(APIView):
+#     def get_permissions(self):
+#         permission_classes = [AllowAny]
+
+#         return [permission() for permission in permission_classes]    
+ 
+#     def get(self, request, id):
+#         content = {'status': 'OK'}
+#         return Response(content, status=status.HTTP_200_OK)
+
+class GetDocumentView(APIView):
+    def get_permissions(self):
+        permission_classes = [AllowAny]
+
+        return [permission() for permission in permission_classes]    
+    
+    def get_object(self, id):
+        try:
+            return QlassicAssessmentApplication.objects.get(id=id)
+        except QlassicAssessmentApplication.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id):
+        context = []
+        try:
+            qaa = self.get_object(id=id)
+            documents = SupportingDocuments.objects.all().filter(qaa=qaa)
+            for doc in documents:
+                doc_json = {
+                    'id': doc.id,
+                    'name': doc.file_name,
+                    'link': doc.file.url,
+                }
+                context.append(doc_json)
+
+        except QlassicAssessmentApplication.DoesNotExist:
+            context = []
+        return Response(context)
 
 class ReadySyncView(APIView):
     def get_permissions(self):
@@ -293,10 +333,10 @@ class ReadySyncView(APIView):
 
         return [permission() for permission in permission_classes]    
  
-    def get(self, request, projectID):
+    def get(self, request, id):
         context = {}
         try:
-            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+            qaa = QlassicAssessmentApplication.objects.get(id=id)
             context = {'readySync': 'OK'}
         except QlassicAssessmentApplication.DoesNotExist:
             context = {'readySync': 'NOT OK'}
@@ -308,37 +348,16 @@ class ReadyCompleteView(APIView):
 
         return [permission() for permission in permission_classes]    
  
-    def get(self, request, projectID):
+    def get(self, request, id):
         context = {}
         try:
-            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+            qaa = QlassicAssessmentApplication.objects.get(id=id)
             context = {'readyComplete': 'OK'}
         except QlassicAssessmentApplication.DoesNotExist:
             context = {'readyComplete': 'NOT OK'}
         return Response(context, status=status.HTTP_200_OK)
 
-class GetDocumentView(APIView):
-    def get_permissions(self):
-        permission_classes = [AllowAny]
 
-        return [permission() for permission in permission_classes]    
- 
-    def get(self, request, projectID):
-        context = {}
-        try:
-            qaa = QlassicAssessmentApplication.objects.get(id=projectID)
-            documents = SupportingDocuments.objects.all().filter(qaa=qaa)
-            for doc in documents:
-                doc_json = {
-                    'id': doc.id,
-                    'name': doc.file_name,
-                    'link': doc.url,
-                }
-                context.append(doc_json)
-
-        except QlassicAssessmentApplication.DoesNotExist:
-            context = {}
-        return Response(context, status=status.HTTP_200_OK)
 
 # class UserLoginView(APIView):
 #     serializer_class = UserLoginSerializer

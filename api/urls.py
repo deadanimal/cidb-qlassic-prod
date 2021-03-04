@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.conf.urls import include, url
+from django.urls import path
 from django.contrib.gis import admin
 
 from rest_framework import routers
@@ -57,17 +58,17 @@ assessors_router = router.register(
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # REST
+    url('api/v1/isAlive', IsAliveView.as_view(), name='isAlive'),
+    url('api/v1/readySync/<str:id>', ReadySyncView.as_view(), name='readySync'),
+    url('api/v1/readyComplete/<str:id>', ReadyCompleteView.as_view(), name='readyComplete'),
+    path('api/v1/getDocument/<str:id>', GetDocumentView.as_view(), name='getDocument'),
+    url('api/v1/getProjectData', GetProjectDataView.as_view(), name='api_get_project_data'),
+    
     url(r'api/v1/', include(router.urls)),
     url(r'auth/', include('rest_auth.urls')),
     url(r'auth/registration/', include('rest_auth.registration.urls')),
     # url(r'auth/login/', LoginView.as_view(), name='api_login'),
-
-    url('isAlive/', IsAliveView.as_view(), name='isAlive'),
-    url('readySync/<str:projectID>', ReadySyncView.as_view(), name='readySync'),
-    url('readyComplete/<str:projectID>', ReadyCompleteView.as_view(), name='readyComplete'),
-    url('getDocument/<str:projectID>', GetDocumentView.as_view(), name='getDocument'),
-    url('auth/obtain/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    url('api/v1/getProjectData/', GetProjectDataView.as_view(), name='api_get_project_data'),
+    url('api/v1/auth/obtain', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     url('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     url('auth/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
