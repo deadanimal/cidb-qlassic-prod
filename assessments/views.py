@@ -420,7 +420,7 @@ def dashboard_application_info(request, id):
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
-def dashboard_application_info_assessor(request, id):
+def dashboard_application_info_assessor(request, id, assessor_mode):
     mode = ''
 
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
@@ -437,6 +437,7 @@ def dashboard_application_info_assessor(request, id):
     context = {
         'mode': mode,
         'assessor_view': True,
+        'assessor_mode': assessor_mode,
         'qaa':qaa,
         'sd_1':sd_1,
         'sd_2':sd_2,
