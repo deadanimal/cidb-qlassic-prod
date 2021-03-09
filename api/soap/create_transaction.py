@@ -339,15 +339,20 @@ def get_transaction_detail(code):
 # Create Transaction
 def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     ## Notes
+
+    # Clear unnecessary symbols
+    ref_id = ref_id.replace(' ','')
+    ref_id = ref_id.replace('(','')
+    ref_id = ref_id.replace(')','')
     # KOD HASIL : QLC - assessment, QLC-PUP - training
     kh_response = get_transaction_detail(kod_hasil)
     prefix = ''
     if settings.CUSTOM_DEV_MODE == 1:
-        prefix = 'DP'
+        prefix = 'DP' + datetime.now().strftime("%y%m%d")
     elif settings.CUSTOM_STG_MODE == 1:
-        prefix = 'SP'
+        prefix = 'SP' + datetime.now().strftime("%y%m%d")
     else:
-        prefix = 'P'
+        prefix = 'P' + datetime.now().strftime("%y%m%d")
 
     print(kh_response)
     wsdl = create_transaction_wsdl
