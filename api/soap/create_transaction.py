@@ -348,11 +348,12 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     kh_response = get_transaction_detail(kod_hasil)
     prefix = ''
     if settings.CUSTOM_DEV_MODE == 1:
-        prefix = 'DP' + datetime.now().strftime("%y%m%d")
+
+        prefix = 'DP' + datetime.datetime.now().strftime("%y%m%d")
     elif settings.CUSTOM_STG_MODE == 1:
-        prefix = 'SP' + datetime.now().strftime("%y%m%d")
+        prefix = 'SP' + datetime.datetime.now().strftime("%y%m%d")
     else:
-        prefix = 'P' + datetime.now().strftime("%y%m%d")
+        prefix = 'P' + datetime.datetime.now().strftime("%y%m%d")
 
     print(kh_response)
     wsdl = create_transaction_wsdl
