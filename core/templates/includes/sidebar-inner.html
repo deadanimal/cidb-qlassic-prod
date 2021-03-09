@@ -101,12 +101,22 @@
                             <span class="sidenav-normal dropdown-header ml--4">Assessor</span>
                             </div>
                         </li>
+                        {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' %}
                         <li class="nav-item">
-                            <a href="{% url 'dashboard_application_assessor_list' %}" class="nav-link">
+                            <a href="{% url 'dashboard_application_assessor_list_all' %}" class="nav-link">
                             <span class="sidenav-mini-icon"> A </span>
                             <span class="sidenav-normal"> Assessor Assignation </span>
                             </a>
                         </li>
+                        {% endif %}
+                        {% if request.user.is_assessor %}
+                        <li class="nav-item">
+                            <a href="{% url 'dashboard_application_assessor_list_own' %}" class="nav-link">
+                            <span class="sidenav-mini-icon"> P </span>
+                            <span class="sidenav-normal"> Project Assessment </span>
+                            </a>
+                        </li>
+                        {% endif %}
                         {% endif %}
                         </ul>
                     </div>

@@ -819,6 +819,35 @@ def dashboard_application_assessor_list(request):
     return render(request, "dashboard/application/assessor_list.html", context)
 
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier','assessor'])
+def dashboard_application_assessor_list_all(request):
+    mode = 'list_all'
+    qaas = QlassicAssessmentApplication.objects.all().filter(
+        Q(application_status='verified')|
+        Q(application_status='assessor_assign')
+    )
+    suggested_assessors = SuggestedAssessor.objects.all()
+    context = { 
+        'qaas':qaas,
+        'suggested_assessors':suggested_assessors,
+        'mode':mode,
+    }
+    return render(request, "dashboard/application/assessor_list.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier','assessor'])
+def dashboard_application_assessor_list_own(request):
+    mode = 'list_own'
+    suggested_assessors = SuggestedAssessor.objects.all().filter(assessor__user=request.user).exclude(acception=None)
+    context = { 
+        'suggested_assessors':suggested_assessors,
+        'mode':mode,
+    }
+   
+    return render(request, "dashboard/application/assessor_list.html", context)
+
+
+@login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin','casc_verifier'])
 def dashboard_application_assessor_assign(request, id):
     mode = 'assign_assessor'
@@ -874,7 +903,7 @@ def dashboard_application_assessor_assign(request, id):
 
         qaa.save()
         messages.info(request,'Successfully assigned the assessors.')
-        return redirect('dashboard_application_assessor_list')
+        return redirect('dashboard_application_assessor_list_all')
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
@@ -959,7 +988,7 @@ def dashboard_application_assessor_approve(request, id):
                 lead_assigned_assessor.save()
 
             messages.info(request,'Successfully accept the assessor assignation.')
-        return redirect('dashboard_application_assessor_list')    
+        return redirect('dashboard_application_assessor_list_own')    
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")

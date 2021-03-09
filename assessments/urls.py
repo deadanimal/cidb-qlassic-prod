@@ -23,7 +23,9 @@ urlpatterns = [
     path('dashboard/application/verify/<str:id>/', views.dashboard_application_verify, name="dashboard_application_verify"),
     path('dashboard/application/payment/<str:id>/', views.dashboard_application_payment, name="dashboard_application_payment"),
     path('dashboard/application/payment/<str:id>/response/', views.dashboard_application_payment_response, name="dashboard_application_payment_response"),
-    path('dashboard/application/assessor/list/', views.dashboard_application_assessor_list, name="dashboard_application_assessor_list"),
+    # path('dashboard/application/assessor/list/', views.dashboard_application_assessor_list, name="dashboard_application_assessor_list"),
+    path('dashboard/application/assessor/list/all/', views.dashboard_application_assessor_list_all, name="dashboard_application_assessor_list_all"),
+    path('dashboard/application/assessor/list/', views.dashboard_application_assessor_list_own, name="dashboard_application_assessor_list_own"),
     path('dashboard/application/assessor/assign/<str:id>/', views.dashboard_application_assessor_assign, name="dashboard_application_assessor_assign"),
     path('dashboard/application/assessor/verify/<str:id>/', views.dashboard_application_assessor_approve, name="dashboard_application_assessor_approve"),
 

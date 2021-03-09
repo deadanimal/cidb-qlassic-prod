@@ -22,7 +22,7 @@
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
                 {% if assessor_view %}
-                  <li class="breadcrumb-item"><a href="{% url 'dashboard_application_assessor_list' %}">Assessment Application List</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_application_assessor_list_all' %}">Assessment Application List</a></li>
                   <li class="breadcrumb-item active" aria-current="page">QLASSIC Application Info</li>
                 {% else %}
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_application_list' %}">Application List</a></li>

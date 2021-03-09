@@ -94,6 +94,9 @@
                       <a href="{% url 'dashboard_application_assessor_assign' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Assign</button>
                       {% endif %}
                     {% endif %}
+                    {% if sa.acception == 'pending' %}
+                      <a href="{% url 'dashboard_application_assessor_approve' sa.id %}" class="btn btn-sm btn-success w-100 mb-2">Verify</button>
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}
