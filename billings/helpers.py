@@ -23,6 +23,12 @@ def payment_response_process(request):
     if status == '1' or status == '0':
         order_id = request.POST['OrderID']
         status_desc = request.POST['StatusDesc']
+
+        payment, created = Payment.objects.get_or_create(order_id=order_id)
+        payment.payment_status = int(status)
+        payment.status_description = status_desc
+        
+        # If payment successful
         if status == '1':
             transaction_date = request.POST['TransactionDate']
             transaction_id = request.POST['TransactionID']
@@ -31,10 +37,6 @@ def payment_response_process(request):
             auth_code = request.POST['AuthCode']
             receipt_no = request.POST['ReceiptNo']
         
-        payment, created = Payment.objects.get_or_create(order_id=order_id)
-        payment.payment_status = int(status)
-        payment.status_description = status_desc
-        if status == '1':
             payment.payment_method = payment_method
             payment.payment_method_description = payment_method_desc
             payment.payment_date = datetime.strptime(transaction_date, "%d/%m/%Y %H:%M:%S")

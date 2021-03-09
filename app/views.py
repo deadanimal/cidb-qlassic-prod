@@ -704,3 +704,182 @@ def pages(request):
     
         html_template = loader.get_template( 'page-500.html' )
         return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
+def dashboard_manage_component_v2(request):
+    components = Component.objects.all()
+    form = ComponentCreateForm()
+    context = {
+        'mode':'component',
+        'title': 'Components',
+        'form': form,
+        'components':components,
+    }
+
+    if request.method == 'POST':
+        form = ComponentCreateForm(request.POST)
+        if form.is_valid():
+            form_data = form.save()
+            form_data.created_by = request.user.name
+            form_data.modified_by = request.user.name
+            form_data.save()
+            messages.info(request,'Successfully created new component')
+        else:
+            messages.warning(request,'Error creating new component')
+        return redirect('dashboard_manage_component_v2')
+    return render(request, "dashboard/management/manage_component_v2.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
+def dashboard_manage_sub_component_v2(request, mode, id):
+    parent = None
+    children = None
+    title = ''
+    form = None
+    check_loop = None
+    if mode == 'sub_component':
+        parent = get_object_or_404(Component,id=id)
+        children = SubComponent.objects.all().filter(component=parent)
+        form = SubComponentCreateForm()
+        title = 'Sub Components'
+    if mode == 'element':
+        parent = get_object_or_404(SubComponent,id=id)
+        children = Element.objects.all().filter(sub_component=parent)
+        form = ElementCreateForm()
+        title = 'Elements'
+    if mode == 'defect_group_1':
+        parent = get_object_or_404(SubComponent,id=id)
+        children = DefectGroup.objects.all().filter(sub_component=parent)
+        form = DefectGroupCreateForm()
+        title = 'Defect Groups'
+        check_loop = range(parent.no_of_check)
+    if mode == 'defect_group_2':
+        parent = get_object_or_404(Element,id=id)
+        children = DefectGroup.objects.all().filter(element=parent)
+        form = DefectGroupCreateForm()
+        title = 'Defect Groups'
+        check_loop = range(parent.no_of_check)
+
+    context = {
+        'mode':mode,
+        'parent':parent,
+        'children':children,
+        'title': title,
+        'form': form,
+        'check_loop': check_loop
+    }
+
+    if request.method == 'POST':
+        if mode == 'sub_component':
+            form = SubComponentCreateForm(request.POST)
+        if mode == 'element':
+            form = ElementCreateForm(request.POST)
+        if mode == 'defect_group_1':
+            form = DefectGroupCreateForm(request.POST)
+        if mode == 'defect_group_2':
+            form = DefectGroupCreateForm(request.POST)
+        if form.is_valid():
+            form_data = form.save()
+            form_data.created_by = request.user.name
+            form_data.modified_by = request.user.name
+            if mode == 'sub_component':
+                form_data.component = parent
+                messages.info(request,'Successfully created new sub component')
+            if mode == 'element':
+                form_data.sub_component = parent
+                messages.info(request,'Successfully created new element')
+            if mode == 'defect_group_1':
+                form_data.sub_component = parent
+                messages.info(request,'Successfully created new defect group')
+            if mode == 'defect_group_2':
+                form_data.element = parent
+                messages.info(request,'Successfully created new defect group')
+            form_data.save()
+        else:
+            messages.warning(request,'Problem creating a new entry')
+        return redirect('dashboard_manage_sub_component_v2', mode, parent.id)
+    return render(request, "dashboard/management/manage_component_v2.html", context)
+
+from assessments.forms import (
+    ComponentEditForm,
+    SubComponentEditForm,
+    ElementEditForm,
+    DefectGroupEditForm,
+)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
+def dashboard_manage_edit_component_v2(request, mode, id):
+    children = None
+    parent = None
+    form = None
+    title=''
+    if mode == 'component':
+        children = get_object_or_404(Component,id=id)
+        form = ComponentEditForm(instance=children)
+        title = 'Component'
+    if mode == 'sub_component':
+        children = get_object_or_404(SubComponent,id=id)
+        parent = children.component
+        form = SubComponentEditForm(instance=children)
+        title = 'Sub Component'
+    if mode == 'element':
+        children = get_object_or_404(Element,id=id)
+        parent = children.sub_component
+        form = ElementEditForm(instance=children)
+        title = 'Element'
+    if mode == 'defect_group_1':
+        children = get_object_or_404(DefectGroup,id=id)
+        parent = children.sub_component
+        form = DefectGroupEditForm(instance=children)
+        title = 'Defect Group'
+    if mode == 'defect_group_2':
+        children = get_object_or_404(DefectGroup,id=id)
+        parent = children.element
+        form = DefectGroupEditForm(instance=children)
+        title = 'Defect Group'
+    context = {
+        'mode':mode,
+        'form':form,
+        'children':children,
+        'title':title,
+        'parent':parent,
+    }
+
+    if request.method == 'POST':
+        if 'update' in request.POST:
+            if mode == 'component':
+                form = ComponentEditForm(request.POST, instance=children)
+            if mode == 'sub_component':
+                form = SubComponentEditForm(request.POST, instance=children)
+            if mode == 'element':
+                print(form)
+                form = ElementEditForm(request.POST, instance=children)
+            if mode == 'defect_group_1' or 'defect_group_2':
+                form = DefectGroupEditForm(request.POST, instance=children)
+            if form.is_valid():
+                form_data = form.save()
+                form_data.modified_by = request.user.name
+                form_data.save()
+                messages.info(request,'Updated successfully')
+            else:
+                messages.warning(request,'Problem updating the data')
+            return redirect('dashboard_manage_edit_component_v2', mode, children.id)
+        if 'delete' in request.POST:
+            parent_id = ''
+            if mode == 'sub_component':
+                parent_id = parent.id
+            if mode == 'element':
+                parent_id = parent.id
+            if mode == 'defect_group_1':
+                parent_id = parent.id
+            if mode == 'defect_group_2':
+                parent_id = parent.id
+            children.delete()
+            messages.info(request,'Successfully deleted the data')
+            
+            if mode == 'component':
+                return redirect('dashboard_manage_component_v2')
+            return redirect('dashboard_manage_sub_component_v2', mode, parent_id)
+    return render(request, "dashboard/management/manage_component_edit_v2.html", context)

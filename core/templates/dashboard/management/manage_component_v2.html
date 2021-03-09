@@ -1,0 +1,301 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard - Manage {{ title }} {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  <!-- Header -->
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">CIDB</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
+                {% if mode == 'component' %}
+                  <li class="breadcrumb-item active" aria-current="page">Components</li>
+                {% elif mode == 'sub_component' %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
+                  <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
+                {% elif mode == 'element' %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}">{{ parent.component.name }}</a></li>
+                  <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
+                {% elif mode == 'defect_group_1' %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">{{ parent.component.name }}</a></li>
+                  <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
+                {% elif mode == 'defect_group_2' %}
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">{{ parent.sub_component.component.name }}</a></li>
+                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_sub_component_v2' 'element' parent.sub_component.id %}">{{ parent.sub_component.name }}</a></li>
+                  <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
+                {% else %}
+                {% endif %}
+              </ol>
+            </nav>
+          </div>
+        </div>
+        <!-- Card stats -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+
+    <div class="row">
+      {% if mode != 'component' %}
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex" style="justify-content: space-between;align-items: center;">
+              <div>
+                <p class="mb-0">
+                  <strong>
+                  {% if mode == 'sub_component' %}
+                    Component:
+                  {% endif %}
+                  {% if mode == 'element' %}
+                    Sub Component:
+                  {% endif %}
+                  {% if mode == 'defect_group_1' %}
+                    Sub Component:
+                  {% endif %}
+                  {% if mode == 'defect_group_2' %}
+                    Element:
+                  {% endif %}
+                  </strong>
+                  {{ parent.name }}
+                </p>
+                {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+                  <p class="mb-0"><strong>Number of Check:</strong> {{ parent.no_of_check }}</p>
+                {% endif %}
+              </div>
+              {% if mode == 'sub_component' %}
+                <a href="{% url 'dashboard_manage_component_v2' %}" class="btn btn-secondary">Back</a>
+              {% endif %}
+              {% if mode == 'element' %}
+                <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}" class="btn btn-secondary">Back</a>
+              {% endif %}
+              {% if mode == 'defect_group_1' %}
+                <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}" class="btn btn-secondary">Back</a>
+              {% endif %}
+              {% if mode == 'defect_group_2' %}
+                <a href="{% url 'dashboard_manage_sub_component_v2' 'element' parent.sub_component.id %}" class="btn btn-secondary">Back</a>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">Add New {{ title }}</h2>
+            <p class="mb-0">Information</p>
+          </div>
+          <div class="card-body">
+            <form action="" method="POST">
+              {% csrf_token %}
+              {{ form|crispy }}
+              <button type="submit" name="create" class="btn btn-primary">Save</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% if mode != 'component' %}
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">Lists of children ({{ title }})</h2>
+              {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+                <h4 class="mb-0"> Number of check: 
+                {% for i in check_loop %}
+                  <i class="fas fa-check-square"></i>
+                {% endfor %}
+                </h4>
+              {% endif %}
+          </div>
+          <div class="table-responsive py-4">
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Name</th>
+                  
+                  {% if mode == 'sub_component' and parent.type == 1 %}
+                  <th>Type</th>
+                  {% endif %}
+
+                  {% if mode == 'sub_component' %}
+                    <th>Weightage (%)</th>
+                    {% if parent.type == 1 %}
+                      <th>No of Check <i class="fas fa-check-square"></i></th>
+                    {% endif %}
+                  {% endif %}
+                  {% if mode == 'element' %}
+                  <th>No of Check <i class="fas fa-check-square"></i></th>
+                  {% endif %}
+
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for child in children %}
+                <tr>
+                  <th>{{ child.name }}</th>
+                  {% if mode == 'sub_component' and parent.type == 1 %}
+                  <th>
+                    {{ child.get_type_display }}
+                  </th>
+                  {% endif %}
+
+                  {% if mode == 'sub_component' %}
+                    <th>{{ child.weightage }}</th>
+                    {% if parent.type == 1 %}
+                      <th>
+                      {% if child.type != 3 %}
+                        {{ child.no_of_check }}
+                      {% else %}
+                        N/A
+                      {% endif %}
+                      </th>
+                    {% endif %}
+                  {% endif %}
+                  {% if mode == 'element' %}
+                  <th>{{ child.no_of_check }}</th>
+                  {% endif %}
+
+                  <td>
+                    {% if mode == 'sub_component' %}
+                      {% if child.type == 3 %}
+                        <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
+                      {% endif %}
+                      {% if child.type == 4 %}
+                        <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group_1' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
+                      {% endif %}
+                      <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
+                    {% endif %}
+                    {% if mode == 'element' %}
+                      <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group_2' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
+                      <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
+                    {% endif %}
+                    {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+                      <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
+                    {% endif %}
+                  </td>
+
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header text-center">
+            <h2 class="mb-0">Lists of Components</h2>
+          </div>
+          <div class="table-responsive py-4">
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Weightage (%)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for child in components %}
+                <tr>
+                  <th>{{ child.name }}</th>
+                  <th>{{ child.get_type_display }}</th>
+                  <th>{{ child.weightage }}</th>
+                  <td>
+                    <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Sub Elements</button>
+                    <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% include 'includes/footer-dashboard.html' %}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+  <script>
+    {% if mode == 'sub_component' %}
+      {% if parent.type == 1 %}
+        $( "#id_type" ).change(function() {
+          check_type();
+        });
+        function check_type(){
+          if ($('#id_type').prop("value") == "4" ) {
+            $('#div_id_no_of_check').css("display",'block');
+          } else {
+            $('#div_id_no_of_check').css("display",'none');
+          }
+        }
+        $(document).ready( function () {
+          check_type();
+        });
+      {% else %}
+        $(document).ready( function () {
+          $('#div_id_no_of_check').css("display",'none');
+          $('#div_id_type').css("display",'none');
+        });
+      {% endif %}
+    {% endif %}
+    {% if mode == 'element' %}
+      {% if parent.component.type == 2 %}
+        $(document).ready( function () {
+          $('#div_id_sub_component_weightage').css("display",'none');
+          $('#div_id_weightage').css("display",'none');
+        });
+      {% elif parent.type == 3 %}
+        $("#id_sub_component_weightage").change(function() {
+          check_type();
+        });
+        function check_type(){
+          if ($('#id_sub_component_weightage').prop("value") == "True" ) {
+            $('#div_id_weightage').css("display",'block');
+          } else {
+            $('#div_id_weightage').css("display",'none');
+          }
+        }
+        $(document).ready( function () {
+          check_type();
+        });
+      {% else %}
+        $(document).ready( function () {
+          $('#div_id_sub_component_weightage').css("display",'none');
+          $('#div_id_weightage').css("display",'none');
+        });
+      {% endif %}
+    {% endif %}
+  </script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+{% endblock javascripts %}

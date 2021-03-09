@@ -45,6 +45,10 @@ urlpatterns = [
     path('dashboard/management/training-type/', views.dashboard_training_type, name="dashboard_training_type"),
     path('dashboard/management/training-type/<str:id>', views.dashboard_training_type_id, name="dashboard_training_type_id"),
 
+    path('dashboard/management/component-v2/list/', views.dashboard_manage_component_v2, name="dashboard_manage_component_v2"),
+    path('dashboard/management/component-v2/list/<str:mode>/<str:id>/', views.dashboard_manage_sub_component_v2, name="dashboard_manage_sub_component_v2"),
+    path('dashboard/management/component-v2/edit/<str:mode>/<str:id>/', views.dashboard_manage_edit_component_v2, name="dashboard_manage_edit_component_v2"),
+
     # path('pdf/generate/<str:report_type>/', views_pdf.report_generate, name='report_view'),
     # path('pdf/view/<str:report_type>/', views_pdf.report_edit, name='generate_view'),
     # path('test/email/', views.test_email, name="test_email"),

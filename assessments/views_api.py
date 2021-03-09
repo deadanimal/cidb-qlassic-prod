@@ -82,9 +82,16 @@ class GetProjectDataView(APIView):
     permission_classes = (AllowAny, )
 
     def post(self, request):
-        serializer = request.data
+        data = request.data
+        id = data['projectID']
+        ad = AssessmentData.objects.get(qaa__id=id)
+        qaa = ad.qaa
+        response = []
+        
         response = {
-            'success': serializer['haha'],
+            'category': serializer['projectID'],
+            'type': serializer['projectID'],
+            'items': [],
         }
 
         return Response(response)

@@ -1,6 +1,8 @@
 from django.db import models
 import uuid
 
+from django.db.models.fields import IntegerField
+
 # Models
 from trainings.models import JoinedTraining, RoleApplication
 from users.models import CustomUser, Assessor
@@ -176,6 +178,17 @@ class Component(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     name = models.CharField(null=True, max_length=255)
+    TYPE_CHOICE = [
+        (1,'Complex (eg. Architectural Work)'),
+        (2,'Simple (eg. External Work)')
+    ]
+    type = models.IntegerField(
+        null=True,
+        choices=TYPE_CHOICE,
+        default=1
+    )
+
+    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -190,8 +203,38 @@ class SubComponent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
     name = models.CharField(null=True, max_length=255)
-    
     component = models.ForeignKey(Component, on_delete=models.CASCADE, null=True)
+    
+    TYPE_CHOICE = [
+        (3,'With Element (eg. Internal Finishes)'),
+        (4,'Without Element (eg. Roof)')
+    ]
+    type = models.IntegerField(
+        null=True,
+        choices=TYPE_CHOICE,
+        default=0
+    )
+
+    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+
+    NO_OF_CHECK = [
+        # To follow SRS
+        (1,'1'),
+        (2,'2'),
+        (3,'3'),
+        (4,'4'),
+        (5,'5'),
+        (6,'6'),
+        (7,'7'),
+        (8,'8'),
+        (9,'9'),
+    ]
+    no_of_check = models.IntegerField(
+        null=True,
+        choices=NO_OF_CHECK,
+        verbose_name='Number of Check',
+        default=1
+    )
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -207,21 +250,6 @@ class Element(models.Model):
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
     name = models.CharField(null=True, max_length=255)
 
-    # Date
-    created_date = models.DateTimeField(auto_now_add=True)
-    created_by = models.CharField(null=True, max_length=50)
-    modified_date = models.DateTimeField(auto_now=True)
-    modified_by = models.CharField(null=True, max_length=50)
-
-    def __str__(self):
-        return '%s (%s)' % (self.name, self.sub_component.name)
-
-class DefectGroup(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True)
-    
-    name = models.CharField(null=True, max_length=255)
-    
     NO_OF_CHECK = [
         # To follow SRS
         (1,'1'),
@@ -229,6 +257,10 @@ class DefectGroup(models.Model):
         (3,'3'),
         (4,'4'),
         (5,'5'),
+        (6,'6'),
+        (7,'7'),
+        (8,'8'),
+        (9,'9'),
     ]
     no_of_check = models.IntegerField(
         null=True,
@@ -236,6 +268,44 @@ class DefectGroup(models.Model):
         verbose_name='Number of Check',
         default=1
     )
+    SUB_COMPONENT_WEIGHTAGE = [
+        # To follow SRS
+        (True,'Yes'),
+        (False,'No'),
+    ]
+    sub_component_weightage = models.BooleanField(null=True, choices=SUB_COMPONENT_WEIGHTAGE, default=False)
+    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+
+    # Date
+    created_date = models.DateTimeField(auto_now_add=True)
+    created_by = models.CharField(null=True, max_length=50)
+    modified_date = models.DateTimeField(auto_now=True)
+    modified_by = models.CharField(null=True, max_length=50)
+
+    def __str__(self):
+        return '%s' % (self.name)
+
+class DefectGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True, blank=True)
+    sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True, blank=True)
+    
+    name = models.CharField(null=True, max_length=255)
+    
+    # NO_OF_CHECK = [
+    #     # To follow SRS
+    #     (1,'1'),
+    #     (2,'2'),
+    #     (3,'3'),
+    #     (4,'4'),
+    #     (5,'5'),
+    # ]
+    # no_of_check = models.IntegerField(
+    #     null=True,
+    #     choices=NO_OF_CHECK,
+    #     verbose_name='Number of Check',
+    #     default=1
+    # )
     
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -244,7 +314,7 @@ class DefectGroup(models.Model):
     modified_by = models.CharField(null=True, max_length=50)
 
     def __str__(self):
-        return '%s (%s / %s)' % (self.name, self.element.sub_component.name, self.element.name)
+        return '%s' % (self.name)
 
 class AssessmentData(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -331,6 +401,38 @@ class AssessmentData(models.Model):
             sample = self.number_of_sample
 
         return round(sample)
+
+    # category A&B: P 40% S 40% C 20% daripada total sample
+    # category C&D: P 60% S 15% C 25% dariapda total sample
+    def get_ptotal(self):
+        total = 0
+        ab = 0.4
+        cd = 0.6
+        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+            total = self.calculate_sample() * ab
+        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+            total = self.calculate_sample() * cd
+        return round(total)
+    
+    def get_stotal(self):
+        total = 0
+        ab = 0.4
+        cd = 0.15
+        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+            total = self.calculate_sample() * ab
+        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+            total = self.calculate_sample() * cd
+        return round(total)
+    
+    def get_ctotal(self):
+        total = 0
+        ab = 0.2
+        cd = 0.25
+        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+            total = self.calculate_sample() * ab
+        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+            total = self.calculate_sample() * cd
+        return round(total)
 
 class SupportingDocuments(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

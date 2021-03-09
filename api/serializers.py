@@ -34,3 +34,4 @@ class ProjectInfoSerializer(serializers.ModelSerializer):
         model = ProjectInfo
         fields = '__all__'
 
+

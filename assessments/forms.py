@@ -7,38 +7,77 @@ from .models import DefectGroup, SubComponent, Element, Component, QlassicAssess
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column, Field
 
-class DefectGroupCreateForm(ModelForm):
-
+class ComponentCreateForm(ModelForm):
     class Meta:
-        model = DefectGroup
+        model = Component
         fields = (
-            'element',
             'name',
-            'no_of_check',
+            'type',
+            'weightage',
         )
 
 class SubComponentCreateForm(ModelForm):
     class Meta:
         model = SubComponent
         fields = (
-            'component',
             'name',
-        )
-
-class ComponentCreateForm(ModelForm):
-    class Meta:
-        model = Component
-        fields = (
-            'name',
+            'no_of_check',
+            'type',
+            'weightage',
         )
 
 class ElementCreateForm(ModelForm):
     class Meta:
         model = Element
         fields = (
-            'sub_component',
+            'name',
+            'no_of_check',
+            'sub_component_weightage',
+            'weightage',
+        )
+
+class DefectGroupCreateForm(ModelForm):
+
+    class Meta:
+        model = DefectGroup
+        fields = (
             'name',
         )
+
+class ComponentEditForm(ModelForm):
+    class Meta:
+        model = Component
+        fields = (
+            'name',
+            'type',
+            'weightage',
+        )
+
+class SubComponentEditForm(ModelForm):
+    class Meta:
+        model = SubComponent
+        fields = (
+            'name',
+            'no_of_check',
+            'weightage',
+        )
+
+class ElementEditForm(ModelForm):
+    class Meta:
+        model = Element
+        fields = (
+            'name',
+            'no_of_check',
+        )
+
+class DefectGroupEditForm(ModelForm):
+
+    class Meta:
+        model = DefectGroup
+        fields = (
+            'name',
+        )
+
 
 # class SupportingDocumentsUploadForm(ModelForm):
 #     file = forms.FileField(

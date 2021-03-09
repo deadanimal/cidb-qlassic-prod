@@ -4,11 +4,7 @@ from app.helpers.docx2pdf import StreamingConvertedPdf, ConvertFileModelField
 from django.conf import settings
 import absoluteuri
 
-TEMP_PATH = ''
-if os.name == 'nt':
-    TEMP_PATH = settings.BASE_DIR + settings.MEDIA_ROOT + '\\media\\tmp\\'
-else:
-    TEMP_PATH = settings.MEDIA_ROOT + '/cidb-qlassic/tmp/'
+
 
 def docx_to_pdf_stream(letter_template, context):
     response = docx_to_pdf_process_stream(letter_template, context, False)
