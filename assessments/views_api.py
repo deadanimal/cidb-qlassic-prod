@@ -78,6 +78,13 @@ class QlassicAssessmentApplicationViewSet(NestedViewSetMixin, viewsets.ModelView
         queryset = QlassicAssessmentApplication.objects.all().filter()
         return queryset
 
+from assessments.models import (
+    Component,
+    SubComponent,
+    Element,
+    DefectGroup,
+)
+
 class GetProjectDataView(APIView):
     permission_classes = (AllowAny, )
 
@@ -88,10 +95,72 @@ class GetProjectDataView(APIView):
         qaa = ad.qaa
         response = []
         
-        response = {
-            'category': serializer['projectID'],
-            'type': serializer['projectID'],
-            'items': [],
-        }
+        components = Component.objects.all()
+        sub_components = SubComponent.objects.all()
+        elements = Element.objects.all()
+        defect_groups = DefectGroup.objects.all()
+        for component in components:
+            c_json = {
+                'category': component.name,
+                'type': component.type,
+                'items': []
+            }
+            for sub_component in sub_components:
+                if sub_component.component == component:
+                    sc_json = {}
+                    if component.type == 1:
+                        if sub_component.type == 3:
+                            sc_json = {
+                                'topic': sub_component.name,
+                                'type': sub_component.type,
+                                'ptotal': ad.get_ptotal(),
+                                'ctotal': ad.get_ctotal(),
+                                'stotal': ad.get_stotal(),
+                                'subtopics': []
+                            }
+                            for element in elements:
+                                if element.sub_component == sub_component:
+                                    el_json = {
+                                        'subtopic':element.name,
+                                        'id':element.id,
+                                        'sample':element.no_of_check,
+                                        'checkbox':[]
+                                    }
+                                    for defect_group in defect_groups:
+                                        if defect_group.element == element:
+                                            el_json['checkbox'].append(defect_group.name)
+                                    sc_json['subtopics'].append(el_json)
+
+                        if sub_component.type == 4:
+                            sc_json = {
+                                'topic': sub_component.name,
+                                'type': sub_component.type,
+                                'id': sub_component.id,
+                                'sample': sub_component.no_of_check,
+                                'checkbox': []
+                            }
+                            for defect_group in defect_groups:
+                                if defect_group.sub_component == sub_component:
+                                    sc_json['checkbox'].append(defect_group.name)
+                    if component.type == 2:
+                        sc_json = {
+                            'topic': sub_component.name,
+                            'subtopics': []
+                        }
+                        for element in elements:
+                            if element.sub_component == sub_component:
+                                el_json = {
+                                    'subtopic':element.name,
+                                    'id':element.id,
+                                    'sample':element.no_of_check,
+                                    'checkbox':[]
+                                }
+                                for defect_group in defect_groups:
+                                    if defect_group.element == element:
+                                        el_json['checkbox'].append(defect_group.name)
+                                sc_json['subtopics'].append(el_json)
+                    c_json['items'].append(sc_json)
+            response.append(c_json)
+        
 
         return Response(response)

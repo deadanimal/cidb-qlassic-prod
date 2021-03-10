@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QlassicAssessmentApplication, SupportingDocuments, SuggestedAssessor, AssignedAssessor, AssessmentData
+from .models import QlassicAssessmentApplication, SupportingDocuments, SuggestedAssessor, AssignedAssessor, AssessmentData, Component, SubComponent, Element, DefectGroup
 # Register your models here.
 
 class QAAAdmin(admin.ModelAdmin):
@@ -13,3 +13,7 @@ admin.site.register(SupportingDocuments, SDAdmin)
 admin.site.register(SuggestedAssessor)
 admin.site.register(AssignedAssessor)
 admin.site.register(AssessmentData)
+admin.site.register(Component)
+admin.site.register(SubComponent)
+admin.site.register(Element)
+admin.site.register(DefectGroup)

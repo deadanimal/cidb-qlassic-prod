@@ -143,6 +143,7 @@
                     {% endif %}
                   {% endif %}
                   {% if mode == 'element' %}
+                  <th>Weightage (%)</th>
                   <th>No of Check <i class="fas fa-check-square"></i></th>
                   {% endif %}
 
@@ -172,6 +173,11 @@
                     {% endif %}
                   {% endif %}
                   {% if mode == 'element' %}
+                  {% if child.sub_component_weightage %}
+                    <th>{{ child.weightage }}</th>
+                  {% else %}
+                    <th>N/A</th>
+                  {% endif %}
                   <th>{{ child.no_of_check }}</th>
                   {% endif %}
 
@@ -199,6 +205,11 @@
               </tbody>
             </table>
           </div>
+          {% if mode == 'sub_component' %}
+          <div class="card-body">
+            <h4 class="mb-0 pb-0">Total Weightage: {{ total_weightage }}%</h4>
+          </div>
+          {% endif %}
         </div>
       </div>
       {% else %}
@@ -231,6 +242,9 @@
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+          <div class="card-body">
+            <h4 class="mb-0 pb-0">Total Weightage: {{ total_weightage }}%</h4>
           </div>
         </div>
       </div>

@@ -70,6 +70,15 @@ class ElementEditForm(ModelForm):
             'no_of_check',
         )
 
+class ElementWithWeightageEditForm(ModelForm):
+    class Meta:
+        model = Element
+        fields = (
+            'name',
+            'no_of_check',
+            'weightage',
+        )
+
 class DefectGroupEditForm(ModelForm):
 
     class Meta:

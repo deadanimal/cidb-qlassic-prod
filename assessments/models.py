@@ -274,7 +274,7 @@ class Element(models.Model):
         (False,'No'),
     ]
     sub_component_weightage = models.BooleanField(null=True, choices=SUB_COMPONENT_WEIGHTAGE, default=False)
-    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+    weightage = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)

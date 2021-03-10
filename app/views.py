@@ -705,15 +705,19 @@ def pages(request):
         html_template = loader.get_template( 'page-500.html' )
         return HttpResponse(html_template.render(context, request))
 
+from django.db.models import Count, Sum
+
 @login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin'])
 def dashboard_manage_component_v2(request):
     components = Component.objects.all()
+    total_weightage = components.aggregate(Sum('weightage'))
     form = ComponentCreateForm()
     context = {
         'mode':'component',
         'title': 'Components',
         'form': form,
+        'total_weightage':total_weightage['weightage__sum'],
         'components':components,
     }
 
@@ -734,13 +738,25 @@ def dashboard_manage_component_v2(request):
 @allowed_users(allowed_roles=['superadmin'])
 def dashboard_manage_sub_component_v2(request, mode, id):
     parent = None
+    total_weightage = 0
     children = None
+    special_elements = None
     title = ''
     form = None
     check_loop = None
     if mode == 'sub_component':
         parent = get_object_or_404(Component,id=id)
         children = SubComponent.objects.all().filter(component=parent)
+        special_elements = Element.objects.all().filter(sub_component__component=parent,sub_component_weightage=True)
+
+        for ch in children:
+            if ch.weightage != None:
+                total_weightage += ch.weightage
+        for se in special_elements:
+            if se.weightage != None:
+                total_weightage += se.weightage
+       
+        
         form = SubComponentCreateForm()
         title = 'Sub Components'
     if mode == 'element':
@@ -760,13 +776,14 @@ def dashboard_manage_sub_component_v2(request, mode, id):
         form = DefectGroupCreateForm()
         title = 'Defect Groups'
         check_loop = range(parent.no_of_check)
-
     context = {
         'mode':mode,
         'parent':parent,
         'children':children,
+        'special_elements':special_elements,
         'title': title,
         'form': form,
+        'total_weightage':total_weightage,
         'check_loop': check_loop
     }
 
@@ -806,6 +823,7 @@ from assessments.forms import (
     SubComponentEditForm,
     ElementEditForm,
     DefectGroupEditForm,
+    ElementWithWeightageEditForm,
 )
 
 @login_required(login_url="/login/")
@@ -827,7 +845,10 @@ def dashboard_manage_edit_component_v2(request, mode, id):
     if mode == 'element':
         children = get_object_or_404(Element,id=id)
         parent = children.sub_component
-        form = ElementEditForm(instance=children)
+        if children.sub_component_weightage == True:
+            form = ElementWithWeightageEditForm(instance=children)
+        else:
+            form = ElementEditForm(instance=children)
         title = 'Element'
     if mode == 'defect_group_1':
         children = get_object_or_404(DefectGroup,id=id)
@@ -851,13 +872,17 @@ def dashboard_manage_edit_component_v2(request, mode, id):
         if 'update' in request.POST:
             if mode == 'component':
                 form = ComponentEditForm(request.POST, instance=children)
-            if mode == 'sub_component':
+            elif mode == 'sub_component':
                 form = SubComponentEditForm(request.POST, instance=children)
-            if mode == 'element':
-                print(form)
-                form = ElementEditForm(request.POST, instance=children)
-            if mode == 'defect_group_1' or 'defect_group_2':
+            elif mode == 'element':
+                if children.sub_component_weightage == True:
+                    form = ElementWithWeightageEditForm(request.POST, instance=children)
+                else:
+                    form = ElementEditForm(request.POST, instance=children)
+            elif mode == 'defect_group_1' or 'defect_group_2':
                 form = DefectGroupEditForm(request.POST, instance=children)
+            else:
+                pass
             if form.is_valid():
                 form_data = form.save()
                 form_data.modified_by = request.user.name

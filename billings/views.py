@@ -97,9 +97,7 @@ def dashboard_claim_application(request, role, category, id):
     training = None
     zone = ''
     if role == 'assessor':
-        print('haha')
         project = get_object_or_404(QlassicAssessmentApplication, id=id)
-        print('haha')
         if project.pi.project_location == request.user.state:
             zone = '1'
         else:
