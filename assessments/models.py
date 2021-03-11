@@ -179,8 +179,8 @@ class Component(models.Model):
     
     name = models.CharField(null=True, max_length=255)
     TYPE_CHOICE = [
-        (1,'Complex (eg. Architectural Work)'),
-        (2,'Simple (eg. External Work)')
+        (1,'Type 1'),
+        (2,'Type 2')
     ]
     type = models.IntegerField(
         null=True,
@@ -206,8 +206,9 @@ class SubComponent(models.Model):
     component = models.ForeignKey(Component, on_delete=models.CASCADE, null=True)
     
     TYPE_CHOICE = [
-        (3,'With Element (eg. Internal Finishes)'),
-        (4,'Without Element (eg. Roof)')
+        (2,'Type 2'),
+        (3,'Type 3'),
+        # (4,'Without Element (eg. Roof)')
     ]
     type = models.IntegerField(
         null=True,

@@ -183,7 +183,7 @@
 
                   <td>
                     {% if mode == 'sub_component' %}
-                      {% if child.type == 3 %}
+                      {% if child.type == 3 or child.type == 2 %}
                         <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
                       {% endif %}
                       {% if child.type == 4 %}
