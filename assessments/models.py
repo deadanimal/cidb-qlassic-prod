@@ -208,6 +208,7 @@ class SubComponent(models.Model):
     TYPE_CHOICE = [
         (2,'Type 2'),
         (3,'Type 3'),
+        (3,'Type 4 (Unused)'),
         # (4,'Without Element (eg. Roof)')
     ]
     type = models.IntegerField(
