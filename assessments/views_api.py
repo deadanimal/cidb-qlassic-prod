@@ -224,7 +224,8 @@ class GetProjectDataView(APIView):
                                         sc_json['subtopics'].append(el_json)
                                     if sub_component.type == 2:
                                         sc2_json['subtopics'].append(el_json)
-                                        sc_json['items'].append(sc2_json)
+                            if sub_component.type == 2:
+                                sc_json['items'].append(sc2_json)
 
                         if sub_component.type == 4:
                             sc_json = {
@@ -260,6 +261,8 @@ class GetProjectDataView(APIView):
 
         return Response(response)
 
+import json
+
 class SyncView(APIView):
     permission_classes = (AllowAny, )
 
@@ -274,11 +277,18 @@ class SyncView(APIView):
         assessorName = data['assessorName']
         assessorId = data['assessorId']
         coordinate = data['coordinate']
-        print(result1)
-        print(result2)
-        print(partners)
-        print(projectID)
-        print(assessorName)
-        print(assessorId)
-        print(coordinate)
-        str(data)
+        # print(result1)
+        # print(result2)
+        # print(partners)
+        # print(projectID)
+        # print(assessorName)
+        # print(assessorId)
+        # print(coordinate)
+        # str(data)
+
+        print(type(result1))
+        for result in json.loads(result1):
+            id = result['id']
+            id_qaa = id.split('_', 1)[0]
+            print(id_qaa)
+            # id = result.id
