@@ -29,11 +29,7 @@
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}">{{ parent.component.name }}</a></li>
                   <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
-                {% elif mode == 'defect_group_1' %}
-                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
-                  <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">{{ parent.component.name }}</a></li>
-                  <li class="breadcrumb-item"><a href="#">{{ parent.name }}</a></li>
-                {% elif mode == 'defect_group_2' %}
+                {% elif mode == 'defect_group' %}
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">Components</a></li>
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_component_v2' %}">{{ parent.sub_component.component.name }}</a></li>
                   <li class="breadcrumb-item"><a href="{% url 'dashboard_manage_sub_component_v2' 'element' parent.sub_component.id %}">{{ parent.sub_component.name }}</a></li>
@@ -67,16 +63,13 @@
                   {% if mode == 'element' %}
                     Sub Component:
                   {% endif %}
-                  {% if mode == 'defect_group_1' %}
-                    Sub Component:
-                  {% endif %}
-                  {% if mode == 'defect_group_2' %}
+                  {% if mode == 'defect_group' %}
                     Element:
                   {% endif %}
                   </strong>
                   {{ parent.name }}
                 </p>
-                {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+                {% if mode == 'defect_group' %}
                   <p class="mb-0"><strong>Number of Check:</strong> {{ parent.no_of_check }}</p>
                 {% endif %}
               </div>
@@ -86,10 +79,7 @@
               {% if mode == 'element' %}
                 <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}" class="btn btn-secondary">Back</a>
               {% endif %}
-              {% if mode == 'defect_group_1' %}
-                <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' parent.component.id %}" class="btn btn-secondary">Back</a>
-              {% endif %}
-              {% if mode == 'defect_group_2' %}
+              {% if mode == 'defect_group' %}
                 <a href="{% url 'dashboard_manage_sub_component_v2' 'element' parent.sub_component.id %}" class="btn btn-secondary">Back</a>
               {% endif %}
             </div>
@@ -98,7 +88,7 @@
         </div>
       </div>
       {% endif %}
-      <div class="col-md-6">
+      <div class="col-md-5">
         <div class="card">
           <div class="card-header text-center">
             <h2 class="mb-0">Add New {{ title }}</h2>
@@ -110,15 +100,36 @@
               {{ form|crispy }}
               <button type="submit" name="create" class="btn btn-primary">Save</button>
             </form>
+          
+            {% if mode == 'component' %}
+              <hr>
+              <h4>Type Guideline</h4>
+              <p class="mb-0"><strong>Type 1:</strong> Complex element breakdown</p>
+              <p><small>eg. Architectural Works</small></p>
+              <p class="mb-0"><strong>Type 2:</strong> Simple element breakdown</p>
+              <p><small>eg. External Works</small></p>
+            {% endif %}
+            {% if mode == 'sub_component' %}
+              {% if parent.type == 1 %}
+                <hr>
+                <h4>Type Guideline</h4>
+                <p class="mb-0"><strong>No Type:</strong> Will not displayed in mobile. CASC Reviewer will tick the value.</p>
+                <p><small>eg. Material and Functional Test</small></p>
+                <p class="mb-0"><strong>Type 2:</strong> With Remark and photos upload etc.</p>
+                <p><small>eg. External Finishes</small></p>
+                <p class="mb-0"><strong>Type 3:</strong> With Block, Unit, P, S, C, etc.</p>
+                <p><small>eg. Internal Finishes</small></p>
+              {% endif %}
+            {% endif %}
           </div>
         </div>
       </div>
       {% if mode != 'component' %}
-      <div class="col-md-6">
+      <div class="col-md-7">
         <div class="card">
           <div class="card-header text-center">
             <h2 class="mb-0">Lists of children ({{ title }})</h2>
-              {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+              {% if mode == 'defect_group' %}
                 <h4 class="mb-0"> Number of check: 
                 {% for i in check_loop %}
                   <i class="fas fa-check-square"></i>
@@ -137,13 +148,10 @@
                   {% endif %}
 
                   {% if mode == 'sub_component' %}
-                    <th>Weightage (%)</th>
-                    {% if parent.type == 1 %}
-                      <th>No of Check <i class="fas fa-check-square"></i></th>
-                    {% endif %}
+                    <th>Total Weightage (By Area)</th>
                   {% endif %}
                   {% if mode == 'element' %}
-                  <th>Weightage (%)</th>
+                  <th>Weightage (By Element)</th>
                   <th>No of Check <i class="fas fa-check-square"></i></th>
                   {% endif %}
 
@@ -161,41 +169,31 @@
                   {% endif %}
 
                   {% if mode == 'sub_component' %}
-                    <th>{{ child.weightage }}</th>
-                    {% if parent.type == 1 %}
-                      <th>
-                      {% if child.type != 3 %}
-                        {{ child.no_of_check }}
-                      {% else %}
-                        N/A
-                      {% endif %}
-                      </th>
-                    {% endif %}
+                  <th>
+                    {{ child.get_total_weightage }}
+                  </th>
                   {% endif %}
                   {% if mode == 'element' %}
-                  {% if child.sub_component_weightage %}
-                    <th>{{ child.weightage }}</th>
-                  {% else %}
-                    <th>N/A</th>
-                  {% endif %}
+                  <th>{{ child.weightage }}</th>
                   <th>{{ child.no_of_check }}</th>
                   {% endif %}
 
                   <td>
                     {% if mode == 'sub_component' %}
-                      {% if child.type == 3 or child.type == 2 %}
-                        <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
-                      {% endif %}
-                      {% if child.type == 4 %}
-                        <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group_1' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
+                      {% if parent.type == 1 %}
+                        {% if child.type == 3 or child.type == 2 %}
+                          <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
+                        {% endif %}
+                      {% else %}
+                          <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
                       {% endif %}
                       <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
                     {% endif %}
                     {% if mode == 'element' %}
-                      <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group_2' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
+                      <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
                       <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
                     {% endif %}
-                    {% if mode == 'defect_group_1' or mode == 'defect_group_2' %}
+                    {% if mode == 'defect_group' %}
                       <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
                     {% endif %}
                   </td>
@@ -213,7 +211,7 @@
         </div>
       </div>
       {% else %}
-      <div class="col-md-6">
+      <div class="col-md-7">
         <div class="card">
           <div class="card-header text-center">
             <h2 class="mb-0">Lists of Components</h2>
@@ -224,7 +222,7 @@
                 <tr>
                   <th>Name</th>
                   <th>Type</th>
-                  <th>Weightage (%)</th>
+                  <th>Weightage (By Work Area)</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -261,7 +259,7 @@
   <script>
     {% if mode == 'sub_component' %}
       {% if parent.type == 1 %}
-        $( "#id_type" ).change(function() {
+        {% comment %} $( "#id_type" ).change(function() {
           check_type();
         });
         function check_type(){
@@ -273,7 +271,7 @@
         }
         $(document).ready( function () {
           check_type();
-        });
+        }); {% endcomment %}
       {% else %}
         $(document).ready( function () {
           $('#div_id_no_of_check').css("display",'none');
@@ -281,6 +279,7 @@
         });
       {% endif %}
     {% endif %}
+    {% comment %}
     {% if mode == 'element' %}
       {% if parent.component.type == 2 %}
         $(document).ready( function () {
@@ -307,7 +306,7 @@
           $('#div_id_weightage').css("display",'none');
         });
       {% endif %}
-    {% endif %}
+    {% endif %} {% endcomment %}
   </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>

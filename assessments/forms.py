@@ -21,9 +21,9 @@ class SubComponentCreateForm(ModelForm):
         model = SubComponent
         fields = (
             'name',
-            'no_of_check',
             'type',
-            'weightage',
+            # 'no_of_check',
+            # 'weightage',
         )
 
 class ElementCreateForm(ModelForm):
@@ -32,7 +32,7 @@ class ElementCreateForm(ModelForm):
         fields = (
             'name',
             'no_of_check',
-            'sub_component_weightage',
+            # 'sub_component_weightage',
             'weightage',
         )
 
@@ -58,8 +58,8 @@ class SubComponentEditForm(ModelForm):
         model = SubComponent
         fields = (
             'name',
-            'no_of_check',
-            'weightage',
+            # 'no_of_check',
+            # 'weightage',
         )
 
 class ElementEditForm(ModelForm):
@@ -68,16 +68,17 @@ class ElementEditForm(ModelForm):
         fields = (
             'name',
             'no_of_check',
-        )
-
-class ElementWithWeightageEditForm(ModelForm):
-    class Meta:
-        model = Element
-        fields = (
-            'name',
-            'no_of_check',
             'weightage',
         )
+
+# class ElementWithWeightageEditForm(ModelForm):
+#     class Meta:
+#         model = Element
+#         fields = (
+#             'name',
+#             'no_of_check',
+#             'weightage',
+#         )
 
 class DefectGroupEditForm(ModelForm):
 

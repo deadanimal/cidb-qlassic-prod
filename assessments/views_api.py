@@ -189,26 +189,54 @@ class GetProjectDataView(APIView):
                 if sub_component.component == component:
                     sc_json = {}
                     if component.type == 1:
-                        if sub_component.type == 3 or sub_component.type == 2:
-                            if sub_component.type == 3:
-                                sc_json = {
-                                    'topic': sub_component.name,
-                                    'type': sub_component.type,
-                                    'ptotal': ad.get_ptotal(),
-                                    'ctotal': ad.get_ctotal(),
-                                    'stotal': ad.get_stotal(),
-                                    'subtopics': []
-                                }
-                            if sub_component.type == 2:
-                                sc_json = {
-                                    'topic': sub_component.name,
-                                    'type': sub_component.type,
-                                    'items': []
-                                }
-                                sc2_json = {
-                                    'topic': sub_component.name,
-                                    'subtopics': []
-                                }
+                        # if sub_component.type == 3 or sub_component.type == 2:
+                        #     if sub_component.type == 3:
+                        #         sc_json = {
+                        #             'topic': sub_component.name,
+                        #             'type': sub_component.type,
+                        #             'ptotal': ad.get_ptotal(),
+                        #             'ctotal': ad.get_ctotal(),
+                        #             'stotal': ad.get_stotal(),
+                        #             'subtopics': []
+                        #         }
+                        #     if sub_component.type == 2:
+                        #         sc_json = {
+                        #             'topic': sub_component.name,
+                        #             'type': sub_component.type,
+                        #             'items': []
+                        #         }
+                        #         sc2_json = {
+                        #             'topic': sub_component.name,
+                        #             'subtopics': []
+                        #         }
+                        #     for element in elements:
+                        #         if element.sub_component == sub_component:
+                        #             el_json = {
+                        #                 'subtopic':element.name,
+                        #                 'id':element.id,
+                        #                 'sample':element.no_of_check,
+                        #                 'checkbox':[]
+                        #             }
+                        #             for defect_group in defect_groups:
+                        #                 if defect_group.element == element:
+                        #                     el_json['checkbox'].append(defect_group.name)
+                        #             if sub_component.type == 3:
+                        #                 sc_json['subtopics'].append(el_json)
+                        #             if sub_component.type == 2:
+                        #                 sc2_json['subtopics'].append(el_json)
+                        #     if sub_component.type == 2:
+                        #         sc_json['items'].append(sc2_json)
+                        
+                        if sub_component.type == 2:
+                            sc_json = {
+                                'topic': sub_component.name,
+                                'type': sub_component.type,
+                                'items': []
+                            }
+                            sc2_json = {
+                                'topic': sub_component.name,
+                                'subtopics': []
+                            }
                             for element in elements:
                                 if element.sub_component == sub_component:
                                     el_json = {
@@ -220,24 +248,54 @@ class GetProjectDataView(APIView):
                                     for defect_group in defect_groups:
                                         if defect_group.element == element:
                                             el_json['checkbox'].append(defect_group.name)
-                                    if sub_component.type == 3:
-                                        sc_json['subtopics'].append(el_json)
-                                    if sub_component.type == 2:
-                                        sc2_json['subtopics'].append(el_json)
-                            if sub_component.type == 2:
-                                sc_json['items'].append(sc2_json)
+                                    sc2_json['subtopics'].append(el_json)
+                            sc_json['items'].append(sc2_json)
 
-                        if sub_component.type == 4:
+                        if sub_component.type == 3:
                             sc_json = {
                                 'topic': sub_component.name,
                                 'type': sub_component.type,
-                                'id': sub_component.id,
-                                'sample': sub_component.no_of_check,
-                                'checkbox': []
+                                'ptotal': ad.get_ptotal(),
+                                'ctotal': ad.get_ctotal(),
+                                'stotal': ad.get_stotal(),
+                                'subtopics': []
                             }
-                            for defect_group in defect_groups:
-                                if defect_group.sub_component == sub_component:
-                                    sc_json['checkbox'].append(defect_group.name)
+                            for element in elements:
+                                if element.sub_component == sub_component:
+                                    el_json = {
+                                        'subtopic':element.name,
+                                        'id':element.id,
+                                        'sample':element.no_of_check,
+                                        'checkbox':[]
+                                    }
+                                    for defect_group in defect_groups:
+                                        if defect_group.element == element:
+                                            el_json['checkbox'].append(defect_group.name)
+                                    sc_json['subtopics'].append(el_json)
+                            for element in elements:
+                                if element.sub_component == sub_component:
+                                    el_json = {
+                                        'subtopic':element.name,
+                                        'id':element.id,
+                                        'sample':element.no_of_check,
+                                        'checkbox':[]
+                                    }
+                                    for defect_group in defect_groups:
+                                        if defect_group.element == element:
+                                            el_json['checkbox'].append(defect_group.name)
+                                    sc_json['subtopics'].append(el_json)
+
+                        # if sub_component.type == 4:
+                        #     sc_json = {
+                        #         'topic': sub_component.name,
+                        #         'type': sub_component.type,
+                        #         'id': sub_component.id,
+                        #         'sample': sub_component.no_of_check,
+                        #         'checkbox': []
+                        #     }
+                        #     for defect_group in defect_groups:
+                        #         if defect_group.sub_component == sub_component:
+                        #             sc_json['checkbox'].append(defect_group.name)
                     if component.type == 2:
                         sc_json = {
                             'topic': sub_component.name,
@@ -277,8 +335,8 @@ class SyncView(APIView):
         assessorName = data['assessorName']
         assessorId = data['assessorId']
         coordinate = data['coordinate']
-        # print(result1)
-        # print(result2)
+        print(result1)
+        print(result2)
         # print(partners)
         # print(projectID)
         # print(assessorName)
@@ -286,9 +344,9 @@ class SyncView(APIView):
         # print(coordinate)
         # str(data)
 
-        print(type(result1))
-        for result in json.loads(result1):
-            id = result['id']
-            id_qaa = id.split('_', 1)[0]
-            print(id_qaa)
-            # id = result.id
+        # print(type(result1))
+        # for result in json.loads(result1):
+        #     id = result['id']
+        #     id_qaa = id.split('_', 1)[0]
+        #     print(id_qaa)
+        #     # id = result.id

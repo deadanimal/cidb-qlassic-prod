@@ -206,15 +206,16 @@ class SubComponent(models.Model):
     component = models.ForeignKey(Component, on_delete=models.CASCADE, null=True)
     
     TYPE_CHOICE = [
+        (0,'No Type'),
         (2,'Type 2'),
         (3,'Type 3'),
-        (3,'Type 4 (Unused)'),
+        # (4,'Type 4 (Unused)'),
         # (4,'Without Element (eg. Roof)')
     ]
     type = models.IntegerField(
         null=True,
         choices=TYPE_CHOICE,
-        default=0
+        default=3
     )
 
     weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
@@ -247,6 +248,13 @@ class SubComponent(models.Model):
     def __str__(self):
         return '%s' % (self.name)
 
+    def get_total_weightage(self):
+        elements = Element.objects.all().filter(sub_component=self)
+        total_weightage = 0
+        for element in elements:
+            if element.weightage != None:
+                total_weightage += element.weightage   
+        return total_weightage
 class Element(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
@@ -625,6 +633,21 @@ class SubComponentResultDocument(models.Model):
     def __str__(self):
         return self.file_name
 
+# class ElementResult(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
+#     element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True)
+
+#     no_of_check = models.IntegerField(null=True)
+#     no_of_check = models.IntegerField(null=True)
+
+#     # Date
+#     created_date = models.DateTimeField(auto_now_add=True)
+#     created_by = models.CharField(null=True, max_length=50)
+#     modified_date = models.DateTimeField(auto_now=True)
+#     modified_by = models.CharField(null=True, max_length=50)
+
+# Deprecated
 class DefectGroupResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     defect_group = models.ForeignKey(DefectGroup, on_delete=models.CASCADE, null=True)

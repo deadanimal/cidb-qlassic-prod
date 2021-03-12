@@ -63,7 +63,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Delete Element</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Delete {{ title }}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -71,7 +71,7 @@
           <form action="" method="POST">
             {% csrf_token %}
             <div class="modal-body">
-              Are you sure you want to delete this element?
+              Are you sure you want to delete this {{ title }}?
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -92,19 +92,6 @@
   <script>
     {% if mode == 'sub_component' %}
       {% if parent.type == 1 %}
-        $( "#id_type" ).change(function() {
-          check_type();
-        });
-        function check_type(){
-          if ($('#id_type').prop("value") == "4" ) {
-            $('#div_id_no_of_check').css("display",'block');
-          } else {
-            $('#div_id_no_of_check').css("display",'none');
-          }
-        }
-        $(document).ready( function () {
-          check_type();
-        });
       {% else %}
         $(document).ready( function () {
           $('#div_id_no_of_check').css("display",'none');
