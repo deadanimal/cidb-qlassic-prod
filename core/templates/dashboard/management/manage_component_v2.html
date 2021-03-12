@@ -153,6 +153,7 @@
                   {% if mode == 'element' %}
                   <th>Weightage (By Element)</th>
                   <th>No of Check <i class="fas fa-check-square"></i></th>
+                  <th>No of Defect Groups</th>
                   {% endif %}
 
                   <th>Action</th>
@@ -176,21 +177,18 @@
                   {% if mode == 'element' %}
                   <th>{{ child.weightage }}</th>
                   <th>{{ child.no_of_check }}</th>
+                  <th>{{ child.get_no_of_defect_group }}</th>
                   {% endif %}
 
                   <td>
                     {% if mode == 'sub_component' %}
-                      {% if parent.type == 1 %}
-                        {% if child.type == 3 or child.type == 2 %}
-                          <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
-                        {% endif %}
-                      {% else %}
-                          <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
-                      {% endif %}
+                      <a href="{% url 'dashboard_manage_sub_component_v2' 'element' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Elements</button>
                       <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
                     {% endif %}
                     {% if mode == 'element' %}
+                      {% if parent.type != 0 %}
                       <a href="{% url 'dashboard_manage_sub_component_v2' 'defect_group' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Defect Groups</button>
+                      {% endif %}
                       <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
                     {% endif %}
                     {% if mode == 'defect_group' %}

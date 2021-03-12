@@ -295,6 +295,9 @@ class Element(models.Model):
     def __str__(self):
         return '%s' % (self.name)
 
+    def get_no_of_defect_group(self):
+        return DefectGroup.objects.all().filter(element=self).count()
+
 class DefectGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True, blank=True)

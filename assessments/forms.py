@@ -58,6 +58,7 @@ class SubComponentEditForm(ModelForm):
         model = SubComponent
         fields = (
             'name',
+            'type',
             # 'no_of_check',
             # 'weightage',
         )

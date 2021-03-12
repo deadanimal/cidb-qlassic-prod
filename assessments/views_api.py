@@ -272,18 +272,6 @@ class GetProjectDataView(APIView):
                                         if defect_group.element == element:
                                             el_json['checkbox'].append(defect_group.name)
                                     sc_json['subtopics'].append(el_json)
-                            for element in elements:
-                                if element.sub_component == sub_component:
-                                    el_json = {
-                                        'subtopic':element.name,
-                                        'id':element.id,
-                                        'sample':element.no_of_check,
-                                        'checkbox':[]
-                                    }
-                                    for defect_group in defect_groups:
-                                        if defect_group.element == element:
-                                            el_json['checkbox'].append(defect_group.name)
-                                    sc_json['subtopics'].append(el_json)
 
                         # if sub_component.type == 4:
                         #     sc_json = {
