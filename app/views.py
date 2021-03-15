@@ -728,35 +728,35 @@ def dashboard_manage_component_v2(request):
     tw_element_b = 0
     tw_element_c = 0
     tw_element_d = 0
-    if total_weightage_a == None:
+    if total_weightage_a['weightage_a__sum'] == None:
         tw_a = 0
     else:
         tw_a = total_weightage_a['weightage_a__sum']
-    if total_weightage_b == None:
+    if total_weightage_b['weightage_b__sum'] == None:
         tw_b = 0
     else:
         tw_b = total_weightage_b['weightage_b__sum']
-    if total_weightage_c == None:
+    if total_weightage_c['weightage_c__sum'] == None:
         tw_c = 0
     else:
         tw_c = total_weightage_c['weightage_c__sum']
-    if total_weightage_d == None:
+    if total_weightage_d['weightage_d__sum'] == None:
         tw_d = 0
     else:
         tw_d = total_weightage_d['weightage_d__sum']
-    if total_weightage_element_a == None:
+    if total_weightage_element_a['weightage_a__sum'] == None:
         tw_element_a = 0
     else:
         tw_element_a = total_weightage_element_a['weightage_a__sum']
-    if total_weightage_element_b == None:
+    if total_weightage_element_b['weightage_b__sum'] == None:
         tw_element_b = 0
     else:
         tw_element_b = total_weightage_element_b['weightage_b__sum']
-    if total_weightage_element_c == None:
+    if total_weightage_element_c['weightage_c__sum'] == None:
         tw_element_c = 0
     else:
         tw_element_c = total_weightage_element_c['weightage_c__sum']
-    if total_weightage_element_d == None:
+    if total_weightage_element_d['weightage_d__sum'] == None:
         tw_element_d = 0
     else:
         tw_element_d = total_weightage_element_d['weightage_d__sum']
