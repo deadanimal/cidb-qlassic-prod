@@ -711,14 +711,26 @@ from django.db.models import Count, Sum
 @allowed_users(allowed_roles=['superadmin'])
 def dashboard_manage_component_v2(request):
     components = Component.objects.all()
-    total_weightage = components.aggregate(Sum('weightage'))
+    elements = Element.objects.all().filter(category_weightage=True)
+    total_weightage_a = components.aggregate(Sum('weightage_a'))
+    total_weightage_b = components.aggregate(Sum('weightage_b'))
+    total_weightage_c = components.aggregate(Sum('weightage_c'))
+    total_weightage_d = components.aggregate(Sum('weightage_d'))
+    total_weightage_element_a = elements.aggregate(Sum('weightage_a'))
+    total_weightage_element_b = elements.aggregate(Sum('weightage_b'))
+    total_weightage_element_c = elements.aggregate(Sum('weightage_c'))
+    total_weightage_element_d = elements.aggregate(Sum('weightage_d'))
     form = ComponentCreateForm()
     context = {
         'mode':'component',
         'title': 'Components',
         'form': form,
-        'total_weightage':total_weightage['weightage__sum'],
+        'total_weightage_a':total_weightage_a['weightage_a__sum'] + total_weightage_element_a['weightage_a__sum'],
+        'total_weightage_b':total_weightage_b['weightage_b__sum'] + total_weightage_element_b['weightage_b__sum'],
+        'total_weightage_c':total_weightage_c['weightage_c__sum'] + total_weightage_element_c['weightage_c__sum'],
+        'total_weightage_d':total_weightage_d['weightage_d__sum'] + total_weightage_element_d['weightage_d__sum'],
         'components':components,
+        'elements':elements,
     }
 
     if request.method == 'POST':

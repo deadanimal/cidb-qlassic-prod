@@ -188,7 +188,11 @@ class Component(models.Model):
         default=1
     )
 
-    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+    # weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage")
+    weightage_a = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage A")
+    weightage_b = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage B")
+    weightage_c = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage C")
+    weightage_d = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage D")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -252,9 +256,11 @@ class SubComponent(models.Model):
         elements = Element.objects.all().filter(sub_component=self)
         total_weightage = 0
         for element in elements:
-            if element.weightage != None:
-                total_weightage += element.weightage   
+            if element.category_weightage == False:
+                if element.weightage != None:
+                    total_weightage += element.weightage   
         return total_weightage
+
 class Element(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
@@ -278,13 +284,17 @@ class Element(models.Model):
         verbose_name='Number of Check',
         default=1
     )
-    SUB_COMPONENT_WEIGHTAGE = [
+    CATEGORY_WEIGHTAGE = [
         # To follow SRS
         (True,'Yes'),
-        (False,'No'),
+        (False,'No (Default)'),
     ]
-    sub_component_weightage = models.BooleanField(null=True, choices=SUB_COMPONENT_WEIGHTAGE, default=False)
-    weightage = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+    category_weightage = models.BooleanField(null=True, choices=CATEGORY_WEIGHTAGE, default=False, verbose_name="Use As Category Weightage")
+    weightage = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage")
+    weightage_a = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage A")
+    weightage_b = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage B")
+    weightage_c = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage C")
+    weightage_d = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage D")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)

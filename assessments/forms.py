@@ -13,7 +13,10 @@ class ComponentCreateForm(ModelForm):
         fields = (
             'name',
             'type',
-            'weightage',
+            'weightage_a',
+            'weightage_b',
+            'weightage_c',
+            'weightage_d',
         )
 
 class SubComponentCreateForm(ModelForm):
@@ -34,6 +37,11 @@ class ElementCreateForm(ModelForm):
             'no_of_check',
             # 'sub_component_weightage',
             'weightage',
+            'category_weightage',
+            'weightage_a',
+            'weightage_b',
+            'weightage_c',
+            'weightage_d',
         )
 
 class DefectGroupCreateForm(ModelForm):
@@ -50,7 +58,10 @@ class ComponentEditForm(ModelForm):
         fields = (
             'name',
             'type',
-            'weightage',
+            'weightage_a',
+            'weightage_b',
+            'weightage_c',
+            'weightage_d',
         )
 
 class SubComponentEditForm(ModelForm):
@@ -70,6 +81,11 @@ class ElementEditForm(ModelForm):
             'name',
             'no_of_check',
             'weightage',
+            'category_weightage',
+            'weightage_a',
+            'weightage_b',
+            'weightage_c',
+            'weightage_d',
         )
 
 # class ElementWithWeightageEditForm(ModelForm):

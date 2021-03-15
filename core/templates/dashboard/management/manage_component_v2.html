@@ -175,7 +175,13 @@
                   </th>
                   {% endif %}
                   {% if mode == 'element' %}
-                  <th>{{ child.weightage }}</th>
+                  <th>
+                    {% if child.category_weightage == True %}
+                      Category Weightage
+                    {% else %}
+                      {{ child.weightage }}
+                    {% endif %}
+                  </th>
                   <th>{{ child.no_of_check }}</th>
                   <th>{{ child.get_no_of_defect_group }}</th>
                   {% endif %}
@@ -220,7 +226,10 @@
                 <tr>
                   <th>Name</th>
                   <th>Type</th>
-                  <th>Weightage (By Work Area)</th>
+                  <th>W/A</th>
+                  <th>W/B</th>
+                  <th>W/C</th>
+                  <th>W/D</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -229,10 +238,25 @@
                 <tr>
                   <th>{{ child.name }}</th>
                   <th>{{ child.get_type_display }}</th>
-                  <th>{{ child.weightage }}</th>
+                  <th>{{ child.weightage_a }}</th>
+                  <th>{{ child.weightage_b }}</th>
+                  <th>{{ child.weightage_c }}</th>
+                  <th>{{ child.weightage_d }}</th>
                   <td>
                     <a href="{% url 'dashboard_manage_sub_component_v2' 'sub_component' child.id %}" class="btn btn-sm btn-info w-100 mb-2">View Sub Elements</button>
                     <a href="{% url 'dashboard_manage_edit_component_v2' mode child.id %}" class="btn btn-sm btn-outline-info w-100 mb-2">Edit</button>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% for child in elements %}
+                <tr>
+                  <th>{{ child.name }}</th>
+                  <th>Element</th>
+                  <th>{{ child.weightage_a }}</th>
+                  <th>{{ child.weightage_b }}</th>
+                  <th>{{ child.weightage_c }}</th>
+                  <th>{{ child.weightage_d }}</th>
+                  <td>
                   </td>
                 </tr>
                 {% endfor %}
@@ -240,7 +264,10 @@
             </table>
           </div>
           <div class="card-body">
-            <h4 class="mb-0 pb-0">Total Weightage: {{ total_weightage }}%</h4>
+            <h4 class="mb-0 pb-0">Total Weightage A: {{ total_weightage_a }}</h4>
+            <h4 class="mb-0 pb-0">Total Weightage B: {{ total_weightage_b }}</h4>
+            <h4 class="mb-0 pb-0">Total Weightage C: {{ total_weightage_c }}</h4>
+            <h4 class="mb-0 pb-0">Total Weightage D: {{ total_weightage_d }}</h4>
           </div>
         </div>
       </div>
@@ -277,34 +304,29 @@
         });
       {% endif %}
     {% endif %}
-    {% comment %}
     {% if mode == 'element' %}
-      {% if parent.component.type == 2 %}
-        $(document).ready( function () {
-          $('#div_id_sub_component_weightage').css("display",'none');
+      $("#id_category_weightage").change(function() {
+        check_type();
+      });
+      function check_type(){
+        if ($('#id_category_weightage').prop("value") == "True" ) {
+          $('#div_id_weightage_a').css("display",'block');
+          $('#div_id_weightage_b').css("display",'block');
+          $('#div_id_weightage_c').css("display",'block');
+          $('#div_id_weightage_d').css("display",'block');
           $('#div_id_weightage').css("display",'none');
-        });
-      {% elif parent.type == 3 %}
-        $("#id_sub_component_weightage").change(function() {
-          check_type();
-        });
-        function check_type(){
-          if ($('#id_sub_component_weightage').prop("value") == "True" ) {
-            $('#div_id_weightage').css("display",'block');
-          } else {
-            $('#div_id_weightage').css("display",'none');
-          }
+        } else {
+          $('#div_id_weightage_a').css("display",'none');
+          $('#div_id_weightage_b').css("display",'none');
+          $('#div_id_weightage_c').css("display",'none');
+          $('#div_id_weightage_d').css("display",'none');
+          $('#div_id_weightage').css("display",'block');
         }
-        $(document).ready( function () {
-          check_type();
-        });
-      {% else %}
-        $(document).ready( function () {
-          $('#div_id_sub_component_weightage').css("display",'none');
-          $('#div_id_weightage').css("display",'none');
-        });
-      {% endif %}
-    {% endif %} {% endcomment %}
+      }
+      $(document).ready( function () {
+        check_type();
+      });
+    {% endif %}
   </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>

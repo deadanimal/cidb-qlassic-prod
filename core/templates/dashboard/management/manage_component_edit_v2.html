@@ -99,6 +99,29 @@
         });
       {% endif %}
     {% endif %}
+    {% if mode == 'element' %}
+      $("#id_category_weightage").change(function() {
+        check_type();
+      });
+      function check_type(){
+        if ($('#id_category_weightage').prop("value") == "True" ) {
+          $('#div_id_weightage_a').css("display",'block');
+          $('#div_id_weightage_b').css("display",'block');
+          $('#div_id_weightage_c').css("display",'block');
+          $('#div_id_weightage_d').css("display",'block');
+          $('#div_id_weightage').css("display",'none');
+        } else {
+          $('#div_id_weightage_a').css("display",'none');
+          $('#div_id_weightage_b').css("display",'none');
+          $('#div_id_weightage_c').css("display",'none');
+          $('#div_id_weightage_d').css("display",'none');
+          $('#div_id_weightage').css("display",'block');
+        }
+      }
+      $(document).ready( function () {
+        check_type();
+      });
+    {% endif %}
   </script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
