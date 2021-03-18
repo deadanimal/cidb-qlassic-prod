@@ -359,12 +359,17 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     wsdl = create_transaction_wsdl
 
     unit_amount = kh_response[0].unitPrice
-    unit_amount_with_tax = unit_amount + ( unit_amount * kh_response[0].taxPercentage)
+    # unit_amount_with_tax = unit_amount + ( unit_amount * kh_response[0].taxPercentage)
     tax_amount_per_unit = unit_amount * kh_response[0].taxPercentage
+    
+    qty_amount = unit_amount * quantity
     total_tax =  tax_amount_per_unit * quantity
-    total_amount = unit_amount_with_tax * quantity
+    # total_amount = unit_amount_with_tax * quantity
 
     discount_amount = kh_response[0].discountAmount
+    
+    amount = qty_amount + total_tax - discount_amount
+
     history = HistoryPlugin()
     client = Client(wsdl,plugins=[history])
     now_date = datetime.datetime.now()
@@ -381,8 +386,8 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
             'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
-            'Description': ref_id+'-'+description,
-            'Amount': total_amount,
+            'Description': ref_id,
+            'Amount': amount,
             'AmountDec': 2,
             'DiscountAmount': discount_amount,
             'Tax': total_tax,
@@ -411,18 +416,19 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
                     'DiscountAmount': 0,
                     'DiscountPer': 0,
                     'KodHasil': kod_hasil,
-                    'Qty': quantity,
-                    'QtyAmount': unit_amount,
-                    'QtyAmountDec': 2,
                     'UnitPrice': unit_amount,
                     'UnitPriceDec': 2,
+                    'Qty': quantity,
+                    'QtyAmount': qty_amount,
+                    'QtyAmountDec': 2,
                     'TaxCode': kod_hasil,
                     'TaxPerAmount': tax_amount_per_unit,
                     'TaxPerAmountDec': 2,
                     'TaxAmount': total_tax,
                     'TaxAmountDec': 2,
-                    'Amount': total_amount,
+                    'Amount': amount,
                     'AmountDec': 2,
+                    'DiscountAmount': discount_amount,
                     'CMISRefId': prefix+ref_id,
                     'Description': "1. "+description,
                 }]

@@ -188,4 +188,13 @@ def get_domain(request):
     else:
         return 'http://' + current_site.domain
 
+import base64
+from django.core.files.base import ContentFile
 
+def convert_string_to_file(string_64, name):
+    extension, imgstr = string_64.split(';base64,')
+    ext = extension.split('/')[-1]
+
+    data = ContentFile(base64.b64decode(imgstr))  
+    full_name = name + '.' + ext
+    return data, full_name

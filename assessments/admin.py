@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import QlassicAssessmentApplication, SupportingDocuments, SuggestedAssessor, AssignedAssessor, AssessmentData, Component, SubComponent, Element, DefectGroup
+from .models import *
 # Register your models here.
 
 class QAAAdmin(admin.ModelAdmin):
@@ -8,12 +8,21 @@ class QAAAdmin(admin.ModelAdmin):
 class SDAdmin(admin.ModelAdmin):
     list_display = ('qaa', 'file_name', 'created_date','modified_date',)
 
+class ComponentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code_id', 'created_date')
+
+class SampleResultAdmin(admin.ModelAdmin):
+    list_display = ('id', 'test_type', 'element_code', 'created_date')
+
 admin.site.register(QlassicAssessmentApplication, QAAAdmin)
 admin.site.register(SupportingDocuments, SDAdmin)
 admin.site.register(SuggestedAssessor)
 admin.site.register(AssignedAssessor)
 admin.site.register(AssessmentData)
-admin.site.register(Component)
-admin.site.register(SubComponent)
-admin.site.register(Element)
-admin.site.register(DefectGroup)
+admin.site.register(SampleResult, SampleResultAdmin)
+admin.site.register(ElementResult)
+admin.site.register(SyncResult)
+admin.site.register(Component,ComponentAdmin)
+admin.site.register(SubComponent,ComponentAdmin)
+admin.site.register(Element,ComponentAdmin)
+admin.site.register(DefectGroup,ComponentAdmin)

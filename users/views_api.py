@@ -75,8 +75,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                         project_json = {
                             'name': qaa.pi.project_title,
                             'id': qaa.id,
-                            'status': qaa.application_status,
-                            'phase': 'haha',
+                            'status': 'On-Going',
+                            'phase': 'On-Going',
                             'location': qaa.pi.project_location,
                             'sample': project.ad.calculate_sample(),
                             'days': qaa.no_of_days,

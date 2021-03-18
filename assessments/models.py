@@ -176,7 +176,8 @@ class QlassicAssessmentApplication(models.Model):
 
 class Component(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     name = models.CharField(null=True, max_length=255)
     TYPE_CHOICE = [
         (1,'Type 1'),
@@ -200,12 +201,26 @@ class Component(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
 
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'CO'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-2:]
+                self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:03d}'.format(1)
+            
+        super(Component, self).save(*args, **kwargs)
+
     def __str__(self):
         return '%s' % (self.name)
 
 class SubComponent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     name = models.CharField(null=True, max_length=255)
     component = models.ForeignKey(Component, on_delete=models.CASCADE, null=True)
     
@@ -252,6 +267,19 @@ class SubComponent(models.Model):
     def __str__(self):
         return '%s' % (self.name)
 
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'SC'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-2:]
+                self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:03d}'.format(1)
+            
+        super(SubComponent, self).save(*args, **kwargs)
+
+
     def get_total_weightage(self):
         elements = Element.objects.all().filter(sub_component=self)
         total_weightage = 0
@@ -263,6 +291,8 @@ class SubComponent(models.Model):
 
 class Element(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
     name = models.CharField(null=True, max_length=255)
 
@@ -302,6 +332,18 @@ class Element(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
 
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'EL'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-2:]
+                self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:03d}'.format(1)
+            
+        super(Element, self).save(*args, **kwargs)
+
     def __str__(self):
         return '%s' % (self.name)
 
@@ -310,6 +352,8 @@ class Element(models.Model):
 
 class DefectGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+    
     element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True, blank=True)
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True, blank=True)
     
@@ -335,6 +379,19 @@ class DefectGroup(models.Model):
     created_by = models.CharField(null=True, max_length=50)
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
+
+
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'DG'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id[-2:]
+                self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:03d}'.format(1)
+            
+        super(DefectGroup, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s' % (self.name)
@@ -617,6 +674,72 @@ class SiteAttendance(models.Model):
     def __str__(self):
         return self.qaa_no
 
+class SyncResult(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
+    result = models.CharField(null=True,blank=True, max_length=3000)
+    assessor = models.CharField(null=True,blank=True, max_length=255)
+    coordinate = models.CharField(null=True,blank=True, max_length=255)
+
+    # Date
+    created_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+
+class SampleResult(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
+    sync = models.ForeignKey(SyncResult, on_delete=models.CASCADE, null=True)
+    sync_code = models.CharField(null=True,blank=True, max_length=255)
+    
+    element_name = models.CharField(null=True,blank=True, max_length=255)
+    element_code = models.CharField(null=True,blank=True, max_length=255)
+    block = models.CharField(null=True,blank=True, max_length=255)
+    unit = models.CharField(null=True,blank=True, max_length=255)
+    period = models.CharField(null=True,blank=True, max_length=255)
+    test_type = models.CharField(null=True,blank=True, max_length=255)
+    selection_value = models.CharField(null=True,blank=True, max_length=255)
+    sample_id = models.CharField(null=True,blank=True, max_length=255)
+    sample_run = models.CharField(null=True,blank=True, max_length=1000)
+    remark = models.CharField(null=True,blank=True, max_length=2000)
+    partners = models.CharField(null=True,blank=True, max_length=4000)
+    assessor_name = models.CharField(null=True,blank=True, max_length=255)
+    assessor_id = models.CharField(null=True,blank=True, max_length=255)
+    photo_1 = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/photos1'))
+    photo_2 = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/photos2'))
+    photo_3 = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/photos3'))
+    photo_4 = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/photos4'))
+    
+    # Date
+    created_date = models.DateTimeField(auto_now_add=True)
+    created_by = models.CharField(null=True,blank=True, max_length=50)
+    modified_date = models.DateTimeField(auto_now=True)
+    modified_by = models.CharField(null=True,blank=True, max_length=50)
+
+
+class ElementResult(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sync = models.ForeignKey(SyncResult, on_delete=models.CASCADE, null=True)
+    sync_code = models.CharField(null=True,blank=True, max_length=255)
+    
+    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
+    sample_result = models.ForeignKey(SampleResult, on_delete=models.CASCADE, null=True,blank=True)
+    
+    element_name = models.CharField(null=True,blank=True, max_length=255)
+    element_code = models.CharField(null=True,blank=True, max_length=255)
+    dg_name = models.CharField(null=True,blank=True, max_length=255)
+    test_type = models.CharField(null=True,blank=True, max_length=255)
+
+    result = models.CharField(null=True,blank=True, max_length=2000)
+    total_compliance = models.IntegerField(null=True,default=0)
+    total_check = models.IntegerField(null=True,default=0)
+    
+    # Date
+    created_date = models.DateTimeField(auto_now_add=True)
+    created_by = models.CharField(null=True,blank=True, max_length=50)
+    modified_date = models.DateTimeField(auto_now=True)
+    modified_by = models.CharField(null=True,blank=True, max_length=50)
+
+# Deprecated
 class SubComponentResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_component = models.ForeignKey(SubComponent, on_delete=models.CASCADE, null=True)
@@ -631,6 +754,7 @@ class SubComponentResult(models.Model):
     def __str__(self):
         return '%s' % (self.assessment_data)
 
+# Deprecated
 class SubComponentResultDocument(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sub_component_result = models.ForeignKey(SubComponentResult, on_delete=models.CASCADE, null=True)
@@ -646,19 +770,6 @@ class SubComponentResultDocument(models.Model):
     def __str__(self):
         return self.file_name
 
-# class ElementResult(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
-#     element = models.ForeignKey(Element, on_delete=models.CASCADE, null=True)
-
-#     no_of_check = models.IntegerField(null=True)
-#     no_of_check = models.IntegerField(null=True)
-
-#     # Date
-#     created_date = models.DateTimeField(auto_now_add=True)
-#     created_by = models.CharField(null=True, max_length=50)
-#     modified_date = models.DateTimeField(auto_now=True)
-#     modified_by = models.CharField(null=True, max_length=50)
 
 # Deprecated
 class DefectGroupResult(models.Model):
