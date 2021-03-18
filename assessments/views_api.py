@@ -501,7 +501,7 @@ class SyncView(APIView):
                 }
                 response['header'].append(response_header)
             else:
-                sample_total = 0
+                sample_total = 1
                 for sub_component in sub_components:
                     elements = Element.objects.all().filter(sub_component=sub_component)
                     for element in elements:

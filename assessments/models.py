@@ -189,11 +189,11 @@ class Component(models.Model):
         default=1
     )
 
-    # weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage")
-    weightage_a = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage A")
-    weightage_b = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage B")
-    weightage_c = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage C")
-    weightage_d = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage D")
+    # weightage = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage")
+    weightage_a = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage A")
+    weightage_b = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage B")
+    weightage_c = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage C")
+    weightage_d = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage D")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -237,7 +237,7 @@ class SubComponent(models.Model):
         default=3
     )
 
-    weightage = models.DecimalField(null=True, max_digits=8, decimal_places=2, verbose_name="Weightage (%)")
+    # weightage = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage (%)")
 
     NO_OF_CHECK = [
         # To follow SRS
@@ -320,11 +320,11 @@ class Element(models.Model):
         (False,'No (Default)'),
     ]
     category_weightage = models.BooleanField(null=True, choices=CATEGORY_WEIGHTAGE, default=False, verbose_name="Use As Category Weightage")
-    weightage = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage")
-    weightage_a = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage A")
-    weightage_b = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage B")
-    weightage_c = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage C")
-    weightage_d = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=2, verbose_name="Weightage D")
+    weightage = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=3, verbose_name="Weightage")
+    weightage_a = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=3, verbose_name="Weightage A")
+    weightage_b = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=3, verbose_name="Weightage B")
+    weightage_c = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=3, verbose_name="Weightage C")
+    weightage_d = models.DecimalField(null=True, blank=True, default=0, max_digits=8, decimal_places=3, verbose_name="Weightage D")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
