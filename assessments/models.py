@@ -201,6 +201,9 @@ class Component(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
 
+    class Meta:
+        ordering = ['-created_date']
+
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'CO'
@@ -267,6 +270,9 @@ class SubComponent(models.Model):
     def __str__(self):
         return '%s' % (self.name)
 
+    class Meta:
+        ordering = ['-created_date']
+
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'SC'
@@ -332,6 +338,9 @@ class Element(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
 
+    class Meta:
+        ordering = ['-created_date']
+
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'EL'
@@ -380,6 +389,8 @@ class DefectGroup(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
     modified_by = models.CharField(null=True, max_length=50)
 
+    class Meta:
+        ordering = ['-created_date']
 
     def save(self,*args, **kwargs):
         if not self.code_id:
