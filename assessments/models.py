@@ -600,24 +600,30 @@ class AssignedAssessor(models.Model):
 class WorkCompletionForm(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
-    assessor = models.ForeignKey(Assessor, on_delete=models.CASCADE, null=True)
-    assessor_number = models.CharField(null=True, max_length=255)
-    # pi = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE, null=True)
-    ad = models.ForeignKey(AssessmentData, on_delete=models.CASCADE, null=True)
-
-    name = models.CharField(null=True, max_length=255)
-    icno = models.CharField(null=True, max_length=12, verbose_name="IC number (without '-')")
-    company = models.CharField(null=True, max_length=255)
-    position = models.CharField(null=True, max_length=255)
-    hp_no = models.CharField(null=True, max_length=255, verbose_name="Contact number")
-    email = models.CharField(null=True, max_length=255)
+    assessor = models.ForeignKey(Assessor, on_delete=models.CASCADE, blank=True, null=True)
+    assessor_number = models.CharField(blank=True, null=True, max_length=255)
     
-    qaa_number = models.CharField(null=True, max_length=255, verbose_name="QLASSIC Assessment Application number")
-    project_location = models.CharField(null=True, max_length=255)
-    assessment_start_date = models.DateField(null=True, verbose_name='Assessment start date')
-    assessment_end_date = models.DateField(null=True, verbose_name='Assessment end date')
-    number_of_sample = models.IntegerField(null=True)
-    number_of_form_used = models.IntegerField(null=True)
+    # pi = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE, blank=True, null=True)
+    # ad = models.ForeignKey(AssessmentData, on_delete=models.CASCADE, blank=True, null=True)
+   
+    qaa_number = models.CharField(blank=True, null=True, max_length=255, verbose_name="QLASSIC Assessment Application number")
+    coordinate = models.CharField(blank=True, null=True, max_length=255)
+    weather = models.CharField(blank=True, null=True, max_length=255)
+    
+    name = models.CharField(blank=True, null=True, max_length=255)
+    icno = models.CharField(blank=True, null=True, max_length=12, verbose_name="IC number (without '-')")
+    company = models.CharField(blank=True, null=True, max_length=255)
+    position = models.CharField(blank=True, null=True, max_length=255)
+    hp_no = models.CharField(blank=True, null=True, max_length=255, verbose_name="Contact number")
+    email = models.CharField(blank=True, null=True, max_length=255)
+    
+    signature = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/signature'))
+
+    # project_location = models.CharField(blank=True, null=True, max_length=255)
+    assessment_start_date = models.DateField(blank=True, null=True, verbose_name='Assessment start date')
+    assessment_end_date = models.DateField(blank=True, null=True, verbose_name='Assessment end date')
+    number_of_sample = models.IntegerField(blank=True, null=True)
+    number_of_form_used = models.IntegerField(blank=True, null=True)
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
@@ -649,6 +655,7 @@ class QlassicReporting(models.Model):
         max_length=30
     )
     
+    
     # Date
     created_by = models.CharField(null=True, max_length=50)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -667,7 +674,7 @@ class SiteAttendance(models.Model):
     position = models.CharField(null=True, max_length=255)
     hp_no = models.CharField(null=True, max_length=255, verbose_name="Contact number")
     company = models.CharField(null=True, max_length=255)
-    signature = models.CharField(null=True, max_length=255)
+    signature = models.FileField(null=True,blank=True, max_length=500, upload_to=PathAndRename('qaa/signature'))
     
     assessment_date = models.DateField(null=True, verbose_name='Assessment date')
     

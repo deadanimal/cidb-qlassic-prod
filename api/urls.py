@@ -47,6 +47,10 @@ from assessments.views_api import (
     AssessmentDataViewSet,
     GetProjectDataView,
     SyncView,
+    OverviewView,
+    CompleteView,
+    GetAgreementView,
+    AppNoView
 )
 assessors_router = router.register(
     'assigend_assessor', AssignedAssessorViewSet
@@ -65,6 +69,10 @@ urlpatterns = [
     path('api/v1/getDocument/<str:id>', GetDocumentView.as_view(), name='getDocument'),
     url('api/v1/getProjectData', GetProjectDataView.as_view(), name='api_get_project_data'),
     url('api/v1/sync', SyncView.as_view(), name='api_sync'),
+    url('api/v1/overview/<str:projectID>', OverviewView.as_view(), name='api_overview'),
+    url('api/v1/complete', CompleteView.as_view(), name='api_complete'),
+    url('api/v1/getAgreement/<str:projectID>', GetAgreementView.as_view(), name='api_getAgreement'),
+    url('api/v1/appNo/<str:projectID>', AppNoView.as_view(), name='api_appNo'),
     
     url(r'api/v1/', include(router.urls)),
     url(r'auth/', include('rest_auth.urls')),
