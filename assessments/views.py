@@ -323,7 +323,7 @@ def dashboard_application_new_3(request, contractor_registration_number, id):
                 qaa_number = generate_qaa_number(qaa)
                 qaa.qaa_number = qaa_number
 
-            qaa.date_created = datetime.datetime.now()
+            qaa.created_date = datetime.datetime.now()
             qaa.save()
 
             messages.info(request,'QLASSIC Assessment Application completed')

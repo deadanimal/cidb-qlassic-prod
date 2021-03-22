@@ -131,7 +131,7 @@ class CustomUser(AbstractUser):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'USR{}'.format(datetime.datetime.now().strftime('%y'))
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-3:]
                 self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
@@ -252,7 +252,7 @@ class Assessor(models.Model):
             if not self.qca_id:
                 prefix = 'CQA '
                 postfix = '/{}'.format(datetime.datetime.now().strftime('%y'))
-                prev_instances = self.__class__.objects.filter(qca_id__contains=postfix)
+                prev_instances = self.__class__.objects.filter(qca_id__contains=postfix).order_by('-created_date')
                 if prev_instances.exists():
                     last_instance_id = prev_instances.first().qca_id[-4:-3]
                     self.qca_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)+postfix
@@ -264,7 +264,7 @@ class Assessor(models.Model):
             if not self.qia_id:
                 prefix = 'IQA '
                 postfix = '/{}'.format(datetime.datetime.now().strftime('%y'))
-                prev_instances = self.__class__.objects.filter(qia_id__contains=postfix)
+                prev_instances = self.__class__.objects.filter(qia_id__contains=postfix).order_by('-created_date')
                 if prev_instances.exists():
                     last_instance_id = prev_instances.first().qia_id[-4:-3]
                     self.qia_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)+postfix
@@ -293,7 +293,7 @@ class Trainer(models.Model):
     def save(self,*args, **kwargs):
         if not self.trainer_no:
             prefix = 'QT{}'.format(datetime.datetime.now().strftime('%y'))
-            prev_instances = self.__class__.objects.filter(trainer_no__contains=prefix)
+            prev_instances = self.__class__.objects.filter(trainer_no__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().trainer_no[-3:]
                 self.trainer_no = prefix+'{0:04d}'.format(int(last_instance_id)+1)

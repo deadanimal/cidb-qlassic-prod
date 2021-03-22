@@ -178,14 +178,14 @@ class GetProjectDataView(APIView):
     def post(self, request):
         data = request.data
         id = data['projectID']
-        ad = AssessmentData.objects.get(qaa__id=id)
+        ad = AssessmentData.objects.get(qaa__id=id).order_by('-created_date')
         qaa = ad.qaa
         response = []
         
-        components = Component.objects.all()
-        sub_components = SubComponent.objects.all()
-        elements = Element.objects.all()
-        defect_groups = DefectGroup.objects.all()
+        components = Component.objects.all().order_by('-created_date')
+        sub_components = SubComponent.objects.all().order_by('-created_date')
+        elements = Element.objects.all().order_by('-created_date')
+        defect_groups = DefectGroup.objects.all().order_by('-created_date')
         for component in components:
             c_json = {
                 'category': component.name,
@@ -725,14 +725,14 @@ class SyncView(APIView):
                     )
 
         ### RESPONSE
-        components = Component.objects.all()
+        components = Component.objects.all().order_by('-created_date')
         
         result_table = []
         for component in components:
 
             sample_complete = 0
 
-            sub_components = SubComponent.objects.all().filter(component=component)
+            sub_components = SubComponent.objects.all().filter(component=component).order_by('-created_date')
             if component.type == 1:
                 for sub_component in sub_components:
                     if sub_component.type == 3:
@@ -744,7 +744,7 @@ class SyncView(APIView):
                         result_table.append(total_c)
                         sample_complete = sample_complete + total_p + total_s + total_c
                     elif sub_component.type == 2:
-                        elements = Element.objects.all().filter(sub_component=sub_component)
+                        elements = Element.objects.all().filter(sub_component=sub_component).order_by('-created_date')
                         for element in elements:
                             sr = SampleResult.objects.all().filter(
                                 Q(element_code=element.id,qaa=qaa,sync=sync)|
@@ -757,7 +757,7 @@ class SyncView(APIView):
                         pass      
             else:
                 for sub_component in sub_components:
-                    elements = Element.objects.all().filter(sub_component=sub_component)
+                    elements = Element.objects.all().filter(sub_component=sub_component).order_by('-created_date')
                     for element in elements:
                         sr = SampleResult.objects.all().filter(
                             Q(element_code=element.id,qaa=qaa,sync=sync)|
@@ -788,7 +788,7 @@ def sync_object(ad):
     qaa = ad.qaa
 
     ### RESPONSE
-    components = Component.objects.all()
+    components = Component.objects.all().order_by('-created_date')
     response = {}
     
     response['information'] = {
@@ -806,7 +806,7 @@ def sync_object(ad):
         sample_complete = 0
         sample_total = ad.number_of_sample
 
-        sub_components = SubComponent.objects.all().filter(component=component)
+        sub_components = SubComponent.objects.all().filter(component=component).order_by('-created_date')
         if component.type == 1:
             for sub_component in sub_components:
                 if sub_component.type == 3:
@@ -819,7 +819,7 @@ def sync_object(ad):
                     sample_complete = sample_complete + total_p + total_s + total_c
                     subtopic_count += 3
                 elif sub_component.type == 2:
-                    elements = Element.objects.all().filter(sub_component=sub_component)
+                    elements = Element.objects.all().filter(sub_component=sub_component).order_by('-created_date')
                     for element in elements:
                         sr = SampleResult.objects.all().filter(
                             Q(element_code=element.id,qaa=qaa)|
@@ -844,7 +844,7 @@ def sync_object(ad):
         else:
             sample_total = 1
             for sub_component in sub_components:
-                elements = Element.objects.all().filter(sub_component=sub_component)
+                elements = Element.objects.all().filter(sub_component=sub_component).order_by('-created_date')
                 for element in elements:
                     sr = SampleResult.objects.all().filter(
                         Q(element_code=element.id,qaa=qaa)|
@@ -862,7 +862,7 @@ def sync_object(ad):
             }
             response['header'].append(response_header)
 
-    sync_results = SyncResult.objects.all().filter(qaa=qaa)
+    sync_results = SyncResult.objects.all().filter(qaa=qaa).order_by('-created_date')
     for sync_result in sync_results:
         sync_result_sync_time = sync_result.created_date.strftime("%d/%m/%Y, %H:%M:%S")
         sync_result_job_status = sync_result_sync_time + "\n" + sync_result.assessor

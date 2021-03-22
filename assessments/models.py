@@ -207,7 +207,7 @@ class Component(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'CO'
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
                 self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
@@ -276,7 +276,7 @@ class SubComponent(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'SC'
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
                 self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
@@ -344,7 +344,7 @@ class Element(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'EL'
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
                 self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
@@ -395,7 +395,7 @@ class DefectGroup(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'DG'
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
                 print(last_instance_id)

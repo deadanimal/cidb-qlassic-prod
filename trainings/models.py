@@ -85,7 +85,7 @@ class RoleApplication(models.Model):
     def save(self,*args, **kwargs):
         if not self.application_number:
             prefix = 'QRA'
-            prev_instances = self.__class__.objects.filter(application_number__contains=prefix)
+            prev_instances = self.__class__.objects.filter(application_number__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().application_number[-3:]
                 self.application_number = prefix+'{0:06d}'.format(int(last_instance_id)+1)
@@ -245,7 +245,7 @@ class Training(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'TR{}'.format(datetime.datetime.now().strftime('%y'))
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-3:]
                 self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
@@ -370,7 +370,7 @@ class RegistrationTraining(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'RT'
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
                 self.code_id = prefix+'{0:06d}'.format(int(last_instance_id)+1)
