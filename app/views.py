@@ -316,6 +316,8 @@ def view_pdf(request):
     
     attendance = RegistrationTraining.objects.all().exclude(certificate_file=None).first()
 
+    haha = '{0:03d}'.format(int(2000)+1)
+    print(haha)
     # Email
     # to = ['muhaafidz@gmail.com']
     # subject = "Complaint From Trainee"

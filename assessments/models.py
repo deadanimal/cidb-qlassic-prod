@@ -398,6 +398,8 @@ class DefectGroup(models.Model):
             prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
             if prev_instances.exists():
                 last_instance_id = prev_instances.first().code_id[-2:]
+                print(last_instance_id)
+                print('{0:03d}'.format(int(last_instance_id)+1))
                 self.code_id = prefix+'{0:03d}'.format(int(last_instance_id)+1)
             else:
                 self.code_id = prefix+'{0:03d}'.format(1)
