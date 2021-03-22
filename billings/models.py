@@ -71,9 +71,9 @@ class Payment(models.Model):
     def save(self,*args, **kwargs):
         if not self.code_id:
             prefix = 'PY{}'.format(datetime.datetime.now().strftime('%y'))
-            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix)
             if prev_instances.exists():
-                last_instance_id = prev_instances.first().code_id[-3:]
+                last_instance_id = prev_instances.first().code_id.replace(prefix,'')
                 self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
             else:
                 self.code_id = prefix+'{0:04d}'.format(1)
