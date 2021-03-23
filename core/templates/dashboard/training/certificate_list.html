@@ -39,6 +39,11 @@
             <h2 class="text-center mb-0 pb-0">
               List of Training Certificates
             </h2>
+            {% if mode == 'trainee' %}
+            <div class="text-center mt-3">
+              <a href="{{ payment_history_url }}" class="btn btn-primary btn-sm" target="_blank">Payment History</a>
+            </div>
+            {% endif %}
           </div>
           <div class="table-responsive py-4">    
             <table class="table table-custom-simplified">

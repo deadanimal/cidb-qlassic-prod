@@ -40,6 +40,11 @@
         <div class="card">
           <div class="card-header text-center">
             <h2 class="mb-0">List of Applications</h2>
+            {% if role_type == 'applicant' %}
+              <div class="text-center mt-3">
+                <a href="{{ payment_history_url }}" class="btn btn-primary btn-sm" target="_blank">Payment History</a>
+              </div>
+            {% endif %}
           </div>
           <div class="table-responsive py-4">
             <!-- Table Data Filter -->

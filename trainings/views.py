@@ -51,7 +51,7 @@ from .helpers import (
     save_role_application_supporting_documents,
     # generate_role_application_number,
 )
-from billings.helpers import payment_response_process
+from billings.helpers import payment_response_process, get_payment_history_url
 
 import absoluteuri
 
@@ -534,6 +534,7 @@ def dashboard_joined_training_list(request):
         'title': 'Joined Training',
         'mode': mode,
         'trainings': trainings,
+        'payment_history_url':get_payment_history_url(request),
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
@@ -1024,6 +1025,7 @@ def dashboard_joined_training_certificate(request):
         'trainings':trainings,
         'assessor': assessor,
         'user': request.user,
+        'payment_history_url':get_payment_history_url(request),
     }
 
     return render(request, "dashboard/training/certificate_list.html", context)

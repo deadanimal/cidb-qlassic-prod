@@ -72,7 +72,7 @@
                     {% for sa in suggested_assessors %}
                       {% if sa.qaa == qaa %}
                         <h5 class="mb-0">
-                        - {{ sa.assessor.user.name }} 
+                        - {{ sa.assessor.user.name }}
                         {% if sa.acception %}
                           {% if sa.acception == 'accept' %}<i class="fas fa-check-circle text-success"></i>
                           {% elif sa.acception == 'reject' %}<i class="fas fa-times-circle text-danger"></i>

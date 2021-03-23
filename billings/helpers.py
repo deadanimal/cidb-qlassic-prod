@@ -48,3 +48,8 @@ def payment_response_process(request):
         return payment
     else:
         return None
+
+from api.soap.create_transaction import transaction_history_url
+
+def get_payment_history_url(request):
+    return transaction_history_url + request.user.code_id

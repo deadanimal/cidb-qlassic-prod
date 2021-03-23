@@ -15,8 +15,10 @@ import random
 # Payment
 from django.views.decorators.csrf import csrf_exempt
 from api.soap.create_transaction import create_transaction, payment_gateway_url
-from billings.helpers import payment_response_process
+from billings.helpers import payment_response_process, get_payment_history_url
 from billings.models import Payment
+
+import requests
 
 from core.helpers import get_state_code, get_sector_code, send_email_default, get_domain
 
@@ -28,7 +30,17 @@ from projects.forms import ProjectInfoCreateForm, ProjectInfoApplicationForm
 # Models
 from users.models import Assessor, CustomUser
 from projects.models import Contractor, VerifiedContractor, ProjectInfo
-from assessments.models import QlassicAssessmentApplication, SupportingDocuments, SuggestedAssessor, AssignedAssessor, AssessmentData
+from assessments.models import (
+    Component, SampleResult, 
+    SubComponent, 
+    Element, 
+    DefectGroup, 
+    QlassicAssessmentApplication, 
+    SupportingDocuments, 
+    SuggestedAssessor, 
+    AssignedAssessor, 
+    AssessmentData
+)
 
 # SOAP
 from api.soap.get_contractor import get_project, verify_contractor
@@ -690,6 +702,7 @@ def dashboard_application_list(request):
         'role_type':role_type,
         'sector':sector,
         'qaas':qaas,
+        'payment_history_url':get_payment_history_url(request),
     }
     
     if request.method == 'POST':
@@ -703,7 +716,37 @@ def dashboard_application_list(request):
 
     return render(request, "dashboard/application/application_list.html",context)
 
+# @login_required(login_url="/login/")
+# def dashboard_application_payment(request, id):
+#     mode = 'payment'
+#     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+#     response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
+#     print(response)
+#     proforma = response.Code
+    
+#     response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
 
+#     # Create Payment
+#     payment, created = Payment.objects.get_or_create(order_id=proforma)
+#     payment.user = request.user
+#     payment.customer_name = request.user.name
+#     payment.customer_email = request.user.email
+#     payment.qaa = qaa
+#     payment.currency = 'MYR'
+#     payment.payment_amount = response.Amount
+#     payment.save()
+
+#     context = {
+#         'title': 'Payment - QLASSIC Assessment Application',
+#         'mode': mode,
+#         'qaa': qaa,
+#         'proforma': proforma,
+#         'amount': payment.payment_amount,
+#         'response': response,
+#         'url': payment_gateway_url,
+#         'response_url': response_url,
+#     }
+#     return render(request, "dashboard/application/payment.html",context)
 
 @login_required(login_url="/login/")
 def dashboard_application_payment(request, id):
@@ -724,18 +767,24 @@ def dashboard_application_payment(request, id):
     payment.currency = 'MYR'
     payment.payment_amount = response.Amount
     payment.save()
-
-    context = {
-        'title': 'Payment - QLASSIC Assessment Application',
-        'mode': mode,
-        'qaa': qaa,
-        'proforma': proforma,
-        'amount': payment.payment_amount,
-        'response': response,
-        'url': payment_gateway_url,
-        'response_url': response_url,
+    
+    postdata = {
+        'ClientReturnURL':response_url,
+        'IcOrRoc':request.user.code_id,
+        'OrderID':proforma,
+        'Currency':"MYR",
+        'TransactionType':"SALE",
+        'ClientRef0':"",
+        'ClientRef1':"",
+        'ClientRef2':"",
+        'ClientRef3':"",
+        'ClientRef4':"",
+        'Amount': payment.payment_amount,
+        'CustomerName':request.user.name,
+        'CustomerEmail':request.user.email,
+        'CustomerPhoneNo':request.user.hp_no,
     }
-    return render(request, "dashboard/application/payment.html",context)
+    r = requests.post(response_url, data=postdata)
 
 @csrf_exempt
 def dashboard_application_payment_response(request, id):
@@ -1013,3 +1062,16 @@ def dashboard_application_assessor_change(request, id):
     return render(request, "dashboard/application/assessor_change.html", context)
 
 
+
+
+## Functions
+
+# def get_qaa_result(qaa):
+#     components = Component.objects.all().order_by('-created_date')
+#     element_components = Element.objects.all().filter(category_weightage=True).order_by('-created_date')
+#     sub_components = SubComponent.objects.all().filter().order_by('-created_date')
+#     elements = Element.objects.all().filter(category_weightage=False).order_by('-created_date')
+#     defect_groups = DefectGroup.objects.all().order_by('-created_date')
+#     sample_results = SampleResult.objects.all().filter(qaa=qaa)
+#     for sample_result in sample_results:
+        
