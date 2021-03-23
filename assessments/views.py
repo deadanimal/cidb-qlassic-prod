@@ -6,8 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.http import Http404
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.db.models import Q
 import datetime
 import random
@@ -784,9 +783,8 @@ def dashboard_application_payment(request, id):
         'CustomerEmail':request.user.email,
         'CustomerPhoneNo':request.user.hp_no,
     }
-    r = requests.post(payment_gateway_url, data=postdata)
 
-    pass
+    return requests.post(payment_gateway_url, data=postdata).json()
 
 @csrf_exempt
 def dashboard_application_payment_response(request, id):
@@ -1077,3 +1075,50 @@ def dashboard_application_assessor_change(request, id):
 #     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 #     for sample_result in sample_results:
         
+
+## AJAX
+@login_required(login_url="/login/")
+def ajax_api_application_payment_request(request):
+    print('aasds')
+    if request.method == 'POST':
+        id = request.POST['id']
+        qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+        response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
+        print(response)
+        proforma = response.Code
+        result = response.TransactionResult
+        
+        response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
+
+        # Create Payment
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        payment.user = request.user
+        payment.customer_name = request.user.name
+        payment.customer_email = request.user.email
+        payment.qaa = qaa
+        payment.currency = 'MYR'
+        payment.payment_amount = response.Amount
+        payment.save()
+
+        postdata = {
+            'payment_gateway_url':payment_gateway_url,
+            'ClientReturnURL':response_url,
+            'IcOrRoc':request.user.code_id,
+            'OrderID':proforma,
+            'Currency':"MYR",
+            'TransactionType':"SALE",
+            'ClientRef0':"",
+            'ClientRef1':"",
+            'ClientRef2':"",
+            'ClientRef3':"",
+            'ClientRef4':"",
+            'Amount': payment.payment_amount,
+            'CustomerName':request.user.name,
+            'CustomerEmail':request.user.email,
+            'CustomerPhoneNo':request.user.hp_no,
+            'result':result,
+        }
+
+        return JsonResponse(postdata)
+    else:
+        return JsonResponse({})
