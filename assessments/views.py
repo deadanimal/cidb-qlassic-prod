@@ -767,7 +767,7 @@ def dashboard_application_payment(request, id):
     payment.currency = 'MYR'
     payment.payment_amount = response.Amount
     payment.save()
-    
+
     postdata = {
         'ClientReturnURL':response_url,
         'IcOrRoc':request.user.code_id,
@@ -784,7 +784,9 @@ def dashboard_application_payment(request, id):
         'CustomerEmail':request.user.email,
         'CustomerPhoneNo':request.user.hp_no,
     }
-    r = requests.post(response_url, data=postdata)
+    r = requests.post(payment_gateway_url, data=postdata)
+
+    pass
 
 @csrf_exempt
 def dashboard_application_payment_response(request, id):
