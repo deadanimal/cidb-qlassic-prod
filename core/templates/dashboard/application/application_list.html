@@ -163,7 +163,7 @@
                         {% endif %}
                         {% if qaa.application_status == 'need_payment' %}
                           {% comment %} <a href="{% url 'dashboard_application_payment' qaa.id %}" class="btn btn-sm btn-success w-100 mb-2">Pay</a> {% endcomment %}
-                          <a href="#" onclick="ajax_payment_request('{{ qaa.id }}');" class="btn btn-sm btn-success w-100 mb-2">Pay</a>
+                          <button onclick="ajax_payment_request('{{ qaa.id }}');" class="btn btn-sm btn-success w-100 mb-2">Pay</button>
                         {% endif %}
                       {% endif %}
                     </td>
