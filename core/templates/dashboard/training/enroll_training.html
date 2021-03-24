@@ -128,7 +128,7 @@
                     <th>{{ tr.get_status_display }}</th>
                     <td>
                       {% if tr.status == 'need_payment' %}
-                        <a href="{% url 'dashboard_joined_training_pay' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Pay</button>
+                        <button onclick="ajax_payment_request('{{ tr.id }}');" class="btn btn-sm btn-success w-100 mb-2">Pay</button>
                       {% endif %}
                       {% if request.user.role == 'trainee' or request.user.role == 'applicant' %}
                         <a href="{% url 'dashboard_training_feedback_application' tr.training.id %}" class="btn btn-sm btn-info w-100 mb-2">Feedback</button>
@@ -476,7 +476,22 @@
       {% endif %}
     </div>
 
-
+    <form id="form_payment" action="" method="POST">
+      <input type="hidden" name="ClientReturnURL">
+      <input type="hidden" name="IcOrRoc">
+      <input type="hidden" name="OrderID">
+      <input type="hidden" name="Currency">
+      <input type="hidden" name="TransactionType">
+      <input type="hidden" name="ClientRef0">
+      <input type="hidden" name="ClientRef1">
+      <input type="hidden" name="ClientRef2">
+      <input type="hidden" name="ClientRef3">
+      <input type="hidden" name="ClientRef4">
+      <input type="hidden" name="Amount">
+      <input type="hidden" name="CustomerName">
+      <input type="hidden" name="CustomerEmail">
+      <input type="hidden" name="CustomerPhoneNo">
+    </form>
   </div>
   {% include 'includes/footer-dashboard.html' %}
 
@@ -484,6 +499,43 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+  <script>
+   function ajax_payment_request(id) {
+    $.ajax({
+      method: "POST",
+      headers:{
+          "X-CSRFToken": "{{ csrf_token }}"
+      },
+      url: "{% url 'ajax_api_application_payment_request' %}",
+      data: {
+        "id":id
+      },
+      dataType: 'json',
+      success: function (data) {
+        if (data.result == "PASS") {
+          $("#form_payment").attr("action", data.payment_gateway_url);;
+          $("input[name='ClientReturnURL']").val(data.ClientReturnURL);
+          $("input[name='IcOrRoc']").val(data.IcOrRoc);
+          $("input[name='OrderID']").val(data.OrderID);
+          $("input[name='Currency']").val(data.Currency);
+          $("input[name='TransactionType']").val(data.TransactionType);
+          $("input[name='ClientRef0']").val(data.ClientRef0);
+          $("input[name='ClientRef1']").val(data.ClientRef1);
+          $("input[name='ClientRef2']").val(data.ClientRef2);
+          $("input[name='ClientRef3']").val(data.ClientRef3);
+          $("input[name='ClientRef4']").val(data.ClientRef4);
+          $("input[name='Amount']").val(data.Amount);
+          $("input[name='CustomerName']").val(data.CustomerName);
+          $("input[name='CustomerEmail']").val(data.CustomerEmail);
+          $("input[name='CustomerPhoneNo']").val(data.CustomerPhoneNo);
+          $("#form_payment").submit();
+        } else {
+          alert("Problem creating the proforma. Please check with the admin.");
+        }
+      }
+    });
+   }
+  </script>
 
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>

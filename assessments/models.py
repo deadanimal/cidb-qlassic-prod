@@ -698,7 +698,7 @@ class SiteAttendance(models.Model):
 class SyncResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
-    result = models.CharField(null=True,blank=True, max_length=3000)
+    result = models.CharField(null=True,blank=True, default="[]", max_length=3000)
     assessor = models.CharField(null=True,blank=True, max_length=255)
     coordinate = models.CharField(null=True,blank=True, max_length=255)
 

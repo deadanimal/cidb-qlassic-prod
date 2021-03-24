@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 import absoluteuri
+from django.http import JsonResponse
 
 # Decorators
 from django.contrib.auth.decorators import login_required
@@ -1152,3 +1153,94 @@ def dashboard_qia_application_pay_response(request, id):
     }
     return render(request, "dashboard/training/qia_application.html", context)
 
+
+## AJAX
+@login_required(login_url="/login/")
+def ajax_api_training_payment_request(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        
+        rt = get_object_or_404(RegistrationTraining, id=id)
+        response = create_transaction(request, 1, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
+        result = response.TransactionResult
+        proforma = response.Code
+        print(str(response))
+        
+        response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
+
+        # Create Payment
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        payment.user = request.user
+        payment.customer_name = request.user.name
+        payment.customer_email = request.user.email
+        payment.rt = rt
+        payment.currency = 'MYR'
+        payment.payment_amount = response.Amount
+        payment.save()
+
+        postdata = {
+            'payment_gateway_url':payment_gateway_url,
+            'ClientReturnURL':response_url,
+            'IcOrRoc':request.user.code_id,
+            'OrderID':proforma,
+            'Currency':"MYR",
+            'TransactionType':"SALE",
+            'ClientRef0':"",
+            'ClientRef1':"",
+            'ClientRef2':"",
+            'ClientRef3':"",
+            'ClientRef4':"",
+            'Amount': payment.payment_amount,
+            'CustomerName':request.user.name,
+            'CustomerEmail':request.user.email,
+            'CustomerPhoneNo':request.user.hp_no,
+            'result':result,
+        }
+
+        return JsonResponse(postdata)
+    else:
+        return JsonResponse({})
+
+@login_required(login_url="/login/")
+def ajax_api_qia_payment_request(request):
+    if request.method == 'POST':
+        id = request.POST['id']
+        
+        user = get_object_or_404(CustomUser, id=id)
+        response = create_transaction(request, 1, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
+        proforma = response.Code
+        result = response.TransactionResult
+        
+        response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
+        
+        # Create Payment
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        payment.user = request.user
+        payment.customer_name = request.user.name
+        payment.customer_email = request.user.email
+        payment.currency = 'MYR'
+        payment.payment_amount = response.Amount
+        payment.save()
+
+        postdata = {
+            'payment_gateway_url':payment_gateway_url,
+            'ClientReturnURL':response_url,
+            'IcOrRoc':request.user.code_id,
+            'OrderID':proforma,
+            'Currency':"MYR",
+            'TransactionType':"SALE",
+            'ClientRef0':"",
+            'ClientRef1':"",
+            'ClientRef2':"",
+            'ClientRef3':"",
+            'ClientRef4':"",
+            'Amount': payment.payment_amount,
+            'CustomerName':request.user.name,
+            'CustomerEmail':request.user.email,
+            'CustomerPhoneNo':request.user.hp_no,
+            'result':result,
+        }
+
+        return JsonResponse(postdata)
+    else:
+        return JsonResponse({})

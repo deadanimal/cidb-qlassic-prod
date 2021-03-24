@@ -38,4 +38,7 @@ urlpatterns = [
     path('dashboard/training/qia/application/review/<str:id>/', views.dashboard_qia_application_review, name="dashboard_qia_application_review"),
     path('dashboard/training/qia/application/payment/<str:id>/', views.dashboard_qia_application_pay, name="dashboard_qia_application_pay"),
     path('dashboard/training/qia/application/payment/<str:id>/response/', views.dashboard_qia_application_pay_response, name="dashboard_qia_application_pay_response"),
+
+    path('ajax/training/payment/', views.ajax_api_training_payment_request, name="ajax_api_training_payment_request"),
+    path('ajax/qia/payment/', views.ajax_api_qia_payment_request, name="ajax_api_qia_payment_request"),
 ]
