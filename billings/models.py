@@ -51,7 +51,6 @@ class Payment(models.Model):
 
     PAYMENT_STATUS = [
         # To follow SRS
-        ("2",'Proforma Cancelled'),
         ("1",'Successful'),
         ("0",'Fail'),
         ("-1",'Pending'),
@@ -61,6 +60,7 @@ class Payment(models.Model):
         choices=PAYMENT_STATUS,
         max_length=15
     )
+    proforma_cancelled = models.BooleanField(null=True,default=False)
     status_description = models.CharField(null=True, blank=True, max_length=255)
 
     # Date
