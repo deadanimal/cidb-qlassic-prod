@@ -287,7 +287,7 @@ from .helpers.letter_templates import generate_training_document
 
 from core.helpers import send_email_with_attachment
 from trainings.models import RegistrationTraining
-from api.soap.create_transaction import get_kodhasil
+from api.soap.create_transaction import get_kodhasil, cancel_proforma
 
 @login_required(login_url="/login/")
 def view_pdf(request):
@@ -311,6 +311,7 @@ def view_pdf(request):
         'ic': '920202-1020-1200',
         'pass': get_pass_fail_translation(True),
     }
+    cancel_proforma("PFHQB42103000027")
     response = generate_training_document(request, training_type, template_ctx)
     # SupportingDocuments.objects.create(file_name=response['name'],file=response['path'])
     

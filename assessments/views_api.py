@@ -723,7 +723,7 @@ class SyncView(APIView):
                         sync=sync,
                         sync_code=str(sync.id)
                     )
-
+        print('Synced')
         ### RESPONSE
         components = Component.objects.all().order_by('-created_date')
         

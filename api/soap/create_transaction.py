@@ -376,7 +376,7 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     history = HistoryPlugin()
     client = Client(wsdl,plugins=[history])
     now_date = datetime.datetime.now()
-    due_date = now_date + datetime.timedelta(days=30)
+    due_date = now_date + datetime.timedelta(days=14)
     request_data = {
         'obj': {
             'Id':'1',
@@ -445,4 +445,23 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     # response_xml = response.content
     # print(response_xml)
     # print(type(response_xml))
+    return response
+
+def cancel_proforma(code):
+    wsdl = create_transaction_wsdl
+
+    history = HistoryPlugin()
+    client = Client(wsdl,plugins=[history])
+    request_data = {
+        'proforma':code,
+        'cancelBy':'Admin',
+        'cancelRemark':'Proforma Expired'
+    }
+
+    response = client.service.CancelProforma(**request_data)
+    # print(history.last_sent)
+    # print(history.last_received)
+    # response_xml = response.content
+    # print(type(response_xml))
+    print(response)
     return response
