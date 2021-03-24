@@ -565,7 +565,7 @@ class SyncView(APIView):
         assessorName = data['assessorName']
         assessorId = data['assessorId']
         coordinate = data['coordinate']
-        print(result1)
+        # print(result1)
         partners = ''
         for partner in json.loads(result_partners):
             partner_results = partner['result']
