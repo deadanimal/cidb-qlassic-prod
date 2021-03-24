@@ -19,6 +19,7 @@ def job_cancel_proforma():
         Q(created_date__lt=due_date,payment_status="-1",proforma_cancelled=False)
     )
     for payment in expired_payments:
-        cancel_proforma(payment.order_id)
-        payment.proforma_cancelled=True
-        payment.save()
+        status = cancel_proforma(payment.order_id)
+        if status.TransactionResult == "PASS":
+            payment.proforma_cancelled=True
+            payment.save()
