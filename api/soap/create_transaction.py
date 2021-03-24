@@ -17,6 +17,7 @@ import datetime
 # Staging URL
 create_transaction_wsdl = "http://202.171.33.96/Financeservice/?wsdl"
 payment_gateway_url = "https://cimsdev.cidb.gov.my/pmscart/Payment/MakePayment"
+get_receipt_url = "http://202.171.33.96:8080/ReceiptEnquiry/?code="
 transaction_history_url = "https://cimsdev.cidb.gov.my/pmscart/?customerDebtorId="
 ## FULL URL PATTERN: https://cimsdev.cidb.gov.my/pmscart/?customerDebtorId=USR210007&ClientReturnURL=https://cimsdev.cidb.gov.my/securepay/test.aspx#
 

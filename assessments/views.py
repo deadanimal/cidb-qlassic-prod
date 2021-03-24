@@ -13,7 +13,7 @@ import random
 
 # Payment
 from django.views.decorators.csrf import csrf_exempt
-from api.soap.create_transaction import create_transaction, payment_gateway_url
+from api.soap.create_transaction import create_transaction, payment_gateway_url, get_receipt_url
 from billings.helpers import payment_response_process, get_payment_history_url
 from billings.models import Payment
 
@@ -832,6 +832,7 @@ def dashboard_application_payment_response(request, id):
         'title': 'Payment Response - QLASSIC Assessment Application',
         'mode': mode,
         'training': qaa,
+        'receipt_url': get_receipt_url + payment.order_id,
         'payment': payment,
     }
     return render(request, "dashboard/application/payment.html",context)

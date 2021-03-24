@@ -591,6 +591,7 @@ def dashboard_joined_training_pay_response(request, id):
         'title': 'Payment Response - Joined Training',
         'mode': mode,
         'training': rt,
+        'receipt_url': get_receipt_url + payment.order_id,
         'payment': payment,
     }
     return render(request, "dashboard/training/enroll_training.html", context)
@@ -1149,6 +1150,7 @@ def dashboard_qia_application_pay_response(request, id):
         'title': 'Payment Response - QLASSIC Industry Assessor Certificate',
         'mode': mode,
         'user': user,
+        'receipt_url': get_receipt_url + payment.order_id,
         'payment': payment,
     }
     return render(request, "dashboard/training/qia_application.html", context)
@@ -1210,7 +1212,7 @@ def ajax_api_qia_payment_request(request):
         response = create_transaction(request, 1, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
         proforma = response.Code
         result = response.TransactionResult
-        
+
         response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
         
         # Create Payment

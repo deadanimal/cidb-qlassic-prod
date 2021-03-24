@@ -118,7 +118,12 @@
             </div>
             <div class="card-body text-center">
               {% if payment %}
-                <h4 class="mb-0">{% if payment.payment_status == 1 %}SUCCESS{% else %}FAIL{% endif %}</h4>
+                {% if payment.payment_status == 1 %}
+                  <h4 class="mb-0">SUCCESS</h4>
+                  <a href="{{ receipt_url }}" class="btn btn-sm btn-primary" target="_blank">Download Receipt</a>
+                {% else %}
+                  <h4 class="mb-0">FAIL</h4>
+                {% endif %}
                 <hr>
                 <p>{% if payment.payment_status != 1 %}<strong>Description:</strong>{{ payment.status_description }}{% endif %}</p>
                 <p><strong>Receipt Number:</strong>{{ payment.receipt_number }}</p>
