@@ -306,6 +306,7 @@ def create_transaction_process(user, ref_id,description, amount, discount_amount
 
     response = client.service.CreateTransaction(**request_data)
     
+    return response
 
 def cancel_proforma(code):
     wsdl = create_transaction_wsdl
