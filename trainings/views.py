@@ -58,7 +58,7 @@ import absoluteuri
 
 from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr, get_domain
 from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
-from api.soap.create_transaction import create_transaction, payment_gateway_url
+from api.soap.create_transaction import create_transaction, create_training_transaction, payment_gateway_url
 
 # Create your views here.
 @login_required(login_url="/login/")
@@ -544,7 +544,8 @@ def dashboard_joined_training_list(request):
 def dashboard_joined_training_pay(request, id):
     mode = 'payment'
     rt = get_object_or_404(RegistrationTraining, id=id)
-    response = create_transaction(request, 1, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
+    training = rt.training
+    response = create_training_transaction(request, training.fee, 'YKSHEQ', 'YURAN KURSUS', rt.code_id, request.user)
     proforma = response.Code
     print(str(response))
     

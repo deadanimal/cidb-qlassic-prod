@@ -293,6 +293,7 @@ from api.soap.create_transaction import get_kodhasil, cancel_proforma
 def view_pdf(request):
     # response = generate_document_file(request, 'training_certificate', {})
     response = get_kodhasil('YKSHEQ')
+    print(response)
     # response = get_kodhasil('QLC')
     training_type = TrainingType.objects.all().filter(name="Exam")[0]
     template_ctx = {
@@ -311,7 +312,7 @@ def view_pdf(request):
         'ic': '920202-1020-1200',
         'pass': get_pass_fail_translation(True),
     }
-    cancel_proforma("PFHQB42103000027")
+    # cancel_proforma("PFHQB42103000027")
     response = generate_training_document(request, training_type, template_ctx)
     # SupportingDocuments.objects.create(file_name=response['name'],file=response['path'])
     
