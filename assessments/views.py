@@ -828,11 +828,15 @@ def dashboard_application_payment_response(request, id):
                 messages.warning(request, 'Payment unsuccessful. Please try again.')
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction')
+    receipt_url = None
+    if payment != None:
+        receipt_url = get_receipt_url + payment.order_id
+
     context = {
         'title': 'Payment Response - QLASSIC Assessment Application',
         'mode': mode,
         'training': qaa,
-        'receipt_url': get_receipt_url + payment.order_id,
+        'receipt_url': receipt_url,
         'payment': payment,
     }
     return render(request, "dashboard/application/payment.html",context)

@@ -58,7 +58,7 @@ import absoluteuri
 
 from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr, get_domain
 from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
-from api.soap.create_transaction import create_transaction, create_training_transaction, payment_gateway_url
+from api.soap.create_transaction import create_transaction, create_training_transaction, get_receipt_url, payment_gateway_url
 
 # Create your views here.
 @login_required(login_url="/login/")
@@ -588,11 +588,16 @@ def dashboard_joined_training_pay_response(request, id):
                 messages.warning(request, 'Payment unsuccessful. Please try again.')
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
+    
+    receipt_url = None
+    if payment != None:
+        receipt_url = get_receipt_url + payment.order_id
+
     context = {
         'title': 'Payment Response - Joined Training',
         'mode': mode,
         'training': rt,
-        'receipt_url': get_receipt_url + payment.order_id,
+        'receipt_url': receipt_url,
         'payment': payment,
     }
     return render(request, "dashboard/training/enroll_training.html", context)
@@ -1147,11 +1152,16 @@ def dashboard_qia_application_pay_response(request, id):
                 messages.warning(request, 'Payment unsuccessful. Please try again.')
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
+    
+    receipt_url = None
+    if payment != None:
+        receipt_url = get_receipt_url + payment.order_id
+    
     context = {
         'title': 'Payment Response - QLASSIC Industry Assessor Certificate',
         'mode': mode,
         'user': user,
-        'receipt_url': get_receipt_url + payment.order_id,
+        'receipt_url': receipt_url,
         'payment': payment,
     }
     return render(request, "dashboard/training/qia_application.html", context)

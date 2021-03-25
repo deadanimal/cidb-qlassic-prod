@@ -94,7 +94,9 @@
                   {% if payment %}
                     {% if payment.payment_status == 1 %}
                       <h4 class="mb-0">SUCCESS</h4>
-                      <a href="{{ receipt_url }}" class="btn btn-sm btn-primary" target="_blank">Download Receipt</a>
+                      {% if receipt_url %%}
+                        <a href="{{ receipt_url }}" class="btn btn-sm btn-primary" target="_blank">Download Receipt</a>
+                      {% endif %}
                     {% else %}
                       <h4 class="mb-0">FAIL</h4>
                     {% endif %}
