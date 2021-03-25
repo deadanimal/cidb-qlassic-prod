@@ -185,7 +185,7 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     # total_amount = unit_amount_with_tax * quantity
 
     total_unit_amount = unit_amount * quantity
-    amount = total_unit_amount - discount_amount
+    amount = total_unit_amount
 
     response = create_transaction_process(user, ref_id,description, amount, discount_amount, total_tax, kod_hasil, tax_amount_per_unit)
     
