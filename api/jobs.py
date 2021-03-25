@@ -3,6 +3,7 @@ import os
 
 from app.helpers.docx2pdf import TEMPLATE_TEMP_PATH
 def job_remove_temp():
+    print("Cron: Remove Temp files")
     if os.path.exists(TEMPLATE_TEMP_PATH):
         shutil.rmtree(TEMPLATE_TEMP_PATH) 
         print('JOB: Clear up tmp folder')
@@ -10,10 +11,12 @@ def job_remove_temp():
 from billings.models import Payment
 from api.soap.create_transaction import cancel_proforma
 import datetime
+from django.utils.timezone import localtime, now
 from django.db.models import Q
 
 def job_cancel_proforma():
-    due_date = datetime.datetime.now() - datetime.timedelta(days=14)
+    print("Cron: Cancel Proforma")
+    due_date = localtime(now()) - datetime.timedelta(days=14)
     expired_payments = Payment.objects.all().filter(
         Q(created_date__lt=due_date,payment_status="0",proforma_cancelled=False)|
         Q(created_date__lt=due_date,payment_status="-1",proforma_cancelled=False)
