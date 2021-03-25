@@ -30,7 +30,7 @@ from projects.forms import ProjectInfoCreateForm, ProjectInfoApplicationForm
 from users.models import Assessor, CustomUser
 from projects.models import Contractor, VerifiedContractor, ProjectInfo
 from assessments.models import (
-    Component, SampleResult, 
+    Component, ElementResult, SampleResult, 
     SubComponent, 
     Element, 
     DefectGroup, 
@@ -1070,16 +1070,90 @@ def dashboard_application_assessor_change(request, id):
 
 
 ## Functions
+def get_qaa_result(qaa):
+    components = Component.objects.all().order_by('-created_date')
+    element_components = Element.objects.all().filter(category_weightage=True).order_by('-created_date')
+    sub_components = SubComponent.objects.all().filter().order_by('-created_date')
+    elements = Element.objects.all().filter(category_weightage=False).order_by('-created_date')
+    defect_groups = DefectGroup.objects.all().order_by('-created_date')
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)
+    result = {}
+    index_c = 'A'
+    result['components'] = []
+    for component in components:
+        index_sc = 1
+        result_c = {}
+        result_c['no'] = index_c
+        result_c['name'] = component.name
+        result_c['type'] = qaa.building_type
+        if qaa.building_type == 'A':
+            result_c['weightage'] = component.weightage_a
+        if qaa.building_type == 'B':
+            result_c['weightage'] = component.weightage_b
+        if qaa.building_type == 'C':
+            result_c['weightage'] = component.weightage_c
+        if qaa.building_type == 'D':
+            result_c['weightage'] = component.weightage_d
+        result_c['subcomponents'] = []
+        for sub_component in sub_components:
+            if sub_component.component == component:
+                index_e = 1
+                result_sc = {}
+                result_sc['no'] = index_sc
+                result_sc['name'] = sub_component.name
+                result_sc['weightage'] = sub_component.get_total_weightage()
+                result_sc['elements'] = []
+                for element in elements:
+                    if element.sub_component == sub_component:
+                        result_e = {}
+                        result_e['no'] = str(index_sc) + "." + str(index_e)
+                        result_e['name'] = element.name
+                        result_e['weightage'] = element.weightage
+                        
+                        # Calculate Result
+                        number_of_compliance = 0
+                        number_of_check = 0
+                        element_results = ElementResult.objects.all().filter(
+                            Q(element_code=element.id)|
+                            Q(element_code=element.code_id)
+                        )
+                        for element_result in element_results:
+                            number_of_compliance += element_result.total_compliance
+                            number_of_check += element_result.total_check
 
-# def get_qaa_result(qaa):
-#     components = Component.objects.all().order_by('-created_date')
-#     element_components = Element.objects.all().filter(category_weightage=True).order_by('-created_date')
-#     sub_components = SubComponent.objects.all().filter().order_by('-created_date')
-#     elements = Element.objects.all().filter(category_weightage=False).order_by('-created_date')
-#     defect_groups = DefectGroup.objects.all().order_by('-created_date')
-#     sample_results = SampleResult.objects.all().filter(qaa=qaa)
-#     for sample_result in sample_results:
+                        result_e['total_compliance'] = number_of_compliance
+                        result_e['total_check'] = number_of_check
+                        
+                        result_sc['elements'].append(result_e)
+                        index_e += 1
+                result_c['subcomponents'].append(result_sc)
+                index_sc += 1
         
+
+        result['components'].append(result_c)
+        index_c = chr(ord(index_c) + 1)
+
+    for element_component in element_components:
+        index_sc = 1
+        result_c = {}
+        result_c['no'] = index_c
+        result_c['name'] = element_component.name
+        result_c['type'] = qaa.building_type
+        if qaa.building_type == 'A':
+            result_c['weightage'] = element_component.weightage_a
+        if qaa.building_type == 'B':
+            result_c['weightage'] = element_component.weightage_b
+        if qaa.building_type == 'C':
+            result_c['weightage'] = element_component.weightage_c
+        if qaa.building_type == 'D':
+            result_c['weightage'] = element_component.weightage_d
+        
+        result['components'].append(result_c)
+        index_c = chr(ord(index_c) + 1)
+
+
+    print(result)
+    return result
 
 ## AJAX
 @login_required(login_url="/login/")

@@ -120,7 +120,7 @@
               {% if payment %}
                 {% if payment.payment_status == 1 %}
                   <h4 class="mb-0">SUCCESS</h4>
-                  {% if receipt_url %%}
+                  {% if receipt_url %}
                     <a href="{{ receipt_url }}" class="btn btn-sm btn-primary" target="_blank">Download Receipt</a>
                   {% endif %}
                 {% else %}

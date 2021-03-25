@@ -3,6 +3,8 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from django.http.response import JsonResponse
+from assessments.views import get_qaa_result
 from datetime import date, datetime
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -291,43 +293,44 @@ from api.soap.create_transaction import get_kodhasil, cancel_proforma
 
 @login_required(login_url="/login/")
 def view_pdf(request):
+    qaa = QlassicAssessmentApplication.objects.all().filter(application_status="assessor_assign").first()
+    result = get_qaa_result(qaa)
     # response = generate_document_file(request, 'training_certificate', {})
-    response = get_kodhasil('YKSHEQ')
-    print(response)
-    # response = get_kodhasil('QLC')
-    training_type = TrainingType.objects.all().filter(name="Exam")[0]
-    template_ctx = {
-        'name': 'Abu bin Ali',
-        'hp_no': '011-110220',
-        'fax_no': '011-110220',
-        'address1': 'Lolololo',
-        'address2': 'Lilililili',
-        'postcode': '192200',
-        'city': 'Kota Bharu',
-        'state': 'Kelantan',
-        'company': 'Kelantan Sdn. Bhd.',
-        'date': translate_malay_date(standard_date(datetime.now().date())),
-        'current_date': translate_malay_date(standard_date(datetime.now().date())),
-        'location': 'Seri Kamanban',
-        'ic': '920202-1020-1200',
-        'pass': get_pass_fail_translation(True),
-    }
-    # cancel_proforma("PFHQB42103000027")
-    response = generate_training_document(request, training_type, template_ctx)
-    # SupportingDocuments.objects.create(file_name=response['name'],file=response['path'])
+    # response = get_kodhasil('YKSHEQ')
+    # # print(response)
+    # # response = get_kodhasil('QLC')
+    # training_type = TrainingType.objects.all().filter(name="Exam")[0]
+    # template_ctx = {
+    #     'name': 'Abu bin Ali',
+    #     'hp_no': '011-110220',
+    #     'fax_no': '011-110220',
+    #     'address1': 'Lolololo',
+    #     'address2': 'Lilililili',
+    #     'postcode': '192200',
+    #     'city': 'Kota Bharu',
+    #     'state': 'Kelantan',
+    #     'company': 'Kelantan Sdn. Bhd.',
+    #     'date': translate_malay_date(standard_date(datetime.now().date())),
+    #     'current_date': translate_malay_date(standard_date(datetime.now().date())),
+    #     'location': 'Seri Kamanban',
+    #     'ic': '920202-1020-1200',
+    #     'pass': get_pass_fail_translation(True),
+    # }
+    # # cancel_proforma("PFHQB42103000027")
+    # response = generate_training_document(request, training_type, template_ctx)
+    # # SupportingDocuments.objects.create(file_name=response['name'],file=response['path'])
     
-    attendance = RegistrationTraining.objects.all().exclude(certificate_file=None).first()
+    # attendance = RegistrationTraining.objects.all().exclude(certificate_file=None).first()
 
-    haha = '{0:03d}'.format(int(2000)+1)
-    print(haha)
+    # haha = '{0:03d}'.format(int(2000)+1)
+    # print(haha)
     # Email
     # to = ['muhaafidz@gmail.com']
     # subject = "Complaint From Trainee"
     # attachments = [attendance.certificate_file.path]
     # messages.info(request, 'Successfully delivered an email to trainer(s).')
     # send_email_with_attachment(subject, to, {}, 'email/training-complaint.html', attachments)
-
-    return response
+    return JsonResponse(result,safe=False, json_dumps_params={'indent': 4})
 
 @login_required(login_url="/login/")
 def generate_pdf(request):
