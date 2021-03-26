@@ -250,7 +250,7 @@ def create_transaction_process(user, ref_id,description, amount, discount_amount
             'SubCategory':'Third Party System - QLASSIC Portal',
             'SourceType':'Third Party System - QLASSIC Portal',
             'CustomerId': user.code_id,
-            # 'PostingDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+            'PostingDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'CreatedDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
             'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),

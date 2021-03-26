@@ -23,7 +23,6 @@ from .serializers import *
 class QlassicScoreViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = QlassicAssessmentApplication.objects.all()
     serializer_class = QlassicScoreSerializer
-    
 
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     filterset_fields = [
