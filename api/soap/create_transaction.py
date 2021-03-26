@@ -195,6 +195,7 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
         response = create_transaction_process(user, ref_id,description, amount, discount_amount, total_tax, kod_hasil, tax_amount_per_unit)
     
     return response
+from decimal import Decimal
 
 # Create Training Transaction
 def create_training_transaction(request, amount, kod_hasil, description, ref_id, user):
@@ -211,7 +212,7 @@ def create_training_transaction(request, amount, kod_hasil, description, ref_id,
     print(kh_response)
 
     discount_amount = kh_response[0].discountAmount
-    tax_amount_per_unit = amount * kh_response[0].taxPercentage
+    tax_amount_per_unit = Decimal(amount) * Decimal(kh_response[0].taxPercentage)
     
     total_tax =  tax_amount_per_unit 
 
