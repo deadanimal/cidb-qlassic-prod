@@ -661,6 +661,7 @@ class SyncView(APIView):
                     i += 1
 
         # Result 2
+        print(result2)
         for sub2 in json.loads(result2):
             id = sub2['id']
             id = id.replace(str(qaa.id)+'_', '')
@@ -668,61 +669,62 @@ class SyncView(APIView):
 
             results = sub2['result']
             for result in results:
-                sample_run = result['sampleRun']
-                remark = result['remark']
-                variables = result['variable']
+                if result != None:
+                    sample_run = result['sampleRun']
+                    remark = result['remark']
+                    variables = result['variable']
 
-                sample_result = SampleResult.objects.create(
-                    sample_run=sample_run,
-                    remark=remark,
-                    element_code=id,
-                    assessor_name=assessorName,
-                    assessor_id=assessorId,
-                    partners=partners,
-                    qaa=qaa,
-                    sync=sync,
-                    sync_code=str(sync.id)
-                )
-
-
-                for photo in json.loads(result_photos):
-                    if result['pic'] == photo['id']:
-                        pic_result = photo['result']
-                        if pic_result[0] != 'assets/add.png':
-                            photo_data, photo_name = convert_string_to_file(pic_result[0], 'photo_1')
-                            sample_result.photo_1.save(photo_name, photo_data)
-                        if pic_result[1] != 'assets/add.png':
-                            photo_data, photo_name = convert_string_to_file(pic_result[1], 'photo_2')
-                            sample_result.photo_2.save(photo_name, photo_data)
-                        if pic_result[2] != 'assets/add.png':
-                            photo_data, photo_name = convert_string_to_file(pic_result[2], 'photo_3')
-                            sample_result.photo_3.save(photo_name, photo_data)
-                        if pic_result[3] != 'assets/add.png':
-                            photo_data, photo_name = convert_string_to_file(pic_result[3], 'photo_4')
-                            sample_result.photo_4.save(photo_name, photo_data)
-                        break
-                for variable in variables:
-                    dg_name = variable['name']
-                    dg_result = variable['result']
-                    total_compliance = 0
-                    total_check = 0
-                    
-                    for data in dg_result:
-                        if data == "Yes":
-                            total_compliance += 1
-                        if data != 'NA':
-                            total_check += 1
-                    ElementResult.objects.create (
-                        qaa=qaa,
+                    sample_result = SampleResult.objects.create(
+                        sample_run=sample_run,
+                        remark=remark,
                         element_code=id,
-                        dg_name=dg_name,
-                        result=str(dg_result),
-                        total_compliance=total_compliance,
-                        total_check=total_check,
-                        sample_result=sample_result,
+                        assessor_name=assessorName,
+                        assessor_id=assessorId,
+                        partners=partners,
+                        qaa=qaa,
                         sync=sync,
                         sync_code=str(sync.id)
                     )
+
+
+                    for photo in json.loads(result_photos):
+                        if result['pic'] == photo['id']:
+                            pic_result = photo['result']
+                            if pic_result[0] != 'assets/add.png':
+                                photo_data, photo_name = convert_string_to_file(pic_result[0], 'photo_1')
+                                sample_result.photo_1.save(photo_name, photo_data)
+                            if pic_result[1] != 'assets/add.png':
+                                photo_data, photo_name = convert_string_to_file(pic_result[1], 'photo_2')
+                                sample_result.photo_2.save(photo_name, photo_data)
+                            if pic_result[2] != 'assets/add.png':
+                                photo_data, photo_name = convert_string_to_file(pic_result[2], 'photo_3')
+                                sample_result.photo_3.save(photo_name, photo_data)
+                            if pic_result[3] != 'assets/add.png':
+                                photo_data, photo_name = convert_string_to_file(pic_result[3], 'photo_4')
+                                sample_result.photo_4.save(photo_name, photo_data)
+                            break
+                    for variable in variables:
+                        dg_name = variable['name']
+                        dg_result = variable['result']
+                        total_compliance = 0
+                        total_check = 0
+                        
+                        for data in dg_result:
+                            if data == "Yes":
+                                total_compliance += 1
+                            if data != 'NA':
+                                total_check += 1
+                        ElementResult.objects.create (
+                            qaa=qaa,
+                            element_code=id,
+                            dg_name=dg_name,
+                            result=str(dg_result),
+                            total_compliance=total_compliance,
+                            total_check=total_check,
+                            sample_result=sample_result,
+                            sync=sync,
+                            sync_code=str(sync.id)
+                        )
         print('Synced')
         ### RESPONSE
         components = Component.objects.all().order_by('-created_date')

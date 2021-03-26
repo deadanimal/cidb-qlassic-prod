@@ -1067,7 +1067,7 @@ def dashboard_application_assessor_change(request, id):
     return render(request, "dashboard/application/assessor_change.html", context)
 
 
-
+from decimal import Decimal
 
 ## Functions
 def get_qaa_result(qaa):
@@ -1075,17 +1075,19 @@ def get_qaa_result(qaa):
     element_components = Element.objects.all().filter(category_weightage=True).order_by('-created_date')
     sub_components = SubComponent.objects.all().filter().order_by('-created_date')
     elements = Element.objects.all().filter(category_weightage=False).order_by('-created_date')
-    defect_groups = DefectGroup.objects.all().order_by('-created_date')
-    sample_results = SampleResult.objects.all().filter(qaa=qaa)
+    # defect_groups = DefectGroup.objects.all().order_by('-created_date')
+    # sample_results = SampleResult.objects.all().filter(qaa=qaa)
     result = {}
     index_c = 'A'
+    result['building_type'] = qaa.building_type
     result['components'] = []
+    ## Component
     for component in components:
         index_sc = 1
         result_c = {}
         result_c['no'] = index_c
         result_c['name'] = component.name
-        result_c['type'] = qaa.building_type
+        result_c['type'] = component.type
         if qaa.building_type == 'A':
             result_c['weightage'] = component.weightage_a
         if qaa.building_type == 'B':
@@ -1095,14 +1097,23 @@ def get_qaa_result(qaa):
         if qaa.building_type == 'D':
             result_c['weightage'] = component.weightage_d
         result_c['subcomponents'] = []
+        
+        # To check if need to remove from weightage
+        component_total_check = 0
+        component_total_compliance = 0
+        
+        ## Sub Component
         for sub_component in sub_components:
             if sub_component.component == component:
                 index_e = 1
                 result_sc = {}
                 result_sc['no'] = index_sc
                 result_sc['name'] = sub_component.name
+                result_sc['type'] = sub_component.type
                 result_sc['weightage'] = sub_component.get_total_weightage()
                 result_sc['elements'] = []
+                
+                ## Element
                 for element in elements:
                     if element.sub_component == sub_component:
                         result_e = {}
@@ -1119,26 +1130,33 @@ def get_qaa_result(qaa):
                         )
                         for element_result in element_results:
                             number_of_compliance += element_result.total_compliance
+                            component_total_compliance += element_result.total_compliance
+
                             number_of_check += element_result.total_check
+                            component_total_check += element_result.total_check
 
                         result_e['total_compliance'] = number_of_compliance
                         result_e['total_check'] = number_of_check
-                        
+
                         result_sc['elements'].append(result_e)
                         index_e += 1
                 result_c['subcomponents'].append(result_sc)
                 index_sc += 1
         
 
+        result_c['total_compliance'] = component_total_compliance
+        result_c['total_check'] = component_total_check
         result['components'].append(result_c)
         index_c = chr(ord(index_c) + 1)
 
+    ## Element Component
     for element_component in element_components:
         index_sc = 1
         result_c = {}
         result_c['no'] = index_c
         result_c['name'] = element_component.name
-        result_c['type'] = qaa.building_type
+        result_c['type'] = 3
+
         if qaa.building_type == 'A':
             result_c['weightage'] = element_component.weightage_a
         if qaa.building_type == 'B':
@@ -1147,13 +1165,124 @@ def get_qaa_result(qaa):
             result_c['weightage'] = element_component.weightage_c
         if qaa.building_type == 'D':
             result_c['weightage'] = element_component.weightage_d
-        
+
+        number_of_compliance = 0
+        number_of_check = 0
+        element_results = ElementResult.objects.all().filter(
+            Q(element_code=element_component.id)|
+            Q(element_code=element_component.code_id)
+        )
+        for element_result in element_results:
+            number_of_compliance += element_result.total_compliance
+
+            number_of_check += element_result.total_check
+
+
+        result_c['total_compliance'] = number_of_compliance
+        result_c['total_check'] = number_of_check
         result['components'].append(result_c)
         index_c = chr(ord(index_c) + 1)
 
+    #### Calculate Result
 
-    print(result)
-    return result
+    # Step 1. Recalculate Area Weightage
+    total_area_weightage = 0
+    for component in result['components']:
+        if int(component['total_check']) > 0:
+            total_area_weightage += Decimal(component['weightage'])
+    for component in result['components']:
+        if int(component['total_check']) > 0:
+            component['actual_weightage'] = Decimal(component['weightage']) / total_area_weightage * 100
+        else:
+            component['actual_weightage'] = 0
+
+    # Step 2. Recalculate Element Weightage
+    for component in result['components']:
+        if component['type'] == 1:
+            total_element_weightage = 0
+            if 'subcomponents' in component:
+                for subcomponent in component['subcomponents']:
+                    total_sub_component_weightage = 0
+                    if 'elements' in subcomponent:
+                        for element in subcomponent['elements']:
+                            if int(element['total_check'] > 0):
+                                total_element_weightage += Decimal(element['weightage'])
+                                total_sub_component_weightage += Decimal(element['weightage'])
+                    subcomponent['actual_weightage'] = total_sub_component_weightage
+                
+                # component['actual_weightage'] = total_element_weightage
+                print(subcomponent['actual_weightage'])
+                for subcomponent in component['subcomponents']:
+                    if 'elements' in subcomponent:
+                        for element in subcomponent['elements']:
+                            if int(element['total_check']) > 0:
+                                if Decimal(subcomponent['actual_weightage']) > 0:
+                                    element['actual_weightage'] = element['weightage'] / Decimal(subcomponent['actual_weightage']) * 100
+                                else:
+                                    element['actual_weightage'] = 0
+                            else:
+                                element['actual_weightage'] = 0
+    
+    # Step 3: Calculate Score
+    # for component in result['component']
+    score = {}
+    score['components'] = []
+    for component in result['components']:
+        score_c = {}
+        score_c['no'] = component['no']
+        score_c['name'] = component['name']
+        score_c['total_weightage'] = component['actual_weightage']
+
+        if component['type'] == 2 or component['type'] == 3:
+            if component['total_check'] != 0:
+                score_c['score'] = float(component['total_compliance']) / float(component['total_check']) * float(component['actual_weightage'])
+            else:
+                score_c['score'] = 0
+            score['components'].append(score_c)
+        if component['type'] == 1:
+            total_score_sub_component = 0
+            score_sc_array = []
+            if 'subcomponents' in component:
+                    for subcomponent in component['subcomponents']:
+                        score_sc = {}
+                        score_sc['no'] = subcomponent['no']
+                        score_sc['name'] = subcomponent['name']
+                        score_sc['total_weightage'] = subcomponent['actual_weightage']
+                        if subcomponent['type'] == 0:
+                            total_score_element = 0
+                            if 'elements' in subcomponent:
+                                for element in subcomponent['elements']:
+                                    if element['total_check'] != 0:
+                                        element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
+                                        total_score_element += element_score
+                            score_sc['score'] = 0
+                        score_sc_array.append(score_sc)
+                        if subcomponent['type'] == 3 or subcomponent['type'] == 2:
+                            if 'elements' in subcomponent:
+                                for element in subcomponent['elements']:
+                                    score_sc = {}
+                                    score_sc['no'] = element['no']
+                                    score_sc['name'] = element['name']
+                                    score_sc['total_weightage'] = element['actual_weightage']
+
+                                    if element['total_check'] != 0:
+                                        element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
+                                        score_sc['score'] = element_score
+                                        total_score_sub_component += element_score
+                                    else:
+                                        score_sc['score'] = 0
+                                    score_sc_array.append(score_sc)
+            print(total_score_sub_component)
+            score_c['score'] = total_score_sub_component * float(component['actual_weightage']) / 100
+            score['components'].append(score_c)
+            for arr in score_sc_array:
+                score['components'].append(arr)
+
+            
+
+
+    # print(result)
+    return score
 
 ## AJAX
 @login_required(login_url="/login/")
