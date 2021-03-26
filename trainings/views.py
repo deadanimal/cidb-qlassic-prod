@@ -551,6 +551,7 @@ def dashboard_joined_training_pay(request, id):
     
     response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
 
+
     # Create Payment
     payment, created = Payment.objects.get_or_create(order_id=proforma)
     payment.user = request.user
