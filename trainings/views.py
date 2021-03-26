@@ -1175,7 +1175,8 @@ def ajax_api_training_payment_request(request):
         id = request.POST['id']
         
         rt = get_object_or_404(RegistrationTraining, id=id)
-        response = create_transaction(request, 1, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
+        training = rt.training
+        response = create_training_transaction(request, training.fee, 'YKSHEQ', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
         result = response.TransactionResult
         proforma = response.Code
         print(str(response))
