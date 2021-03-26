@@ -295,6 +295,7 @@ from api.soap.create_transaction import get_kodhasil, cancel_proforma
 def view_pdf(request):
     qaa = QlassicAssessmentApplication.objects.all().filter(application_status="assessor_assign").first()
     result = get_qaa_result(qaa)
+    # get_kodhasil("QLC")
     # response = generate_document_file(request, 'training_certificate', {})
     # response = get_kodhasil('YKSHEQ')
     # # print(response)
