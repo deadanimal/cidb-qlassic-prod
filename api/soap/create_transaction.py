@@ -216,7 +216,7 @@ def create_training_transaction(request, amount, kod_hasil, description, ref_id,
     
     total_tax =  tax_amount_per_unit 
 
-    amount = amount - discount_amount
+    amount = Decimal(amount) - Decimal(discount_amount)
 
     response = create_transaction_process(user, ref_id,description, amount, discount_amount, total_tax, kod_hasil, tax_amount_per_unit)
     
