@@ -178,7 +178,7 @@ class GetProjectDataView(APIView):
     def post(self, request):
         data = request.data
         id = data['projectID']
-        ad = AssessmentData.objects.get(qaa__id=id).order_by('-created_date')
+        ad = AssessmentData.objects.get(qaa__id=id)
         qaa = ad.qaa
         response = []
         
