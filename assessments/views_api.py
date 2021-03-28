@@ -451,6 +451,7 @@ class SyncView(APIView):
         components = Component.objects.all().order_by('created_date')
         
         result_table = []
+        label_table = []
         for component in components:
 
             sample_complete = 0
@@ -463,8 +464,11 @@ class SyncView(APIView):
                         total_s = SampleResult.objects.all().filter(qaa=qaa,test_type="S",sync=sync).count()
                         total_c = SampleResult.objects.all().filter(qaa=qaa,test_type="C",sync=sync).count()
                         result_table.append(total_p)
+                        label_table.append('P')
                         result_table.append(total_s)
+                        label_table.append('S')
                         result_table.append(total_c)
+                        label_table.append('C')
                         sample_complete = sample_complete + total_p + total_s + total_c
                     elif sub_component.type == 2:
                         elements = Element.objects.all().filter(sub_component=sub_component).order_by('created_date')
@@ -474,6 +478,7 @@ class SyncView(APIView):
                                 Q(element_code=element.code_id,qaa=qaa,sync=sync)
                             )
                             total_e = len(sr)
+                            label_table.append(element.name)
                             result_table.append(total_e)
                             sample_complete = sample_complete + total_e
                     else:
@@ -488,9 +493,11 @@ class SyncView(APIView):
                         )
                         total_e = len(sr)
                         sample_complete = sample_complete + total_e
+                label_table.append(component.name)
                 result_table.append(sample_complete)
 
         sync.result = str(result_table)
+        sync.label = str(label_table)
         sync.sync_complete = True
         sync.save()
 
@@ -517,6 +524,7 @@ def sync_object(ad):
     
     response['information'] = {
         'projectID': qaa.id,
+        'projectCode': qaa.qaa_number,
         'projectName': qaa.pi.project_title,
         'phase': 'On-Going',
         'startDate': qaa.assessment_date

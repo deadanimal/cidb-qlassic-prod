@@ -698,10 +698,11 @@ class SyncResult(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
     result = models.CharField(null=True,blank=True, default="[]", max_length=3000)
+    label = models.CharField(null=True,blank=True, default="[]", max_length=3000)
     assessor = models.CharField(null=True,blank=True, max_length=255)
     coordinate = models.CharField(null=True,blank=True, max_length=255)
     sync_complete = models.BooleanField(null=True,blank=True,default=False)
-    
+
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
