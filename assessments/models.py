@@ -100,7 +100,6 @@ class QlassicAssessmentApplication(models.Model):
         ('rejected','Rejected'),
         ('rejected_amendment','Rejected (With Amendment)'),
         ('need_payment','Need Payment'),
-        ('paid','Paid'),
         ('assessor_assign','Assessor Assigned'),
         ('confirm','Confirm'),
         ('in_progress','In-Progress'),
@@ -701,7 +700,8 @@ class SyncResult(models.Model):
     result = models.CharField(null=True,blank=True, default="[]", max_length=3000)
     assessor = models.CharField(null=True,blank=True, max_length=255)
     coordinate = models.CharField(null=True,blank=True, max_length=255)
-
+    sync_complete = models.BooleanField(null=True,blank=True,default=False)
+    
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)

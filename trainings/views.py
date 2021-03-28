@@ -585,8 +585,12 @@ def dashboard_joined_training_pay_response(request, id):
             if payment.payment_status == 1:
                 rt.status = 'accepted'
                 rt.save()
+            elif payment.payment_status == 2:
+                messages.info(request, payment.StatusDesc)
+                rt.status = 'pending'
+                rt.save()
             else:
-                messages.warning(request, 'Payment unsuccessful. Please try again.')
+                messages.warning(request, payment.StatusDesc)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     

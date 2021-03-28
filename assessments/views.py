@@ -1071,10 +1071,10 @@ from decimal import Decimal
 
 ## Functions
 def get_qaa_result(qaa):
-    components = Component.objects.all().order_by('-created_date')
-    element_components = Element.objects.all().filter(category_weightage=True).order_by('-created_date')
-    sub_components = SubComponent.objects.all().filter().order_by('-created_date')
-    elements = Element.objects.all().filter(category_weightage=False).order_by('-created_date')
+    components = Component.objects.all().order_by('created_date')
+    element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
+    sub_components = SubComponent.objects.all().filter().order_by('created_date')
+    elements = Element.objects.all().filter(category_weightage=False).order_by('created_date')
     # defect_groups = DefectGroup.objects.all().order_by('-created_date')
     # sample_results = SampleResult.objects.all().filter(qaa=qaa)
     result = {}
@@ -1277,9 +1277,6 @@ def get_qaa_result(qaa):
             score['components'].append(score_c)
             for arr in score_sc_array:
                 score['components'].append(arr)
-
-            
-
 
     # print(result)
     return score
