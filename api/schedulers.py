@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .jobs import job_remove_temp, job_cancel_proforma
+from .jobs import job_remove_temp, job_cancel_proforma, job_remove_failed_sync
 
 def start_jobs():
     scheduler = BackgroundScheduler()
@@ -14,5 +14,6 @@ def start_jobs():
     # scheduler.add_job(job_cancel_proforma, 'cron', **cron_job)
     scheduler.add_job(job_cancel_proforma, 'cron', hour=12)
     scheduler.add_job(job_remove_temp, 'cron', hour=12)
+    scheduler.add_job(job_remove_failed_sync, 'cron', hour=12)
 #And finally start.    
     scheduler.start()

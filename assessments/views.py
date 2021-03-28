@@ -1076,7 +1076,9 @@ def get_qaa_result(qaa):
     sub_components = SubComponent.objects.all().filter().order_by('created_date')
     elements = Element.objects.all().filter(category_weightage=False).order_by('created_date')
     # defect_groups = DefectGroup.objects.all().order_by('-created_date')
-    # sample_results = SampleResult.objects.all().filter(qaa=qaa)
+    sample_results = SampleResult.objects.all().filter(qaa=qaa, sync_complete=False)
+    sample_results.delete()
+    
     result = {}
     index_c = 'A'
     result['building_type'] = qaa.building_type

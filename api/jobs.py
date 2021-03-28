@@ -1,3 +1,4 @@
+from assessments.models import SampleResult
 import shutil
 import os
 
@@ -26,3 +27,9 @@ def job_cancel_proforma():
         if status.TransactionResult == "PASS":
             payment.proforma_cancelled=True
             payment.save()
+
+def job_remove_failed_sync():
+    print("Cron: Delete Failed Sync Result")
+    sample_results = SampleResult.objects.all().filter(sync_complete=False)
+    if len(sample_results) > 0:
+        sample_results.delete()
