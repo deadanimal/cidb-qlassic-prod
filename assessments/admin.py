@@ -14,6 +14,9 @@ class ComponentAdmin(admin.ModelAdmin):
 class SampleResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'test_type', 'element_code', 'created_date')
 
+class SyncResultAdmin(admin.ModelAdmin):
+    list_display = ('id', 'qaa', 'result', 'sync_complete', 'created_date')
+
 class ElementResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result', 'element_code', 'dg_name', 'created_date')
 
@@ -24,7 +27,7 @@ admin.site.register(AssignedAssessor)
 admin.site.register(AssessmentData)
 admin.site.register(SampleResult, SampleResultAdmin)
 admin.site.register(ElementResult, ElementResultAdmin)
-admin.site.register(SyncResult)
+admin.site.register(SyncResult, SyncResultAdmin)
 admin.site.register(Component,ComponentAdmin)
 admin.site.register(SubComponent,ComponentAdmin)
 admin.site.register(Element,ComponentAdmin)
