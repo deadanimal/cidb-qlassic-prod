@@ -516,7 +516,7 @@ def sync_object(ad):
     response = {}
     
     response['information'] = {
-        'projectID': qaa.qaa_number,
+        'projectID': qaa.id,
         'projectName': qaa.pi.project_title,
         'phase': 'On-Going',
         'startDate': qaa.assessment_date
