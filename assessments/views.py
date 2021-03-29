@@ -13,7 +13,7 @@ import random
 
 # Payment
 from django.views.decorators.csrf import csrf_exempt
-from api.soap.create_transaction import create_transaction, payment_gateway_url, get_receipt_url
+from api.soap.create_transaction import cancel_proforma, create_transaction, payment_gateway_url, get_receipt_url
 from billings.helpers import payment_response_process, get_payment_history_url
 from billings.models import Payment
 
@@ -1295,14 +1295,16 @@ def ajax_api_application_payment_request(request):
         id = request.POST['id']
         qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
         response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
-        print(response)
         proforma = response.Code
-        result = response.TransactionResult
         
-        response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        if created == False:
+            if payment.payment_amount != response.Amount:
+                cancel_proforma(response.Code)
+                response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
+                proforma = response.Code
 
         # Create Payment
-        payment, created = Payment.objects.get_or_create(order_id=proforma)
         payment.user = request.user
         payment.customer_name = request.user.name
         payment.customer_email = request.user.email
@@ -1311,6 +1313,9 @@ def ajax_api_application_payment_request(request):
         payment.payment_amount = response.Amount
         payment.save()
 
+        result = response.TransactionResult
+        response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
+        print(response)
         postdata = {
             'payment_gateway_url':payment_gateway_url,
             'ClientReturnURL':response_url,

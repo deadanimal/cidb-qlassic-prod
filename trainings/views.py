@@ -58,7 +58,7 @@ import absoluteuri
 
 from core.helpers import translate_malay_date, standard_date, send_email_default, send_email_with_attachment, generate_and_save_qr, get_domain
 from app.helpers.letter_templates import generate_document, generate_document_file, generate_training_document_file
-from api.soap.create_transaction import create_transaction, create_training_transaction, get_receipt_url, payment_gateway_url
+from api.soap.create_transaction import create_transaction, cancel_proforma, create_training_transaction, get_receipt_url, payment_gateway_url
 
 # Create your views here.
 @login_required(login_url="/login/")
@@ -1182,14 +1182,17 @@ def ajax_api_training_payment_request(request):
         training = rt.training
         response = create_training_transaction(request, training.fee, 'YKSHEQ', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
         # response = create_transaction(request, 1, 'QLC-PUP', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
-        result = response.TransactionResult
-        proforma = response.Code
-        print(str(response))
         
-        response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
+        proforma = response.Code
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        if created == False:
+            if payment.payment_amount != response.Amount:
+                cancel_proforma(proforma)
+                response = create_training_transaction(request, training.fee, 'YKSHEQ', 'YURAN KURSUS QLASSIC', rt.code_id, request.user)
+                proforma = response.Code
+                payment, created = Payment.objects.get_or_create(order_id=proforma)
 
         # Create Payment
-        payment, created = Payment.objects.get_or_create(order_id=proforma)
         payment.user = request.user
         payment.customer_name = request.user.name
         payment.customer_email = request.user.email
@@ -1198,6 +1201,9 @@ def ajax_api_training_payment_request(request):
         payment.payment_amount = response.Amount
         payment.save()
 
+        result = response.TransactionResult
+        print(str(response))
+        response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
         postdata = {
             'payment_gateway_url':payment_gateway_url,
             'ClientReturnURL':response_url,
@@ -1229,12 +1235,15 @@ def ajax_api_qia_payment_request(request):
         user = get_object_or_404(CustomUser, id=id)
         response = create_transaction(request, 1, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
         proforma = response.Code
-        result = response.TransactionResult
-
-        response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
+        payment, created = Payment.objects.get_or_create(order_id=proforma)
+        if created == False:
+            if payment.payment_amount != response.Amount:
+                cancel_proforma(proforma)
+                response = create_transaction(request, 1, 'QLC-PUP', 'PENTAULIAHAN QIA','QIA-'+user.code_id, request.user)
+                proforma = response.Code
+                payment, created = Payment.objects.get_or_create(order_id=proforma)
         
         # Create Payment
-        payment, created = Payment.objects.get_or_create(order_id=proforma)
         payment.user = request.user
         payment.customer_name = request.user.name
         payment.customer_email = request.user.email
@@ -1242,6 +1251,8 @@ def ajax_api_qia_payment_request(request):
         payment.payment_amount = response.Amount
         payment.save()
 
+        result = response.TransactionResult
+        response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
         postdata = {
             'payment_gateway_url':payment_gateway_url,
             'ClientReturnURL':response_url,

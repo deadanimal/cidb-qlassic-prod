@@ -96,7 +96,7 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     # amount = total_unit_amount
 
     response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
-    
+
     # If amount is changed, cancel the old proforma
     if response.ErrorMessage == 'Discrepancy in Amount':
         cancel_proforma(response.Code)
