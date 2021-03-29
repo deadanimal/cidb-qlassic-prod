@@ -590,7 +590,8 @@ class CompleteView(APIView):
                 hp_no=att_contact,
                 company=att_company
             )
-
+            print(type(att_signature))
+            print(att_signature)
             photo_data, photo_name = convert_string_to_file(att_signature, 'signature')
             sa.signature.save(photo_name, photo_data)
             sa.save()
