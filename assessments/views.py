@@ -824,8 +824,12 @@ def dashboard_application_payment_response(request, id):
                     'qaa':qaa,
                 }
                 send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
+            elif payment.payment_status == 2:
+                messages.info(request, payment.StatusDesc)
+                qaa.status = 'verified'
+                qaa.save()
             else:
-                messages.warning(request, 'Payment unsuccessful. Please try again.')
+                messages.warning(request, payment.StatusDesc)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction')
     receipt_url = None
@@ -1078,7 +1082,7 @@ def get_qaa_result(qaa):
     # defect_groups = DefectGroup.objects.all().order_by('-created_date')
     sample_results = SampleResult.objects.all().filter(qaa=qaa, sync_complete=False)
     sample_results.delete()
-    
+
     result = {}
     index_c = 'A'
     result['building_type'] = qaa.building_type

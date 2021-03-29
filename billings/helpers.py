@@ -20,7 +20,7 @@ def get_claim_category_name(slug):
 
 def payment_response_process(request):
     status = request.POST['Status']
-    if status == '1' or status == '0':
+    if status != None:
         order_id = request.POST['OrderID']
         status_desc = request.POST['StatusDesc']
 

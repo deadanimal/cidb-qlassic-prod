@@ -1154,7 +1154,7 @@ def dashboard_qia_application_pay_response(request, id):
 
                 messages.info(request, 'You are successfully certified as QLASSIC Industry Assessor.')
             else:
-                messages.warning(request, 'Payment unsuccessful. Please try again.')
+                messages.warning(request, payment.StatusDesc)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     
