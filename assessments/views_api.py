@@ -213,8 +213,7 @@ class SyncView(APIView):
             partner_results = partner['result']
             partners += str(partner_results)
 
-        ad = AssessmentData.objects.get(qaa__id=projectID)
-        qaa = ad.qaa
+        qaa = QlassicAssessmentApplication.objects.get(id=projectID)
 
         sync = SyncResult.objects.create(
             qaa=qaa,
@@ -422,7 +421,7 @@ class SyncView(APIView):
         sync.sync_complete = True
         sync.save()
 
-        response = sync_object(ad)
+        response = sync_object(qaa)
 
         return Response(response)
 
@@ -436,8 +435,7 @@ class OverviewView(APIView):
         return Response(response)
 
 ## Sync function for OverviewView and SyncView
-def sync_object(ad):
-    qaa = ad.qaa
+def sync_object(qaa):
 
     ### RESPONSE
     components = Component.objects.all().order_by('created_date')
