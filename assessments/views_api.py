@@ -429,9 +429,9 @@ class OverviewView(APIView):
     permission_classes = (AllowAny, )
 
     def get(self, request, projectID):
-        ad = AssessmentData.objects.get(qaa__id=projectID)
+        qaa = QlassicAssessmentApplication.objects.get(id=projectID)
 
-        response = sync_object(ad)
+        response = sync_object(qaa)
         return Response(response)
 
 ## Sync function for OverviewView and SyncView
