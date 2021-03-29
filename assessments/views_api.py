@@ -286,7 +286,7 @@ class SyncView(APIView):
         assessorName = data['assessorName']
         assessorId = data['assessorId']
         coordinate = data['coordinate']
-        # print(result1)
+        print(projectID)
         partners = ''
         for partner in json.loads(result_partners):
             partner_results = partner['result']
@@ -382,7 +382,7 @@ class SyncView(APIView):
                     i += 1
 
         # Result 2
-        print(result2)
+        # print(result2)
         for sub2 in json.loads(result2):
             id = sub2['id']
             id = id.replace(str(qaa.id)+'_', '')

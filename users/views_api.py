@@ -59,7 +59,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data['role'] = self.user.role
                 data['token'] = access_token
                 data['status'] = 'success'
-                print(type(data))
+                # print(type(data))
                 data['project'] = []
                 # projects = AssignedAssessor.objects.all().filter(assessor__user=user).values()
                 # data['projects'] = list(projects)
