@@ -654,6 +654,7 @@ def dashboard_training_participant_review(request, id):
                     form.status = 'need_payment'
                 else:
                     form.status = 'accepted'
+                    form.payment_status = -2
                 form.save()
                 messages.info(request, 'Accepted the participant successfully')
 
