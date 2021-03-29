@@ -100,7 +100,6 @@ class GetProjectDataView(APIView):
         id = data['projectID']
         print(id)
         ad = AssessmentData.objects.get(qaa__id=id)
-        qaa = ad.qaa
         response = []
         
         components = Component.objects.all().order_by('created_date')
@@ -213,7 +212,8 @@ class SyncView(APIView):
             partner_results = partner['result']
             partners += str(partner_results)
 
-        qaa = QlassicAssessmentApplication.objects.get(id=projectID)
+        ad = AssessmentData.objects.get(qaa__id=projectID)
+        qaa = ad.qaa
 
         sync = SyncResult.objects.create(
             qaa=qaa,
@@ -421,7 +421,7 @@ class SyncView(APIView):
         sync.sync_complete = True
         sync.save()
 
-        response = sync_object(qaa)
+        response = sync_object(ad)
 
         return Response(response)
 
@@ -429,13 +429,14 @@ class OverviewView(APIView):
     permission_classes = (AllowAny, )
 
     def get(self, request, projectID):
-        qaa = QlassicAssessmentApplication.objects.get(id=projectID)
-
-        response = sync_object(qaa)
+        ad = AssessmentData.objects.get(qaa__id=projectID)
+        qaa = ad.qaa
+        response = sync_object(ad)
         return Response(response)
 
 ## Sync function for OverviewView and SyncView
-def sync_object(qaa):
+def sync_object(ad):
+    qaa = ad.qaa
 
     ### RESPONSE
     components = Component.objects.all().order_by('created_date')
@@ -543,6 +544,8 @@ class CompleteView(APIView):
         project_id = data['projectID']
         dateSigned = data['dateSigned']
         signature = data['signature'] #base64
+
+        print(project_id)
 
         ad = AssessmentData.objects.get(qaa__id=project_id)
         qaa = ad.qaa
