@@ -1300,9 +1300,10 @@ def ajax_api_application_payment_request(request):
         payment, created = Payment.objects.get_or_create(order_id=proforma)
         if created == False:
             if payment.payment_amount != response.Amount:
-                cancel_proforma(response.Code)
+                cancel_proforma(proforma)
                 response = create_transaction(request, qaa.no_of_blocks, 'QLC', 'PERMOHONAN PENILAIAN QLASSIC', qaa.qaa_number, request.user)
                 proforma = response.Code
+                payment, created = Payment.objects.get_or_create(order_id=proforma)
 
         # Create Payment
         payment.user = request.user
