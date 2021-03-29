@@ -344,11 +344,11 @@
                 {% csrf_token %}
                 <div class="row">  
                   <div class="col-sm-12">
+                    {{ form_review.payment_mode|as_crispy_field }}
                     <div class="form-group">
                       <label>Amount (RM)*</label>
                       {% render_field form_review.amount class+="form-control" value=training.fee %}
                     </div>
-                    {{} form_review.payment_mode|as_crispy_field }}
                     <div class="form-group">
                       <label>Remarks</label>
                       {% render_field form_review.remarks class+="form-control" %}
