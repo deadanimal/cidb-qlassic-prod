@@ -546,6 +546,7 @@ class CompleteView(APIView):
         signature = data['signature'] #base64
 
         print(project_id)
+        print(nric)
 
         ad = AssessmentData.objects.get(qaa__id=project_id)
         qaa = ad.qaa

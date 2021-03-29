@@ -825,11 +825,11 @@ def dashboard_application_payment_response(request, id):
                 }
                 send_email_default(subject, to, ctx_email, 'email/qaa-verified.html')
             elif payment.payment_status == 2:
-                messages.info(request, payment.StatusDesc)
+                messages.info(request, payment.status_description)
                 qaa.status = 'verified'
                 qaa.save()
             else:
-                messages.warning(request, payment.StatusDesc)
+                messages.warning(request, payment.status_description)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction')
     receipt_url = None
