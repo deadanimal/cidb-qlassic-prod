@@ -95,12 +95,12 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     # total_unit_amount = unit_amount * quantity
     # amount = total_unit_amount
 
-    response = create_transaction_process(user, ref_id,description, kod_hasil)
+    response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
     
     # If amount is changed, cancel the old proforma
     if response.ErrorMessage == 'Discrepancy in Amount':
         cancel_proforma(response.Code)
-        response = create_transaction_process(user, ref_id,description, kod_hasil)
+        response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
     
     return response
 from decimal import Decimal
@@ -115,27 +115,26 @@ def create_training_transaction(request, amount, kod_hasil, description, ref_id,
     ref_id = ref_id.replace(')','')
 
     # KOD HASIL : QLC - assessment, QLC-PUP - training
-    kh_response = get_transaction_detail(kod_hasil)
+    # kh_response = get_transaction_detail(kod_hasil)
 
-    print(kh_response)
+    # print(kh_response)
 
-    discount_amount = kh_response[0].discountAmount
-    tax_amount_per_unit = Decimal(amount) * Decimal(kh_response[0].taxPercentage)
+    # discount_amount = kh_response[0].discountAmount
+    # tax_amount_per_unit = Decimal(amount) * Decimal(kh_response[0].taxPercentage)
     
-    total_tax =  tax_amount_per_unit 
+    # total_tax =  tax_amount_per_unit 
 
-    amount = Decimal(amount) - Decimal(discount_amount)
 
-    response = create_transaction_process(user, ref_id,description, amount, discount_amount, total_tax, kod_hasil, tax_amount_per_unit)
+    response = create_transaction_process(user, 1, True, amount, ref_id, description, kod_hasil)
     
     # If amount is changed, cancel the old proforma
     if response.ErrorMessage == 'Discrepancy in Amount':
         cancel_proforma(response.Code)
-        response = create_transaction_process(user, ref_id,description, amount, discount_amount, total_tax, kod_hasil, tax_amount_per_unit)
+        response = create_transaction_process(user, 1, True, amount, ref_id, description, kod_hasil)
     
     return response
 
-def create_transaction_process(user, ref_id,description, kod_hasil):
+def create_transaction_process(user, quantity, custom_amount, amount, ref_id, description, kod_hasil):
     prefix = ''
     if settings.CUSTOM_DEV_MODE == 1:
 
@@ -151,67 +150,131 @@ def create_transaction_process(user, ref_id,description, kod_hasil):
     client = Client(wsdl,plugins=[history])
     now_date = datetime.datetime.now()
     due_date = now_date + datetime.timedelta(days=14)
-    request_data = {
-        'obj': {
-            'Id':'1',
-            'SubType':'QLASSIC',
-            'Category':'PROFORMA INVOICE',
-            'SubCategory':'Third Party System - QLASSIC Portal',
-            'SourceType':'Third Party System - QLASSIC Portal',
-            'CustomerId': user.code_id,
-            'PostingDate': SkipValue,
-            'CreatedDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
-            'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
-            'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
-            'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
-            'Description': ref_id,
-            'Amount': SkipValue,
-            'AmountDec': SkipValue,
-            'DiscountAmount': SkipValue,
-            'Tax': SkipValue,
-            'TaxDec': SkipValue,
-            'UniqueReference': prefix+ref_id,
-            'SMISRefId': prefix+ref_id,
-            'CreatedBy': user.name,
-            'CustomerName': user.name,
-            'address': user.address1,
-            'address1': user.address2,
-            'address2': '',
-            'city': user.city,
-            'state': user.state,
-            'zipCode': user.postcode,
-            'BranchCode': 'HQ',
-            'ModuleCode': 'B4',
-            'ComId': SkipValue,
-            'PaymentTerm': SkipValue,
-            'isWriteOff': SkipValue,
-            'isRefund': SkipValue,
-            'isDoubtfulDebts': SkipValue,
-            'isCancel': SkipValue,
-            'Items' : {
-                'TransactionDetail': [{
-                    'Id': SkipValue,
-                    'DiscountPer': SkipValue,
-                    'KodHasil': kod_hasil,
-                    'UnitPrice': SkipValue,
-                    'UnitPriceDec': 2,
-                    'Qty': 1,
-                    'QtyAmount': SkipValue,
-                    'QtyAmountDec': SkipValue,
-                    'TaxCode': SkipValue,
-                    'TaxPerAmount': SkipValue,
-                    'TaxPerAmountDec': SkipValue,
-                    'TaxAmount': SkipValue,
-                    'TaxAmountDec': SkipValue,
-                    'Amount': SkipValue,
-                    'AmountDec': SkipValue,
-                    'DiscountAmount': SkipValue,
-                    'CMISRefId': prefix+ref_id,
-                    'Description': "1. "+ref_id,
-                }]
+    request_data = {}
+    if custom_amount == False:
+        request_data = {
+            'obj': {
+                'Id':'1',
+                'SubType':'QLASSIC',
+                'Category':'PROFORMA INVOICE',
+                'SubCategory':'Third Party System - QLASSIC Portal',
+                'SourceType':'Third Party System - QLASSIC Portal',
+                'CustomerId': user.code_id,
+                'PostingDate': SkipValue,
+                'CreatedDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'Description': ref_id,
+                'Amount': SkipValue,
+                'AmountDec': SkipValue,
+                'DiscountAmount': SkipValue,
+                'Tax': SkipValue,
+                'TaxDec': SkipValue,
+                'UniqueReference': prefix+ref_id,
+                'SMISRefId': prefix+ref_id,
+                'CreatedBy': user.name,
+                'CustomerName': user.name,
+                'address': user.address1,
+                'address1': user.address2,
+                'address2': '',
+                'city': user.city,
+                'state': user.state,
+                'zipCode': user.postcode,
+                'BranchCode': 'HQ',
+                'ModuleCode': 'B4',
+                'ComId': SkipValue,
+                'PaymentTerm': SkipValue,
+                'isWriteOff': SkipValue,
+                'isRefund': SkipValue,
+                'isDoubtfulDebts': SkipValue,
+                'isCancel': SkipValue,
+                'Items' : {
+                    'TransactionDetail': [{
+                        'Id': SkipValue,
+                        'DiscountPer': SkipValue,
+                        'KodHasil': kod_hasil,
+                        'UnitPrice': SkipValue,
+                        'UnitPriceDec': SkipValue,
+                        'Qty': quantity,
+                        'QtyAmount': SkipValue,
+                        'QtyAmountDec': SkipValue,
+                        'TaxCode': SkipValue,
+                        'TaxPerAmount': SkipValue,
+                        'TaxPerAmountDec': SkipValue,
+                        'TaxAmount': SkipValue,
+                        'TaxAmountDec': SkipValue,
+                        'Amount': SkipValue,
+                        'AmountDec': SkipValue,
+                        'DiscountAmount': SkipValue,
+                        'CMISRefId': prefix+ref_id,
+                        'Description': "1. "+ref_id,
+                    }]
+                }
             }
         }
-    }
+    else:
+        request_data = {
+            'obj': {
+                'Id':'1',
+                'SubType':'QLASSIC',
+                'Category':'PROFORMA INVOICE',
+                'SubCategory':'Third Party System - QLASSIC Portal',
+                'SourceType':'Third Party System - QLASSIC Portal',
+                'CustomerId': user.code_id,
+                'PostingDate': SkipValue,
+                'CreatedDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'ReceiptDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
+                'Description': ref_id,
+                'Amount': SkipValue,
+                'AmountDec': SkipValue,
+                'DiscountAmount': SkipValue,
+                'Tax': SkipValue,
+                'TaxDec': SkipValue,
+                'UniqueReference': prefix+ref_id,
+                'SMISRefId': prefix+ref_id,
+                'CreatedBy': user.name,
+                'CustomerName': user.name,
+                'address': user.address1,
+                'address1': user.address2,
+                'address2': '',
+                'city': user.city,
+                'state': user.state,
+                'zipCode': user.postcode,
+                'BranchCode': 'HQ',
+                'ModuleCode': 'B4',
+                'ComId': SkipValue,
+                'PaymentTerm': SkipValue,
+                'isWriteOff': SkipValue,
+                'isRefund': SkipValue,
+                'isDoubtfulDebts': SkipValue,
+                'isCancel': SkipValue,
+                'Items' : {
+                    'TransactionDetail': [{
+                        'Id': SkipValue,
+                        'DiscountPer': SkipValue,
+                        'KodHasil': kod_hasil,
+                        'UnitPrice': amount,
+                        'UnitPriceDec': SkipValue,
+                        'Qty': quantity,
+                        'QtyAmount': SkipValue,
+                        'QtyAmountDec': SkipValue,
+                        'TaxCode': SkipValue,
+                        'TaxPerAmount': SkipValue,
+                        'TaxPerAmountDec': SkipValue,
+                        'TaxAmount': SkipValue,
+                        'TaxAmountDec': SkipValue,
+                        'Amount': SkipValue,
+                        'AmountDec': SkipValue,
+                        'DiscountAmount': SkipValue,
+                        'CMISRefId': prefix+ref_id,
+                        'Description': "1. "+ref_id,
+                    }]
+                }
+            }
+        }
     print(str(request_data))
 
     response = client.service.CreateTransaction(**request_data)
