@@ -617,6 +617,8 @@ class AssignedAssessor(models.Model):
         choices=ROLE_IN_ASSESSMENT,
         max_length=30
     )
+    
+    complete = models.BooleanField(null=True,blank=True,default=False)
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)

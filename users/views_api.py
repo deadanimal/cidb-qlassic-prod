@@ -63,7 +63,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 data['project'] = []
                 # projects = AssignedAssessor.objects.all().filter(assessor__user=user).values()
                 # data['projects'] = list(projects)
-                projects = AssignedAssessor.objects.all().filter(assessor__user=user)
+                projects = AssignedAssessor.objects.all().filter(assessor__user=user,complete=False)
                 
                 for project in projects:
                     qaa = project.ad.qaa
@@ -75,6 +75,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                         project_json = {
                             'name': qaa.pi.project_title,
                             'id': qaa.id,
+                            'code': qaa.qaa_number,
                             'status': 'On-Going',
                             'phase': 'On-Going',
                             'location': qaa.pi.project_location,

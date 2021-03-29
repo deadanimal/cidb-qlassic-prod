@@ -9,6 +9,7 @@ from rest_framework import viewsets, status
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
+from django.core.exceptions import ObjectDoesNotExist
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -550,59 +551,73 @@ class CompleteView(APIView):
 
         ad = AssessmentData.objects.get(qaa__id=project_id)
         qaa = ad.qaa
-        assessor = Assessor.objects.get(user__icno=nric)
+
+        try:
+            assessor = Assessor.objects.get(user__icno=nric)
+        except ObjectDoesNotExist:
+            response = {
+                'projectId':project_id,
+                'message':'IC Number not found in Assessor lists',
+                'result':'false',
+            }
+            return Response(response)
 
         days = qaa.no_of_days - 1
         end_date = qaa.assessment_date + datetime.timedelta(days=days)
 
-        wcf = WorkCompletionForm.objects.create(
-            qaa=qaa,
-            assessor=assessor,
-            assessor_number=assessor.assessor_no,
-            coordinate=coordinate,
-            weather=weather,
-            name=name,
-            icno=nric,
-            company=company,
-            position=position,
-            hp_no=contact_number,
-            email=email,
-            assessment_start_date=qaa.assessment_date,
-            assessment_end_date=end_date,
-            number_of_sample=ad.number_of_sample
-        )
+        wcf, created = WorkCompletionForm.objects.get_or_create(qaa=qaa)
+        wcf.assessor=assessor
+        wcf.assessor_number=assessor.assessor_no
+        wcf.coordinate=coordinate
+        wcf.weather=weather
+        wcf.name=name
+        wcf.icno=nric
+        wcf.company=company
+        wcf.position=position
+        wcf.hp_no=contact_number
+        wcf.email=email
+        wcf.assessment_start_date=qaa.assessment_date
+        wcf.assessment_end_date=end_date
+        wcf.number_of_sample=ad.number_of_sample
+
         photo_data, photo_name = convert_string_to_file(signature, 'signature')
         wcf.signature.save(photo_name, photo_data)
         wcf.save()
-
-        for attendance in json.loads(attendances):
-            att_name = attendance['name']
-            att_position = attendance['position']
-            att_company = attendance['company']
-            att_signature = attendance['signature'] # base64
-            att_contact = attendance['contact']
-            
-            sa = SiteAttendance.objects.create(
-                qaa=qaa,
-                qaa_no=qaa.qaa_number,
-                name=att_name,
-                position=att_position,
-                hp_no=att_contact,
-                company=att_company
-            )
-            print(type(att_signature))
-            print(att_signature)
-            photo_data, photo_name = convert_string_to_file(att_signature, 'signature')
-            sa.signature.save(photo_name, photo_data)
-            sa.save()
+        
+        if attendances != 'undefined':
+            for attendance in json.loads(attendances):
+                att_name = attendance['name']
+                if att_name != '':
+                    att_position = attendance['position']
+                    att_company = attendance['company']
+                    att_signature = attendance['signature'] # base64
+                    att_contact = attendance['contact']
+                    
+                    sa = SiteAttendance.objects.create(
+                        qaa=qaa,
+                        qaa_no=qaa.qaa_number,
+                        name=att_name,
+                        position=att_position,
+                        hp_no=att_contact,
+                        company=att_company
+                    )
+                    if att_signature != '':
+                        photo_data, photo_name = convert_string_to_file(att_signature, 'signature')
+                        sa.signature.save(photo_name, photo_data)
+                    sa.save()
 
         response = {
-            'project_id':project_id,
+            'projectId':project_id,
             'result':'true',
         }
 
-        qaa.application_status('completed')
+        qaa.application_status = 'completed'
         qaa.save()
+
+        assigneds = AssignedAssessor.objects.all().filter(ad=ad)
+        for assigned in assigneds:
+            assigned.complete = True
+            assigned.save()
 
         return Response(response)
 
@@ -616,7 +631,7 @@ class GetAgreementView(APIView):
         string_agreement += '<p>Selain itu, saya juga faham bahawa persijilan QLASSIC termasuk laporan penilaian dan skor rasmi bagi projek ini akan dikeluarkan oleh CIDB melalui pihak yang telah dilantik</p>'
         
         response = {
-            'projectID':projectID,
+            'projectId':projectID,
             'agreement':string_agreement
         }
         return Response(response)
@@ -625,7 +640,7 @@ class AppNoView(APIView):
     def get(self, request, projectID):
         qaa = QlassicAssessmentApplication.objects.get(id=projectID)
         response = {
-            'projectID': projectID,
+            'projectId': projectID,
             'applicationNo': qaa.qaa_number
         }
         return Response(response)
