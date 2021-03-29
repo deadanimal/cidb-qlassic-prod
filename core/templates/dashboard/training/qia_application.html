@@ -123,6 +123,8 @@
                   {% if receipt_url %}
                     <a href="{{ receipt_url }}" class="btn btn-sm btn-primary" target="_blank">Download Receipt</a>
                   {% endif %}
+                {% elif payment.payment_status == 2 %}
+                  <h4 class="mb-0">PENDING</h4>
                 {% else %}
                   <h4 class="mb-0">FAIL</h4>
                 {% endif %}
