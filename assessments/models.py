@@ -427,6 +427,9 @@ class AssessmentData(models.Model):
     count_circulation = models.IntegerField(null=True, blank=True, verbose_name="Number of circulation samples")
     
     number_of_sample = models.IntegerField(null=True, blank=True)
+    ptotal = models.IntegerField(null=True, blank=True)
+    stotal = models.IntegerField(null=True, blank=True)
+    ctotal = models.IntegerField(null=True, blank=True)
     
     architectural_work = models.FloatField(null=True, blank=True)
     floor_finishes = models.FloatField(null=True, blank=True)
@@ -457,7 +460,7 @@ class AssessmentData(models.Model):
 
     def calculate_sample(self):
         sample = 0
-        if sample == None or sample == 0:
+        if self.number_of_sample == None or self.number_of_sample == 0:
             gfa = self.qaa.pi.gfa
             gfa_per = 70
             min = 30
@@ -481,7 +484,6 @@ class AssessmentData(models.Model):
                 max = 100
 
             sample = gfa / gfa_per
-            print(sample)
             if sample < min:
                 sample = min
             elif sample > max:
@@ -499,32 +501,47 @@ class AssessmentData(models.Model):
     # category C&D: P 60% S 15% C 25% dariapda total sample
     def get_ptotal(self):
         total = 0
-        ab = 0.4
-        cd = 0.6
-        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
-            total = self.calculate_sample() * ab
-        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
-            total = self.calculate_sample() * cd
+        if self.ptotal == None or self.ptotal == 0:
+            ab = 0.4
+            cd = 0.6
+            if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+                total = self.calculate_sample() * ab
+            elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+                total = self.calculate_sample() * cd
+            self.ptotal = total
+            self.save()
+        else:
+            total = self.ptotal
         return round(total)
     
     def get_stotal(self):
         total = 0
-        ab = 0.4
-        cd = 0.15
-        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
-            total = self.calculate_sample() * ab
-        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
-            total = self.calculate_sample() * cd
+        if self.stotal == None or self.stotal == 0:
+            ab = 0.4
+            cd = 0.15
+            if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+                total = self.calculate_sample() * ab
+            elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+                total = self.calculate_sample() * cd
+            self.stotal = total
+            self.save()
+        else:
+            total = self.stotal
         return round(total)
     
     def get_ctotal(self):
         total = 0
-        ab = 0.2
-        cd = 0.25
-        if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
-            total = self.calculate_sample() * ab
-        elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
-            total = self.calculate_sample() * cd
+        if self.ctotal == None or self.ctotal == 0:
+            ab = 0.2
+            cd = 0.25
+            if self.qaa.building_type == 'A' or self.qaa.building_type == 'B':
+                total = self.calculate_sample() * ab
+            elif self.qaa.building_type == 'C' or self.qaa.building_type == 'D':
+                total = self.calculate_sample() * cd
+            self.ctotal = total
+            self.save()
+        else:
+            total = self.ctotal
         return round(total)
 
 class SupportingDocuments(models.Model):
