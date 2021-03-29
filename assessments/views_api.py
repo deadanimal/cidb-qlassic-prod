@@ -532,7 +532,7 @@ def sync_object(ad):
 class CompleteView(APIView):
     def post(self, request):
         data = request.data
-        coordinate = data['coordiante']
+        coordinate = data['coordinate']
         name = data['name']
         nric = data['nric']
         company = data['company']
