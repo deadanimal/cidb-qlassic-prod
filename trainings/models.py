@@ -330,6 +330,21 @@ class RegistrationTraining(models.Model):
         choices=PAYMENT_MODE,
     )
 
+    PAYMENT_STATUS = [
+        # To follow SRS
+        ("2",'Pending Authorization (Applicable for B2B model)'),
+        ("1",'Successful'),
+        ("0",'Fail'),
+        ("-1",'Pending'),
+        ("-2",'-'),
+    ]
+    payment_status = models.CharField(
+        null=True,
+        default="-2",
+        choices=PAYMENT_STATUS,
+        max_length=15
+    )
+
     # Attendance
     ATTENDANCE_FULL = [
         # To follow SRS

@@ -81,6 +81,17 @@ class CustomUser(AbstractUser):
 
     # Assessor
     # qia_eligible = models.BooleanField(default=False, null=True)
+    PAYMENT_MODE = [
+        # To follow SRS
+        ('on','On'),
+        ('off','Off'),
+    ]
+    qia_payment_mode = models.CharField(
+        null=True,
+        choices=PAYMENT_MODE,
+        max_length=5
+    )
+    
     QIA_STATUS = [
         # To follow SRS
         ('','Not Eligible'),
@@ -94,6 +105,21 @@ class CustomUser(AbstractUser):
         default='',
         choices=QIA_STATUS,
         max_length=50
+    )
+
+    PAYMENT_STATUS = [
+        # To follow SRS
+        ("2",'Pending Authorization (Applicable for B2B model)'),
+        ("1",'Successful'),
+        ("0",'Fail'),
+        ("-1",'Pending'),
+        ("-2",'-'),
+    ]
+    qia_payment_status = models.CharField(
+        null=True,
+        default="-2",
+        choices=PAYMENT_STATUS,
+        max_length=15
     )
 
     # Transportation Detail

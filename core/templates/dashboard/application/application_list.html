@@ -101,6 +101,7 @@
                   <th>Sector</th>
                   <th>Project Value</th>
                   <th>Status</th>
+                  <th>Payment Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -138,6 +139,9 @@
                         {% endif %}
                       {% endif %}
                     </th>
+                    <td>
+                      {{ qaa.get_payment_status_display }}
+                    </td>
                     <td>
                       <a href="{% url 'dashboard_application_info' qaa.id %}" class="btn btn-sm btn-info w-100 mb-2">View</a>
                       {% if role_type == 'staff' %}

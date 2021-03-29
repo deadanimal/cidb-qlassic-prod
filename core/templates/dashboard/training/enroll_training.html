@@ -115,6 +115,7 @@
                     <th>From</th>
                     <th>To</th>
                     <th>Status</th>
+                    <th>Payment Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -126,6 +127,7 @@
                     <th>{{ tr.training.from_date|date:'d M Y' }}</th>
                     <th>{{ tr.training.to_date|date:'d M Y' }}</th>
                     <th>{{ tr.get_status_display }}</th>
+                    <th>{{ tr.get_payment_status_display }}</th>
                     <td>
                       {% if tr.status == 'need_payment' %}
                         <button onclick="ajax_payment_request('{{ tr.id }}');" class="btn btn-sm btn-success w-100 mb-2">Pay</button>

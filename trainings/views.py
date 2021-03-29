@@ -581,7 +581,9 @@ def dashboard_joined_training_pay_response(request, id):
     rt = get_object_or_404(RegistrationTraining, id=id)
     if request.method == 'POST':
         payment = payment_response_process(request)
-        if payment != None:   
+        if payment != None:
+            rt.payment_status = payment.payment_status
+            rt.save()
             if payment.payment_status == 1:
                 rt.status = 'accepted'
                 rt.save()
@@ -647,7 +649,11 @@ def dashboard_training_participant_review(request, id):
             if form_review.is_valid():
                 form = form_review.save()
                 form.reviewed_by = request.user.name
-                form.status = 'need_payment'
+                
+                if form.payment_mode == 'on':
+                    form.status = 'need_payment'
+                else:
+                    form.status = 'accepted'
                 form.save()
                 messages.info(request, 'Accepted the participant successfully')
 

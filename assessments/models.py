@@ -145,6 +145,21 @@ class QlassicAssessmentApplication(models.Model):
         max_length=5
     )
 
+    PAYMENT_STATUS = [
+        # To follow SRS
+        ("2",'Pending Authorization (Applicable for B2B model)'),
+        ("1",'Successful'),
+        ("0",'Fail'),
+        ("-1",'Pending'),
+        ("-2",'-'),
+    ]
+    payment_status = models.CharField(
+        null=True,
+        default="-2",
+        choices=PAYMENT_STATUS,
+        max_length=15
+    )
+
     qlassic_score = models.FloatField(null=True,blank=True, verbose_name='QLASSIC Score')
 
     reviewed_by = models.CharField(null=True, max_length=50)
@@ -617,7 +632,7 @@ class AssignedAssessor(models.Model):
         choices=ROLE_IN_ASSESSMENT,
         max_length=30
     )
-    
+
     complete = models.BooleanField(null=True,blank=True,default=False)
 
     # Date

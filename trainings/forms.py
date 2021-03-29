@@ -75,6 +75,7 @@ class RegistrationTrainingReviewForm(ModelForm):
     class Meta:
         model = RegistrationTraining
         fields = (
+            'payment_mode',
             'amount',
             'remarks',
         )
