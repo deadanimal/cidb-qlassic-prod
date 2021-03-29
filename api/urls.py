@@ -63,14 +63,14 @@ assessors_router = router.register(
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     # REST
-    path('api/v1/isAlive', IsAliveView.as_view(), name='isAlive'),
+    url('api/v1/isAlive', IsAliveView.as_view(), name='isAlive'),
+    url('api/v1/getProjectData', GetProjectDataView.as_view(), name='api_get_project_data'),
+    url('api/v1/sync', SyncView.as_view(), name='api_sync'),
+    url('api/v1/complete', CompleteView.as_view(), name='api_complete'),
     path('api/v1/readySync/<str:id>', ReadySyncView.as_view(), name='readySync'),
     path('api/v1/readyComplete/<str:id>', ReadyCompleteView.as_view(), name='readyComplete'),
     path('api/v1/getDocument/<str:id>', GetDocumentView.as_view(), name='getDocument'),
-    path('api/v1/getProjectData', GetProjectDataView.as_view(), name='api_get_project_data'),
-    path('api/v1/sync', SyncView.as_view(), name='api_sync'),
     path('api/v1/overview/<str:projectID>', OverviewView.as_view(), name='api_overview'),
-    path('api/v1/complete', CompleteView.as_view(), name='api_complete'),
     path('api/v1/getAgreement/<str:projectID>', GetAgreementView.as_view(), name='api_getAgreement'),
     path('api/v1/appNo/<str:projectID>', AppNoView.as_view(), name='api_appNo'),
     
