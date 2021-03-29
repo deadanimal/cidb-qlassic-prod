@@ -586,11 +586,11 @@ def dashboard_joined_training_pay_response(request, id):
                 rt.status = 'accepted'
                 rt.save()
             elif payment.payment_status == 2:
-                messages.info(request, payment.StatusDesc)
+                messages.info(request, payment.status_description)
                 rt.status = 'pending'
                 rt.save()
             else:
-                messages.warning(request, payment.StatusDesc)
+                messages.warning(request, payment.status_description)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     
@@ -1154,7 +1154,7 @@ def dashboard_qia_application_pay_response(request, id):
 
                 messages.info(request, 'You are successfully certified as QLASSIC Industry Assessor.')
             else:
-                messages.warning(request, payment.StatusDesc)
+                messages.warning(request, payment.status_description)
         else:
             messages.warning(request, 'Problem with processing the transaction. Please contact with our staff to verify the transaction.')
     

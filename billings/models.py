@@ -51,6 +51,7 @@ class Payment(models.Model):
 
     PAYMENT_STATUS = [
         # To follow SRS
+        ("2",'Pending Authorization (Applicable for B2B model)'),
         ("1",'Successful'),
         ("0",'Fail'),
         ("-1",'Pending'),
