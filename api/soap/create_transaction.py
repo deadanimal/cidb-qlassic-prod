@@ -138,11 +138,14 @@ def create_transaction_process(user, quantity, custom_amount, amount, ref_id, de
     prefix = ''
     if settings.CUSTOM_DEV_MODE == 1:
 
-        prefix = 'DP' + datetime.datetime.now().strftime("%y%m%d")
+        prefix = 'DP' + datetime.datetime.now().strftime("%y%m")
+        prefix = 'DP' + datetime.datetime.now().strftime("%y%m")
     elif settings.CUSTOM_STG_MODE == 1:
-        prefix = 'SP' + datetime.datetime.now().strftime("%y%m%d")
+        prefix = 'SP' + datetime.datetime.now().strftime("%y%m")
+        prefix = 'SP' + datetime.datetime.now().strftime("%y%m")
     else:
-        prefix = 'P' + datetime.datetime.now().strftime("%y%m%d")
+        prefix = 'P' + datetime.datetime.now().strftime("%y%m")
+        prefix = 'P' + datetime.datetime.now().strftime("%y%m")
 
     wsdl = create_transaction_wsdl
 
