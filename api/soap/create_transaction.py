@@ -228,7 +228,7 @@ def create_transaction_process(user, quantity, custom_amount, amount, ref_id, de
                 'TransactionDate': str(now_date.strftime("%Y-%m-%dT%H:%M:%S")),
                 'DueDate': str(due_date.strftime("%Y-%m-%dT%H:%M:%S")),
                 'Description': ref_id,
-                'Amount': SkipValue,
+                'Amount': amount,
                 'AmountDec': SkipValue,
                 'DiscountAmount': SkipValue,
                 'Tax': SkipValue,
