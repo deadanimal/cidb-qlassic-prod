@@ -1,5 +1,6 @@
 from django.db import models
 # from billings.models import Payment
+from django.db.models import Q
 
 # Models
 from users.models import Trainer, Assessor, CustomUser
@@ -241,6 +242,36 @@ class Training(models.Model):
     def number_of_days(self):
         days = self.to_date - self.from_date
         return days.days + 1
+
+    def current_pax(self):
+        registered = RegistrationTraining.objects.all().filter(training=self)
+        current_seat = registered.filter(
+            Q(status="accepted")|
+            Q(status="need_payment")
+        ).count()
+        
+        return current_seat
+    
+    def is_available(self):
+
+        # Check Expired date
+        now = datetime.datetime.now()
+        if self.from_date >= now:
+            return False
+        
+        # Check if full
+        registered = RegistrationTraining.objects.all().filter(training=self)
+        current_seat = registered.filter(
+            Q(status="accepted")|
+            Q(status="need_payment")
+        ).count()
+
+        available_seat = self.size - current_seat
+        available = True
+        if available_seat < 1:
+            available = False
+
+        return available
 
     def save(self,*args, **kwargs):
         if not self.code_id:

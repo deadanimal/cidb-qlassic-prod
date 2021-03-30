@@ -72,20 +72,26 @@
                     <th>{{ tr.fee }}</th>
                     <th>{{ tr.from_date|date:'d M Y' }}</th>
                     <th>{{ tr.to_date|date:'d M Y' }}</th>
-                    <th>{{ tr.size }} pax</th>
+                    <th>{{ tr.current_pax }}/{{ tr.size }} pax</th>
                     {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' or request.user.is_trainer %}
                     <th>{{ tr.get_attendance_review_status_display }}</th>
                     {% endif %}
                     <td>
                       {% if request.user.role == 'trainee' or request.user.role == 'applicant' %}
-                      <a href="{% url 'dashboard_training_join' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Register</button>
+                        <a 
+                          href="{% url 'dashboard_training_join' tr.id %}"
+                          class="btn btn-sm btn-info w-100 mb-2"
+                          {% if tr.is_available == False %}disabled{% endif %}
+                        >
+                          Register
+                        </a>
                       {% endif %}
                       {% if request.user.role == 'cidb_reviewer' or request.user.role == 'superadmin' %}
-                        <a href="{% url 'dashboard_training_participant' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">View Participant</button>
+                        <a href="{% url 'dashboard_training_participant' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">View Participant</a>
                       {% endif %}
                       {% if request.user.role == 'cidb_reviewer' or request.user.role == 'superadmin' %}
                         {% if tr.attendance_review_status == 'need_approval' %}
-                          <a href="{% url 'dashboard_training_attendance_review' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Attendance</button>
+                          <a href="{% url 'dashboard_training_attendance_review' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Attendance</a>
                         {% endif %}
                       {% endif %}
                     </td>
