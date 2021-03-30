@@ -1225,7 +1225,8 @@ def get_qaa_result(qaa):
                         for element in subcomponent['elements']:
                             if int(element['total_check']) > 0:
                                 if Decimal(subcomponent['actual_weightage']) > 0:
-                                    element['actual_weightage'] = element['weightage'] / Decimal(subcomponent['actual_weightage']) * 100
+                                    # element['actual_weightage'] = element['weightage'] / Decimal(subcomponent['actual_weightage']) * 100
+                                    element['actual_weightage'] = element['weightage'] / Decimal(total_element_weightage) * 100
                                 else:
                                     element['actual_weightage'] = 0
                             else:
@@ -1235,6 +1236,7 @@ def get_qaa_result(qaa):
     # for component in result['component']
     score = {}
     score['components'] = []
+    total_score = 0
     for component in result['components']:
         score_c = {}
         score_c['no'] = component['no']
@@ -1247,6 +1249,7 @@ def get_qaa_result(qaa):
             else:
                 score_c['score'] = 0
             score['components'].append(score_c)
+            
         if component['type'] == 1:
             total_score_sub_component = 0
             score_sc_array = []
@@ -1286,6 +1289,9 @@ def get_qaa_result(qaa):
             for arr in score_sc_array:
                 score['components'].append(arr)
 
+        total_score += score_c['score']
+    score['score'] = total_score
+    
     # print(result)
     return score
 

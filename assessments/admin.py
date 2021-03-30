@@ -20,10 +20,13 @@ class SyncResultAdmin(admin.ModelAdmin):
 class ElementResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result', 'element_code', 'dg_name', 'created_date')
 
+class AssignedAssessorAdmin(admin.ModelAdmin):
+    list_display = ('id', 'ad', 'role_in_assessment', 'complete', 'created_date')
+
 admin.site.register(QlassicAssessmentApplication, QAAAdmin)
 admin.site.register(SupportingDocuments, SDAdmin)
 admin.site.register(SuggestedAssessor)
-admin.site.register(AssignedAssessor)
+admin.site.register(AssignedAssessor, AssignedAssessorAdmin)
 admin.site.register(AssessmentData)
 admin.site.register(WorkCompletionForm)
 admin.site.register(SampleResult, SampleResultAdmin)
