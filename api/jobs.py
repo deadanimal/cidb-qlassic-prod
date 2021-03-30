@@ -1,4 +1,4 @@
-from assessments.models import SampleResult
+from assessments.models import SampleResult, SyncResult
 import shutil
 import os
 
@@ -30,6 +30,6 @@ def job_cancel_proforma():
 
 def job_remove_failed_sync():
     print("Cron: Delete Failed Sync Result")
-    sample_results = SampleResult.objects.all().filter(sync_complete=False)
-    if len(sample_results) > 0:
-        sample_results.delete()
+    sync_results = SyncResult.objects.all().filter(sync_complete=False)
+    if len(sync_results) > 0:
+        sync_results.delete()

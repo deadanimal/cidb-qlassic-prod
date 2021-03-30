@@ -278,7 +278,7 @@ def create_transaction_process(user, quantity, custom_amount, amount, ref_id, de
     print(str(request_data))
 
     response = client.service.CreateTransaction(**request_data)
-    
+    print(response)
     return response
 
 def cancel_proforma(code):
