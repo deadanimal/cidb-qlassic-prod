@@ -1317,6 +1317,7 @@ def ajax_api_application_payment_request(request):
         payment.save()
 
         result = response.TransactionResult
+        error = response.ErrorMessage
         response_url = get_domain(request) + '/dashboard/application/payment/'+id+'/response/'
         print(response)
         postdata = {
@@ -1336,6 +1337,7 @@ def ajax_api_application_payment_request(request):
             'CustomerEmail':request.user.email,
             'CustomerPhoneNo':request.user.hp_no,
             'result':result,
+            'error':error,
         }
 
         return JsonResponse(postdata)

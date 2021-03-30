@@ -179,7 +179,7 @@
       dataType: 'json',
       success: function (data) {
         if (data.result == "PASS") {
-          $("#form_payment").attr("action", data.payment_gateway_url);;
+          $("#form_payment").attr("action", data.payment_gateway_url);
           $("input[name='ClientReturnURL']").val(data.ClientReturnURL);
           $("input[name='IcOrRoc']").val(data.IcOrRoc);
           $("input[name='OrderID']").val(data.OrderID);

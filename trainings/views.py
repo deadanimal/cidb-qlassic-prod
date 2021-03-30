@@ -1209,6 +1209,7 @@ def ajax_api_training_payment_request(request):
         payment.save()
 
         result = response.TransactionResult
+        error = response.ErrorMessage
         print(str(response))
         response_url = get_domain(request) + '/dashboard/training/joined/payment/'+id+'/response/'
         postdata = {
@@ -1228,6 +1229,7 @@ def ajax_api_training_payment_request(request):
             'CustomerEmail':request.user.email,
             'CustomerPhoneNo':request.user.hp_no,
             'result':result,
+            'error':error,
         }
 
         return JsonResponse(postdata)
@@ -1259,6 +1261,7 @@ def ajax_api_qia_payment_request(request):
         payment.save()
 
         result = response.TransactionResult
+        error = response.ErrorMessage
         response_url = get_domain(request) + '/dashboard/training/qia/application/payment/'+id+'/response/'
         postdata = {
             'payment_gateway_url':payment_gateway_url,
@@ -1277,6 +1280,7 @@ def ajax_api_qia_payment_request(request):
             'CustomerEmail':request.user.email,
             'CustomerPhoneNo':request.user.hp_no,
             'result':result,
+            'error':error,
         }
 
         return JsonResponse(postdata)

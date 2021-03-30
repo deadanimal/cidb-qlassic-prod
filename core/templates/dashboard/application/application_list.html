@@ -235,7 +235,7 @@
           $("input[name='CustomerPhoneNo']").val(data.CustomerPhoneNo);
           $("#form_payment").submit();
         } else {
-          alert("Problem creating the proforma. Please check with the admin.");
+          alert("Problem creating the proforma. Please check with the admin :"+ data.error);
         }
       }
     });
