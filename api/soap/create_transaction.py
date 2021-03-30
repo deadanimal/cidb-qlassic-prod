@@ -211,7 +211,7 @@ def create_transaction_process(user, quantity, custom_amount, amount, ref_id, de
                         'AmountDec': SkipValue,
                         'DiscountAmount': SkipValue,
                         'CMISRefId': prefix+ref_id,
-                        'Description': "1. "+ref_id,
+                        'Description': prefix+ref_id,
                     }]
                 }
             }
@@ -273,7 +273,7 @@ def create_transaction_process(user, quantity, custom_amount, amount, ref_id, de
                         'AmountDec': SkipValue,
                         'DiscountAmount': SkipValue,
                         'CMISRefId': prefix+ref_id,
-                        'Description': "1. "+ref_id,
+                        'Description': prefix+ref_id,
                     }]
                 }
             }
