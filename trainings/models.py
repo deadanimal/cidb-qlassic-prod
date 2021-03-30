@@ -255,7 +255,7 @@ class Training(models.Model):
     def is_available(self):
 
         # Check Expired date
-        now = datetime.datetime.now()
+        now = datetime.date.today()
         if self.from_date >= now:
             return False
         

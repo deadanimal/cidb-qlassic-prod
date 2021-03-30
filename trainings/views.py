@@ -519,10 +519,36 @@ def dashboard_training_coach_update(request, id):
 def dashboard_available_training_list(request):
     mode = 'all'
     trainings = Training.objects.all().filter(review_status='accepted')
+    registration_trainings = RegistrationTraining.objects.all().filter(user=request.user).order_by('-created_date')
+    filtered_trainings = []
+    for tr in trainings:
+        tr_dict = {
+            'id': tr.id,
+            'training_name': tr.training_name,
+            'training_type': tr.training_type,
+            'fee': tr.fee,
+            'from_date': tr.from_date,
+            'to_date': tr.to_date,
+            'current_pax': tr.current_pax(),
+            'size': tr.size,
+            'review_status': tr.get_attendance_review_status_display,
+            'is_available': True,
+        }
+        if tr.is_available() == False:
+            tr_dict['is_available'] = False
+        else:
+            for rt in registration_trainings:
+                if rt.training == tr:
+                    if rt.status=="accepted" or rt.status=='need_payment':
+                        tr_dict['is_available'] = False
+                        break 
+        filtered_trainings.append(tr_dict)
+                    
+
     context = {
         'title': 'Available Training List',
         'mode': mode,
-        'trainings': trainings,
+        'trainings': filtered_trainings,
     }
     return render(request, "dashboard/training/enroll_training.html", context)
 
