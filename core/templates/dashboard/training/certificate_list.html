@@ -95,6 +95,10 @@
               <span class="text-danger">Not Certified</span>
               {% endif %}
             </p>
+            <p><strong>Application Number (For Reference): </strong>QIA-{{ user.code_id }}</p>
+            {% if assessor %}
+            <p><strong>Assessor Number: </strong>{{ assessor.qia_id }}</p>
+            {% endif %}
             {% if assessor.qia_certificate_file %}
               <p class=""><strong>Certificate File: </strong>
                 <a href="{{ assessor.qia_certificate_file.url }}">Download</a>
@@ -196,7 +200,7 @@
           $("input[name='CustomerPhoneNo']").val(data.CustomerPhoneNo);
           $("#form_payment").submit();
         } else {
-          alert("Problem creating the proforma. Please check with the admin.");
+          alert("Problem creating the proforma. Please check with the admin :"+ data.error);
         }
       }
     });

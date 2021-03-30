@@ -98,9 +98,9 @@ def create_transaction(request, quantity, kod_hasil, description, ref_id, user):
     response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
 
     # If amount is changed, cancel the old proforma
-    if response.ErrorMessage == 'Discrepancy in Amount':
-        cancel_proforma(response.Code)
-        response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
+    # if response.ErrorMessage == 'Discrepancy in Amount':
+    #     cancel_proforma(response.Code)
+    #     response = create_transaction_process(user, quantity, False, 0, ref_id, description, kod_hasil)
     
     return response
 from decimal import Decimal
@@ -128,9 +128,9 @@ def create_training_transaction(request, amount, kod_hasil, description, ref_id,
     response = create_transaction_process(user, 1, True, amount, ref_id, description, kod_hasil)
     
     # If amount is changed, cancel the old proforma
-    if response.ErrorMessage == 'Discrepancy in Amount':
-        cancel_proforma(response.Code)
-        response = create_transaction_process(user, 1, True, amount, ref_id, description, kod_hasil)
+    # if response.ErrorMessage == 'Discrepancy in Amount':
+    #     cancel_proforma(response.Code)
+    #     response = create_transaction_process(user, 1, True, amount, ref_id, description, kod_hasil)
     
     return response
 
