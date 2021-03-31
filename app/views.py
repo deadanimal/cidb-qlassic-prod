@@ -32,13 +32,13 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import DefectGroup, SubComponent, Element, Component, QlassicAssessmentApplication, SupportingDocuments
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, Component, QlassicAssessmentApplication, SupportingDocuments
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
 
 # Generate Document
-from core.helpers import translate_malay_date, standard_date
+from core.helpers import translate_malay_date, standard_date, generate_and_save_qr
 from app.helpers.letter_templates import generate_document, generate_document_file
 
 # Decorators
@@ -98,17 +98,20 @@ def dashboard_report_list(request):
         qaa_id = request.POST['id']
         qaa = get_object_or_404(QlassicAssessmentApplication, id=qaa_id)
         if 'qlassic_score_letter' in request.POST:
+            report = assessment_report_generate(request, 'qlassic_score_letter', qaa)
             qaa.doc_qlassic_score_letter_status = 'generated'
             qaa.save()
             messages.info(request,'Succesfully generated the Score Letter.')
         if 'qlassic_report' in request.POST:
+            report = assessment_report_generate(request, 'qlassic_report', qaa)
             qaa.doc_qlassic_report_status = 'generated'
             qaa.save()
             messages.info(request,'Succesfully generated the QLASSIC Report.')
         if 'qlassic_certificate' in request.POST:
+            report = assessment_report_generate(request, 'qlassic_certificate', qaa)
             qaa.doc_qlassic_certificate_status = 'generated'
             qaa.save()
-            messages.info(request,'Succesfully generated the QLASSIC Status.')
+            messages.info(request,'Succesfully generated the QLASSIC Certificate.')
         return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_list.html", context)
 
@@ -126,11 +129,13 @@ def dashboard_qlassic_report_view(request, report_type, id):
 @login_required(login_url="/login/")
 def dashboard_report_casc_approve(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'casc_approve'
     form_score = ScoreApplicationForm(instance=qaa)
     context = {
         'qaa':qaa,
         'report_type':report_type,
+        'report':report,
         'form_score':form_score,
         'mode':mode,
     }
@@ -151,6 +156,9 @@ def dashboard_report_casc_approve(request, report_type, id):
             form_score = ScoreApplicationForm(request.POST,instance=qaa)
             if form_score.is_valid():
                 form_score.save()
+                report = assessment_report_generate(request, 'qlassic_score_letter', qaa)
+                report = assessment_report_generate(request, 'qlassic_report', qaa)
+                report = assessment_report_generate(request, 'qlassic_certificate', qaa)
                 messages.info(request,'Succesfully updated the score details.')
             return redirect('dashboard_report_casc_approve', report_type, id)
     return render(request, "dashboard/reporting/report_detail.html", context)
@@ -158,9 +166,11 @@ def dashboard_report_casc_approve(request, report_type, id):
 @login_required(login_url="/login/")
 def dashboard_report_review(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'review'
     context = {
         'qaa':qaa,
+        'report':report,
         'report_type':report_type,
         'mode':mode,
     }
@@ -182,9 +192,11 @@ def dashboard_report_review(request, report_type, id):
 @login_required(login_url="/login/")
 def dashboard_report_verify(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'verify'
     context = {
         'qaa':qaa,
+        'report':report,
         'report_type':report_type,
         'mode':mode,
     }
@@ -206,9 +218,11 @@ def dashboard_report_verify(request, report_type, id):
 @login_required(login_url="/login/")
 def dashboard_report_approve(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'approve'
     context = {
         'qaa':qaa,
+        'report':report,
         'report_type':report_type,
         'mode':mode,
     }
@@ -230,9 +244,11 @@ def dashboard_report_approve(request, report_type, id):
 @login_required(login_url="/login/")
 def dashboard_report_submit(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'submit'
     context = {
         'qaa':qaa,
+        'report':report,
         'report_type':report_type,
         'mode':mode,
     }
@@ -305,62 +321,71 @@ def dashboard_report_submit(request, report_type, id):
 #     if pisa_status.err:
 #        return HttpResponse('We had some errors <pre>' + html + '</pre>')
 #     return response
+import absoluteuri
 
 from assessments.views import get_qlassic_score
-def qlassic_report_generate(request, report_type, id):
-    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    tmpl_ctx = ''
-    if report_type == 'qlassic_score_letter':
-        tmpl_ctx = {
-            'title': qaa.pi.project_title,
-            'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
-            'developer': qaa.pi.developer,
-            'developer_ssm_number': qaa.pi.developer_ssm_number,
-            'contractor': qaa.pi.contractor_name,
-            'cidb_number': qaa.pi.contractor_cidb_registration_no,
-            'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
-        }
-    elif report_type == 'qlassic_report':
-        tmpl_ctx = {
-            'title': qaa.pi.project_title,
-            'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
-            'developer': qaa.pi.developer,
-            'developer_ssm_number': qaa.pi.developer_ssm_number,
-            'contractor': qaa.pi.contractor_name,
-            'cidb_number': qaa.pi.contractor_cidb_registration_no,
-            'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
-        }
-    elif report_type == 'qlassic_certificate':
-        tmpl_ctx = {
-            'title': qaa.pi.project_title,
-            'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
-            'developer': qaa.pi.developer,
-            'developer_ssm_number': qaa.pi.developer_ssm_number,
-            'contractor': qaa.pi.contractor_name,
-            'cidb_number': qaa.pi.contractor_cidb_registration_no,
-            'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
-        }
-    else:
-        raise Http404
-    qr_url = request.build_absolute_uri()
-    host_url = request.scheme+'://'+request.META['HTTP_HOST'] 
-    context = {
-        'host_url': host_url,
-        'qr_url': qr_url,
-        'qaa': qaa
-    }
-    response = generate_document(request, report_type, tmpl_ctx)
+# def qlassic_report_generate(request, report_type, id):
+#     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+#     tmpl_ctx = ''
+#     if report_type == 'qlassic_score_letter':
+#         qr_path = absoluteuri.build_absolute_uri('/cert_assessment/qlassic_score_letter/'+str(qaa.id)+'/')
+#         generate_and_save_qr(qr_path, qaa.qlassic_score_letter_qr_file)
+#         qr_path = absoluteuri.build_absolute_uri('/cert_assessment/qlassic_report/'+str(qaa.id)+'/')
+#         generate_and_save_qr(qr_path, qaa.qlassic_report_qr_file)
+#         qr_path = absoluteuri.build_absolute_uri('/cert_assessment/qlassic_certificate/'+str(qaa.id)+'/')
+#         generate_and_save_qr(qr_path, qaa.qlassic_certificate_qr_file)
+#         tmpl_ctx = {
+#             'title': qaa.pi.project_title,
+#             'qaa_number': qaa.qaa_number,
+#             'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+#             'developer': qaa.pi.developer,
+#             'developer_ssm_number': qaa.pi.developer_ssm_number,
+#             'contractor': qaa.pi.contractor_name,
+#             'cidb_number': qaa.pi.contractor_cidb_registration_no,
+#             'grade': qaa.pi.contractor_registration_grade,
+#             'ccd_score': str(round(qaa.ccd_point, 2)),
+#             'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+#         }
+#     elif report_type == 'qlassic_report':
+#         qaa_result = get_qaa_result(qaa)
+#         tmpl_ctx = {
+#             'title': qaa.pi.project_title,
+#             'qaa_number': qaa.qaa_number,
+#             'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+#             'developer': qaa.pi.developer,
+#             'developer_ssm_number': qaa.pi.developer_ssm_number,
+#             'contractor': qaa.pi.contractor_name,
+#             'cidb_number': qaa.pi.contractor_cidb_registration_no,
+#             'grade': qaa.pi.contractor_registration_grade,
+#             'ccd_score': str(round(qaa.ccd_point, 2)),
+#             'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+#             'qaa_result': qaa_result,
+#         }
+#     elif report_type == 'qlassic_certificate':
+#         tmpl_ctx = {
+#             'title': qaa.pi.project_title,
+#             'qaa_number': qaa.qaa_number,
+#             'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+#             'developer': qaa.pi.developer,
+#             'developer_ssm_number': qaa.pi.developer_ssm_number,
+#             'contractor': qaa.pi.contractor_name,
+#             'cidb_number': qaa.pi.contractor_cidb_registration_no,
+#             'grade': qaa.pi.contractor_registration_grade,
+#             'ccd_score': str(round(qaa.ccd_point, 2)),
+#             'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+#         }
+#     else:
+#         raise Http404
+#     qr_url = request.build_absolute_uri()
+#     host_url = request.scheme+'://'+request.META['HTTP_HOST'] 
+#     context = {
+#         'host_url': host_url,
+#         'qr_url': qr_url,
+#         'qaa': qaa
+#     }
+#     response = generate_document(request, report_type, tmpl_ctx)
     
-    return response
+#     return response
 
 def report_generate(request, report_type, id):
     template_path = ''
@@ -1055,3 +1080,90 @@ def dashboard_manage_edit_component_v2(request, mode, id):
                 return redirect('dashboard_manage_component_v2')
             return redirect('dashboard_manage_sub_component_v2', mode, parent_id)
     return render(request, "dashboard/management/manage_component_edit_v2.html", context)
+
+
+
+### Functions ###
+
+def assessment_report_generate(request, report_type, qaa):
+    template_ctx = ''
+    reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
+    print(reporting)
+    qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
+    generate_and_save_qr(qr_path, reporting.qr_file)
+    
+    if report_type == 'qlassic_score_letter':
+        template_ctx = {
+            'title': qaa.pi.project_title,
+            'id': reporting.code_id,
+            'qaa_number': qaa.qaa_number,
+            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'now': translate_malay_date(standard_date(datetime.now())),
+            'developer': qaa.pi.developer,
+            'developer_ssm_number': qaa.pi.developer_ssm_number,
+            'contractor': qaa.pi.contractor_name,
+            'cidb_number': qaa.pi.contractor_cidb_registration_no,
+            'grade': qaa.pi.contractor_registration_grade,
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+        }
+        response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
+        reporting.report_file.save('pdf', response_cert)
+    elif report_type == 'qlassic_report':
+        qaa_result = get_qaa_result(qaa)
+        assessors = AssignedAssessor.objects.all().filter(ad__qaa=qaa)
+        casc_score = str(round(qaa.qlassic_score, 2))
+        if qaa.casc_qlassic_score != None:
+            casc_score = str(round(qaa.casc_qlassic_score, 2))
+        template_ctx = {
+            'title': qaa.pi.project_title,
+            'id': reporting.code_id,
+            'qaa_number': qaa.qaa_number,
+            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'now': translate_malay_date(standard_date(datetime.now())),
+            'assessors': assessors,
+            'gfa': qaa.pi.gfa,
+            'project_value': qaa.pi.contract_value,
+            'developer': qaa.pi.developer,
+            'developer_ssm_number': qaa.pi.developer_ssm_number,
+            'contractor': qaa.pi.contractor_name,
+            'site_representative': qaa.pi.site_representative,
+            'project_manager': qaa.pi.project_manager,
+            'cidb_number': qaa.pi.contractor_cidb_registration_no,
+            'grade': qaa.pi.contractor_registration_grade,
+            'architect_firm': qaa.pi.architect_firm,
+            'structural_civil_engineer_firm': qaa.pi.structural_civil_engineer_firm,
+            'mechanical_electrical_firm': qaa.pi.mechanical_electrical_firm,
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(qaa.qlassic_score, 2)),
+            'casc_qlassic_score': casc_score,
+            'qaa_result': qaa_result,
+            'weather': qaa_result['weather'],
+            'sample': qaa_result['sample'],
+            'components': qaa_result['components'],
+            'scope': qaa_result['scope'],
+        }
+        response_cert = generate_document_file(request, report_type, template_ctx, None)
+        reporting.report_file.save('pdf', response_cert)
+    elif report_type == 'qlassic_certificate':
+        template_ctx = {
+            'title': qaa.pi.project_title,
+            'id': reporting.code_id,
+            'qaa_number': qaa.qaa_number,
+            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'now': translate_malay_date(standard_date(datetime.now())),
+            'developer': qaa.pi.developer,
+            'developer_ssm_number': qaa.pi.developer_ssm_number,
+            'contractor': qaa.pi.contractor_name,
+            'cidb_number': qaa.pi.contractor_cidb_registration_no,
+            'grade': qaa.pi.contractor_registration_grade,
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+        }
+        response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
+        reporting.report_file.save('pdf', response_cert)
+    else:
+        return None
+
+    
+    return reporting

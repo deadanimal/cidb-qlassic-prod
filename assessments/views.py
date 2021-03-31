@@ -38,7 +38,7 @@ from assessments.models import (
     SupportingDocuments, 
     SuggestedAssessor, 
     AssignedAssessor, 
-    AssessmentData, SyncResult
+    AssessmentData, SyncResult, WorkCompletionForm
 )
 
 # SOAP
@@ -1081,6 +1081,7 @@ def get_qaa_result(qaa):
     element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
     sub_components = SubComponent.objects.all().filter().order_by('created_date')
     elements = Element.objects.all().filter(category_weightage=False).order_by('created_date')
+    wcf = WorkCompletionForm.objects.all().filter(qaa=qaa).order_by('-created_date').first()
     # defect_groups = DefectGroup.objects.all().order_by('-created_date')
     sync_results = SyncResult.objects.all().filter(qaa=qaa, sync_complete=False)
     sync_results.delete()
@@ -1089,6 +1090,9 @@ def get_qaa_result(qaa):
     index_c = 'A'
     result['building_type'] = qaa.building_type
     result['components'] = []
+
+    total_sample = 0
+
     ## Component
     for component in components:
         index_sc = 1
@@ -1133,8 +1137,8 @@ def get_qaa_result(qaa):
                         number_of_compliance = 0
                         number_of_check = 0
                         element_results = ElementResult.objects.all().filter(
-                            Q(element_code=element.id)|
-                            Q(element_code=element.code_id)
+                            Q(qaa=qaa,element_code=element.id)|
+                            Q(qaa=qaa,element_code=element.code_id)
                         )
                         for element_result in element_results:
                             number_of_compliance += element_result.total_compliance
@@ -1177,8 +1181,8 @@ def get_qaa_result(qaa):
         number_of_compliance = 0
         number_of_check = 0
         element_results = ElementResult.objects.all().filter(
-            Q(element_code=element_component.id)|
-            Q(element_code=element_component.code_id)
+            Q(qaa=qaa,element_code=element_component.id)|
+            Q(qaa=qaa,element_code=element_component.code_id)
         )
         for element_result in element_results:
             number_of_compliance += element_result.total_compliance
@@ -1235,13 +1239,17 @@ def get_qaa_result(qaa):
     # Step 3: Calculate Score
     # for component in result['component']
     score = {}
+    score['scope'] = []
+    count_scope = 0
     score['components'] = []
     total_score = 0
+    
     for component in result['components']:
         score_c = {}
         score_c['no'] = component['no']
         score_c['name'] = component['name']
         score_c['total_weightage'] = component['actual_weightage']
+        score_c['subcomponents'] = []
 
         if component['type'] == 2 or component['type'] == 3:
             if component['total_check'] != 0:
@@ -1259,6 +1267,7 @@ def get_qaa_result(qaa):
                         score_sc['no'] = subcomponent['no']
                         score_sc['name'] = subcomponent['name']
                         score_sc['total_weightage'] = subcomponent['actual_weightage']
+                        score_sc['elements'] = []
                         if subcomponent['type'] == 0:
                             total_score_element = 0
                             if 'elements' in subcomponent:
@@ -1267,30 +1276,47 @@ def get_qaa_result(qaa):
                                         element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
                                         total_score_element += element_score
                             score_sc['score'] = 0
-                        score_sc_array.append(score_sc)
+                        # score_sc_array.append(score_sc)
                         if subcomponent['type'] == 3 or subcomponent['type'] == 2:
                             if 'elements' in subcomponent:
                                 for element in subcomponent['elements']:
-                                    score_sc = {}
-                                    score_sc['no'] = element['no']
-                                    score_sc['name'] = element['name']
-                                    score_sc['total_weightage'] = element['actual_weightage']
+                                    score_e = {}
+                                    score_e['no'] = element['no']
+                                    score_e['name'] = element['name']
+                                    score_e['total_weightage'] = element['actual_weightage']
 
                                     if element['total_check'] != 0:
                                         element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
-                                        score_sc['score'] = element_score
+                                        score_e['score'] = element_score
                                         total_score_sub_component += element_score
                                     else:
-                                        score_sc['score'] = 0
-                                    score_sc_array.append(score_sc)
-            print(total_score_sub_component)
+                                        score_e['score'] = 0
+                                    score_sc['elements'].append(score_e)
+                                    # score_sc_array.append(score_sc)
+                        score_c['subcomponents'].append(score_sc)
+            # print(total_score_sub_component)
             score_c['score'] = total_score_sub_component * float(component['actual_weightage']) / 100
             score['components'].append(score_c)
             for arr in score_sc_array:
                 score['components'].append(arr)
 
+        if score_c['total_weightage'] > 0:
+            count_scope += 1
+            score['scope'].append(str(count_scope) + '. ' + component['name'])
         total_score += score_c['score']
     score['score'] = total_score
+    score['sample'] = SampleResult.objects.all().filter(qaa=qaa).count()
+    score['weather'] = wcf.weather
+
+    # Rounding
+    for component in score['components']:
+        component['score'] = round(component['score'],2)
+        component['total_weightage'] = round(component['total_weightage'],2)
+        for subcomponent in component['subcomponents']:
+            subcomponent['total_weightage'] = round(subcomponent['total_weightage'],2)
+            for element in subcomponent['elements']:
+                element['score'] = round(element['score'],2)
+                element['total_weightage'] = round(element['total_weightage'],2)
 
     # print(result)
     return score

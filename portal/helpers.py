@@ -17,6 +17,5 @@ TEMPLATE_TYPE = [
     ('qca_reject_letter','QCA Rejection Letter'),
     ('qca_accreditation_letter','QCA Accreditation Letter'),
     ('qca_accreditation_certificate','QCA Accreditation Certificate'),
-    ('qia_accreditation_letter','QIA Accreditation Letter'),
     ('qia_accreditation_certificate','QIA Accreditation Certificate'),
 ]

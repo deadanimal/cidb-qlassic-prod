@@ -176,6 +176,9 @@ class QlassicAssessmentApplication(models.Model):
     doc_qlassic_score_letter_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
     doc_qlassic_report_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
     doc_qlassic_certificate_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
+    qlassic_score_letter_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('assessment/qr/'), verbose_name='QLASSIC Score QR File')
+    qlassic_report_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('assessment/qr/'), verbose_name='QLASSIC Report QR File')
+    qlassic_certificate_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('assessment/qr/'), verbose_name='QLASSIC Cert QR File')
 
     # QLASSIC SCORE
     ccd_point = models.FloatField(null=True, verbose_name="CCD Point")
@@ -703,22 +706,33 @@ class WorkCompletionForm(models.Model):
 
 class QlassicReporting(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_id = models.CharField(null=True,blank=True, max_length=50)
+
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
-    qaa_number = models.CharField(null=True, max_length=255)
-    
+
     report_number = models.CharField(null=True, max_length=255)
     
-    TYPE_OF_REPORT = [
+    REPORT_TYPE = [
         # To follow SRS
         ('qlassic_score_letter','QLASSIC Score Letter'),
         ('qlassic_certificate','QLASSIC Certificate'),
         ('qlassic_report','QLASSIC Report'),
     ]
-    type_of_report = models.CharField(
+    report_type = models.CharField(
         null=True,
-        choices=TYPE_OF_REPORT,
+        choices=REPORT_TYPE,
         max_length=30
     )
+
+    report_file = models.FileField(null=True, blank=True, upload_to=PathAndRename('assessment/report/'), verbose_name='Report File')
+    qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('assessment/qr/'), verbose_name='QR File')
+    
+    reviewed_by = models.CharField(null=True, blank=True, max_length=200)
+    reviewed_date = models.DateTimeField(null=True, blank=True)
+    verified_by = models.CharField(null=True, blank=True, max_length=200)
+    verified_date = models.DateTimeField(null=True, blank=True)
+    approved_by = models.CharField(null=True, blank=True, max_length=200)
+    approved_date = models.DateTimeField(null=True, blank=True)
     
     
     # Date
@@ -728,7 +742,19 @@ class QlassicReporting(models.Model):
     modified_by = models.CharField(null=True, max_length=50)
    
     def __str__(self):
-        return self.qaa
+        return '%s' % (self.qaa)
+
+    def save(self,*args, **kwargs):
+        if not self.code_id:
+            prefix = 'QLA/REP/'
+            prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().code_id.replace(prefix,'')
+                self.code_id = prefix+'{0:05d}'.format(int(last_instance_id)+1)
+            else:
+                self.code_id = prefix+'{0:05d}'.format(1)
+            
+        super(QlassicReporting, self).save(*args, **kwargs)
 
 class SiteAttendance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

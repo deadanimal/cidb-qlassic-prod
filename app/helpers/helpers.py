@@ -21,7 +21,7 @@ def docx_to_pdf_process_stream(letter_template, context, download):
 
     doc = DocxTemplate(template_path)
     print(template_path)
-    doc.render(context)
+    doc.render(context, autoescape=True)
     # ... your other code ...
     doc_io = io.BytesIO() # create a file-like object
     doc.save(doc_io) # save data to file-like object
@@ -48,7 +48,7 @@ def docx_to_pdf_process_file(letter_template, context, download, qr_url):
     template_path = letter_template.template_file.file
     fileName, fileExtension = os.path.splitext(letter_template.template_file.name)
     doc = DocxTemplate(template_path)
-    doc.render(context)
+    doc.render(context, autoescape=True)
     if qr_url != None:
         doc.replace_pic('qr.png',qr_url)
     # ... your other code ...
