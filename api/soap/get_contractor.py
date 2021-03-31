@@ -25,6 +25,9 @@ import datetime
 CIMS_WSDL = config('CIMS_WSDL', default='http://202.171.33.96/CIMSService/CIMSService.svc?wsdl')
 # CIMS_WSDL = config('CIMS_WSDL', default='http://cims.cidb.gov.my/CIMSService/CIMSService.svc?wsdl')
 certificate_path = 'C:/nginx/ssl/qlassic_cidb_gov_my.pem'
+if settings.CUSTOM_STG_MODE == 1:
+    certificate_path = 'C:/nginx/ssl/star_cidb_gov_myy.pem'
+
 def get_project(contractor_registration_number):
     check_applied_contractor(contractor_registration_number)
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)
