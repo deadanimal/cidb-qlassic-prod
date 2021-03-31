@@ -29,6 +29,11 @@ transaction_history_url = "https://cimsdev.cidb.gov.my/pmscart/?customerDebtorId
 # Production URL
 # create_transaction_wsdl = "http://202.171.33.96/Financeservice/?wsdl"
 # payment_gateway_url = "https://www.icims.cidb.gov.my:8085/Payment/MakePayment"
+if settings.CUSTOM_PROD_MODE == 1:
+    create_transaction_wsdl = "http://www.icims.cidb.gov.my/Financeservice/?wsdl"
+    get_receipt_url = "http://www.icims.cidb.gov.my:8080/ReceiptEnquiry/?code="
+    payment_gateway_url = "https://www.icims.cidb.gov.my:8085/Payment/MakePayment"
+    transaction_history_url = "https://www.icims.cidb.gov.my/pmscart/?customerDebtorId="
 
 
 # Get KodHasil By Code

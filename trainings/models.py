@@ -356,7 +356,7 @@ class RegistrationTraining(models.Model):
     ]
     payment_mode = models.CharField(
         null=True,
-        default=True,
+        default='off',
         max_length=5,
         choices=PAYMENT_MODE,
     )

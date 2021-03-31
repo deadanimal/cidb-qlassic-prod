@@ -231,7 +231,8 @@ def dashboard_application_new_2(request, contractor_registration_number, id):
             if pi_submit.project_type == 'GOVERNMENT':
                 qaa.payment_mode = 'off'
             else:
-                qaa.payment_mode = 'on'
+                # qaa.payment_mode = 'on'
+                qaa.payment_mode = 'off'
             qaa.save()
             messages.info(request,'Successfully save')
 
