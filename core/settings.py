@@ -33,6 +33,7 @@ DEBUG = int(config('DEBUG', default=0))
 # Force HTTPS
 CUSTOM_DEV_MODE = int(config('DEV', default=0))
 CUSTOM_STG_MODE = int(config('STG', default=0))
+CUSTOM_PROD_MODE = int(config('PROD', default=0))
 
 # load production server from .env
 ALLOWED_HOSTS = [
