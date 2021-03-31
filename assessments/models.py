@@ -179,7 +179,7 @@ class QlassicAssessmentApplication(models.Model):
     modified_by = models.CharField(null=True,blank=True, max_length=50)
    
     def __str__(self):
-        return "%s - %s" % (self.created_date, self.qaa_number)
+        return "%s" % (self.qaa_number)
     
     def get_amount(self):
         multiply = self.no_of_blocks
