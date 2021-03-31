@@ -99,17 +99,20 @@ def dashboard_report_list(request):
         qaa = get_object_or_404(QlassicAssessmentApplication, id=qaa_id)
         if 'qlassic_score_letter' in request.POST:
             report = assessment_report_generate(request, 'qlassic_score_letter', qaa)
-            qaa.doc_qlassic_score_letter_status = 'generated'
+            if qaa.doc_qlassic_score_letter_status == 'pending':
+                qaa.doc_qlassic_score_letter_status = 'generated'
             qaa.save()
             messages.info(request,'Succesfully generated the Score Letter.')
         if 'qlassic_report' in request.POST:
             report = assessment_report_generate(request, 'qlassic_report', qaa)
-            qaa.doc_qlassic_report_status = 'generated'
+            if qaa.doc_qlassic_report_status == 'pending':
+                qaa.doc_qlassic_report_status = 'generated'
             qaa.save()
             messages.info(request,'Succesfully generated the QLASSIC Report.')
         if 'qlassic_certificate' in request.POST:
             report = assessment_report_generate(request, 'qlassic_certificate', qaa)
-            qaa.doc_qlassic_certificate_status = 'generated'
+            if qaa.doc_qlassic_certificate_status == 'pending':
+                qaa.doc_qlassic_certificate_status = 'generated'
             qaa.save()
             messages.info(request,'Succesfully generated the QLASSIC Certificate.')
         return redirect('dashboard_report_list')
