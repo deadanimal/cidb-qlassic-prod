@@ -30,6 +30,10 @@ SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(config('DEBUG', default=0))
 
+# Force HTTPS
+CUSTOM_DEV_MODE = int(config('DEV', default=0))
+CUSTOM_STG_MODE = int(config('STG', default=0))
+
 # load production server from .env
 ALLOWED_HOSTS = [
     'localhost',
@@ -37,6 +41,7 @@ ALLOWED_HOSTS = [
     '103.245.90.20',
     '10.10.128.172',
     'qlassicstg.cidb.gov.my',
+    'qlassic.cidb.gov.my',
     'cidb-qlassic.pipe.my',
     'cidb-qlassic.herokuapp.com'
 ]
@@ -262,6 +267,17 @@ DEFAULT_FROM_EMAIL = 'QLASSIC Portal <noreply@cidb.gov.my>'  # if you don't alre
 # ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[QLASSIC Portal] '
 
+if CUSTOM_DEV_MODE == 0:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True
+    EMAIL_HOST = 'pro.turbo-smtp.com'
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = 587
+    if CUSTOM_STG_MODE == 1:
+        ACCOUNT_EMAIL_SUBJECT_PREFIX = '[STAGING QLASSIC Portal] '
+
+
 skip_email = config('SKIP_EMAIL', default=0)
 
 
@@ -271,6 +287,7 @@ CORS_ORIGIN_WHITELIST = [
     'https://cidb-qlassic.herokuapp.com',
     'https://cidb-qlassic.pipe.my',
     'https://qlassicstg.cidb.gov.my',
+    'https://qlassic.cidb.gov.my',
     'http://127.0.0.1',
     'https://103.245.90.20',
     'https://10.10.128.172',
@@ -281,6 +298,7 @@ CORS_ORIGIN_REGEX_WHITELIST = [
     'https://cidb-qlassic.herokuapp.com',
     'https://cidb-qlassic.pipe.my',
     'https://qlassicstg.cidb.gov.my',
+    'https://qlassic.cidb.gov.my',
     'https://103.245.90.20',
     'https://10.10.128.172',
     'http://127.0.0.1',
@@ -304,9 +322,7 @@ else:
 
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Force HTTPS
-CUSTOM_DEV_MODE = int(config('DEV', default=0))
-CUSTOM_STG_MODE = int(config('STG', default=0))
+
 if CUSTOM_DEV_MODE == 0:
     print('live')
     USE_X_FORWARDED_HOST = True
@@ -316,6 +332,7 @@ if CUSTOM_DEV_MODE == 0:
     CSRF_COOKIE_SECURE = True
     CSRF_TRUSTED_ORIGINS = [
         'qlassicstg.cidb.gov.my'
+        'qlassic.cidb.gov.my'
     ]
     ABSOLUTEURI_PROTOCOL = 'https'
 else:

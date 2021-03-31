@@ -42,6 +42,7 @@
             <h4>{{ qaa.pi.project_title }}</h4>
           </div>
         </div>
+        {% if mode != 'view' %}
         <div class="card">
           <form action="" method="POST">
           {% csrf_token %}
@@ -95,6 +96,7 @@
           </div>
           </form>
         </div>
+        {% endif %}
       </div>
       <div class="col-md-6">
         <div class="card">
@@ -112,8 +114,6 @@
         </div>
       </div>
       <div class="col-md-2">
-        <a href="#" class="btn mb-3 btn-default w-100">Download</a>
-        <a href="#" class="btn mb-3 btn-danger w-100">Print</a>
         <a href="#" class="btn mb-3 btn-success w-100">Send to Applicant</a>
       </div>
     </div>
