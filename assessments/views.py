@@ -120,7 +120,7 @@ def dashboard_application_project(request):
     if request.method == 'POST':
         ssm_number = request.POST['ssm_number']
         contractor_registration_number = request.POST['contractor_registration_number']
-        is_verify = verify_contractor(contractor_registration_number)
+        is_verify, error_message = verify_contractor(contractor_registration_number)
         if is_verify:
             VerifiedContractor.objects.create(
                 user = request.user,
@@ -132,7 +132,7 @@ def dashboard_application_project(request):
             )
             messages.info(request, 'Successfully verify the contractor profile')
         else:
-            messages.warning(request, 'Record not found. Failed to verify the contractor. Please correct your details to verify again.')
+            messages.warning(request, error_message)
         return redirect('dashboard_application_project')
 
     return render(request, "dashboard/application/project_list.html", context)
@@ -1291,7 +1291,7 @@ def get_qaa_result(qaa):
 
         total_score += score_c['score']
     score['score'] = total_score
-    
+
     # print(result)
     return score
 

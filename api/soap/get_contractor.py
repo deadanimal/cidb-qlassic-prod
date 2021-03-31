@@ -157,17 +157,21 @@ def verify_contractor(contractor_registration_number):
         response = client.service.GetContractorInfo(**request_data)
         
         found = False
+        message = ''
         if response.ssmNo != None:
             print(response.ssmNo + 'dsdasdsaoop')
             found = True
+            
         else:
             print('not found contractor')
             found = False
+            message = 'Record not found in CIMS System. Please correct your details to verify again.'
 
-        return found
+        return found, message
     except Exception:
-        print('Error connecting with CIMS WSDL')
-        return False
+        message = 'Error connecting with CIMS WSDL. Please contact the admin.'
+        print(message)
+        return False, message
 
 def check_applied_contractor(contractor_registration_number):
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)

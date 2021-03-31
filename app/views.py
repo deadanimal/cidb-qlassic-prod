@@ -539,7 +539,7 @@ def dashboard_verified_contractor(request):
         if 'create' in request.POST:
             form_vc = VerifiedContractorForm(request.POST)
             contractor_registration_number = request.POST['contractor_registration_number']
-            found = verify_contractor(contractor_registration_number)
+            found, error_message = verify_contractor(contractor_registration_number)
             if found is True:
                 if form_vc.is_valid():
                     vc = form_vc.save()
@@ -547,7 +547,7 @@ def dashboard_verified_contractor(request):
                 else:
                     messages.warning(request, 'Unable to create new verified contractor:'+form_vc.errors.as_text())
             else:
-                messages.warning(request, 'Unable to create new verified contractor: Record not found in CIMS System.')
+                messages.warning(request, error_message)
 
         return redirect('dashboard_verified_contractor')
     context = {"vcs": vcs, 'form_vc': form_vc}
@@ -566,7 +566,7 @@ def dashboard_verified_contractor_id(request, id):
         if 'update' in request.POST:
             form_vc = VerifiedContractorForm(request.POST,instance=vc)
             contractor_registration_number = request.POST['contractor_registration_number']
-            found = verify_contractor(contractor_registration_number)
+            found, error_message = verify_contractor(contractor_registration_number)
             if found is True:
                 if form_vc.is_valid():
                     form_vc.save()
@@ -574,7 +574,7 @@ def dashboard_verified_contractor_id(request, id):
                 else:
                     messages.warning(request, 'Unable to update verified contractor:'+form_vc.errors.as_text())
             else:
-                messages.warning(request, 'Unable to update new verified contractor: Record not found in CIMS System.')
+                messages.warning(request, error_message)
 
         return redirect('dashboard_verified_contractor_id', id)
     context = {"vc": vc,'form_vc':form_vc}
