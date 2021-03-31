@@ -50,6 +50,8 @@ class UserUpdateForm(ModelForm):
             'user_permissions',
             'first_name',
             'last_name',
+            'qia_payment_mode',
+            'qia_payment_status',
             'is_staff',
             'is_active',
             'date_joined',
