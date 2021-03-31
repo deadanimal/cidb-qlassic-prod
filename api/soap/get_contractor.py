@@ -4,6 +4,7 @@ from requests.auth import HTTPBasicAuth
 from zeep.transports import Transport
 from zeep.settings import Settings
 from django.contrib import messages
+from django.conf import settings
 
 from zeep.plugins import HistoryPlugin
 
@@ -23,7 +24,7 @@ import datetime
 
 CIMS_WSDL = config('CIMS_WSDL', default='http://202.171.33.96/CIMSService/CIMSService.svc?wsdl')
 # CIMS_WSDL = config('CIMS_WSDL', default='http://cims.cidb.gov.my/CIMSService/CIMSService.svc?wsdl')
-
+certificate_path = 'C:/nginx/ssl/qlassic_cidb_gov_my.pem'
 def get_project(contractor_registration_number):
     check_applied_contractor(contractor_registration_number)
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)
@@ -64,14 +65,16 @@ def request_contractor(contractor_registration_number):
 
     # session = Session()
     # session.auth = HTTPBasicAuth("RFID_INTEGRATION", "Rfid_1nt")
-    session = Session()
-    session.verify = False
 
     # client = Client(wsdl, transport=Transport(session=session),
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
     try:
+        session = Session()
+        session.verify = False
+        if settings.CUSTOM_DEV_MODE == 0:
+            session.verify = certificate_path
         client = Client(wsdl,plugins=[history],transport=Transport(session=session))
         request_data = {
             # 'EncryptedData': '195139',
@@ -114,6 +117,8 @@ def test_request_contractor(request):
     try:
         session = Session()
         session.verify = False
+        if settings.CUSTOM_DEV_MODE == 0:
+            session.verify = certificate_path
 
         client = Client(wsdl,plugins=[history],transport=Transport(session=session))
     
@@ -144,6 +149,8 @@ def verify_contractor(contractor_registration_number):
     try:
         session = Session()
         session.verify = False
+        if settings.CUSTOM_DEV_MODE == 0:
+            session.verify = certificate_path
 
         client = Client(wsdl,plugins=[history],transport=Transport(session=session))
 
