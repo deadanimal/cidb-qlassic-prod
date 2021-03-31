@@ -256,7 +256,7 @@ class Training(models.Model):
 
         # Check Expired date
         now = datetime.date.today()
-        if self.from_date >= now:
+        if now >= self.from_date:
             return False
         
         # Check if full
