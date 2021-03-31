@@ -1295,6 +1295,18 @@ def get_qaa_result(qaa):
     # print(result)
     return score
 
+def get_qlassic_score(qaa):
+    if qaa.casc_qlassic_score != None:
+        return qaa.casc_qlassic_score
+    elif qaa.qlassic_score != None:
+        return qaa.qlassic_score
+    else:
+        score_obj = get_qaa_result(qaa)
+        score = score_obj['score']
+        qaa.qlassic_score = score
+        qaa.save()
+        return score
+
 ## AJAX
 @login_required(login_url="/login/")
 def ajax_api_application_payment_request(request):

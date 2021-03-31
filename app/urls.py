@@ -20,9 +20,11 @@ urlpatterns = [
     # Admin Reporting & Certification
     path('dashboard/report/list/', views.dashboard_report_list, name="dashboard_report_list"),
     path('dashboard/report/view/<str:report_type>/<str:id>/', views.dashboard_qlassic_report_view, name="dashboard_qlassic_report_view"),
+    path('dashboard/report/casc_approve/<str:report_type>/<str:id>/', views.dashboard_report_casc_approve, name="dashboard_report_casc_approve"),
     path('dashboard/report/review/<str:report_type>/<str:id>/', views.dashboard_report_review, name="dashboard_report_review"),
     path('dashboard/report/verify/<str:report_type>/<str:id>/', views.dashboard_report_verify, name="dashboard_report_verify"),
     path('dashboard/report/approve/<str:report_type>/<str:id>/', views.dashboard_report_approve, name="dashboard_report_approve"),
+    path('dashboard/report/submit/<str:report_type>/<str:id>/', views.dashboard_report_submit, name="dashboard_report_submit"),
     
     # PDF
     path('report/<str:report_type>/view/<str:id>/', views.qlassic_report_generate, name="qlassic_report_generate"),

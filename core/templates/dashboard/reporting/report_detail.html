@@ -5,6 +5,8 @@
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
 
+{% load crispy_forms_tags %}
+
 {% block content %}
 
   <!-- Header -->
@@ -33,7 +35,7 @@
   <div class="container-fluid mt--6">
 
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-5">
         <div class="card">
           <div class="card-header text-center">
             <h2 class="mb-0">Project Title</h2>
@@ -42,63 +44,71 @@
             <h4>{{ qaa.pi.project_title }}</h4>
           </div>
         </div>
+        {% if mode == 'casc_approve' %}
+          <div class="card">
+            <div class="card-header text-center">
+              <h2 class="mb-0">Edit Score Information</h2>
+            </div>
+            <div class="card-body">
+              <form action="" method="POST">
+                {% csrf_token %}
+                {{ form_score|crispy }}
+                <button type="submit" name="score" class="btn btn-primary">Update</button>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+        
         {% if mode != 'view' %}
         <div class="card">
-          <form action="" method="POST">
-          {% csrf_token %}
           <div class="card-body text-center">
-            {% if mode == 'review' %}<h4>Submit for Reviewing?</h4>{% endif %}
-            {% if mode == 'verify' %}<h4>Submit for Verifying?</h4>{% endif %}
-            {% if mode == 'approve' %}<h4>Submit for Approving?</h4>{% endif %}
-            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#modal_yes">Yes</a>
-            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_no">No</a>
+            <a href="#" class="btn btn-primary w-100" data-toggle="modal" data-target="#modal_yes">
+              {% if mode == 'casc_approve' %}Submit for Reviewing?{% endif %}
+              {% if mode == 'review' %}Submit for Verifying?{% endif %}
+              {% if mode == 'verify' %}Submit for Approving?{% endif %}
+              {% if mode == 'approve' %}Approve Document?{% endif %}
+              {% if mode == 'submit' %}Send to Applicant?{% endif %}
+            </a>
             <!-- Modal Yes -->
             <div class="modal fade" id="modal_yes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
               <div class="modal-dialog" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Approve Document</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">
+                      {% if mode == 'casc_approve' %}Submit for Reviewing?{% endif %}
+                      {% if mode == 'review' %}Submit for Verifying?{% endif %}
+                      {% if mode == 'verify' %}Submit for Approving?{% endif %}
+                      {% if mode == 'approve' %}Approve Document?{% endif %}
+                      {% if mode == 'submit' %}Send to Applicant?{% endif %}
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
+                  <form action="" method="POST">
+                  {% csrf_token %}
                   <div class="modal-body">
-                    <p class="mb-0">Are you sure you want to approve this document?</p>
+                    <p class="mb-0">
+                      {% if mode == 'casc_approve' %}Are you sure you want to submit this document for reviewing?{% endif %}
+                      {% if mode == 'review' %}Are you sure you want to submit this document for verifiying?{% endif %}
+                      {% if mode == 'verify' %}Are you sure you want to submit this document for approving?{% endif %}
+                      {% if mode == 'approve' %}Are you sure you want to approve this document?{% endif %}
+                      {% if mode == 'submit' %}Are you sure you want to send this document to applicant?{% endif %}
+                    </p>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" name="yes" class="btn btn-primary">Approve</button>
+                    <button type="submit" name="approve" class="btn btn-primary">Confirm</button>
                   </div>
+                  </form>
                 </div>
               </div>
             </div>
-            <!-- Modal No -->
-            <div class="modal fade" id="modal_no" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Disapprove Document</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <p class="mb-0">Are you sure you want to disapprove this document?</p>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" name="no" class="btn btn-primary">Disapprove</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
-          </form>
         </div>
         {% endif %}
       </div>
-      <div class="col-md-6">
+      <div class="col-md-7">
         <div class="card">
           <div class="card-body">
             {% if report_type == 'qlassic_score_letter' %}
@@ -112,9 +122,6 @@
             {% endif %}
           </div>
         </div>
-      </div>
-      <div class="col-md-2">
-        <a href="#" class="btn mb-3 btn-success w-100">Send to Applicant</a>
       </div>
     </div>
 

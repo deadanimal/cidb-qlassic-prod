@@ -44,7 +44,10 @@
                   <th>Project Title</th>
                   <th>Status</th>
                   <th>DLP Status</th>
+                  {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
                   <th>Report Generation</th>
+                  {% endif %}
+                  <th>View</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -55,14 +58,80 @@
                   <th>{{ pr.get_application_status_display }}</th>
                   <th>END</th>
                   <td>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">Score Letter</button>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_report' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">Report</button>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">Certificate</button>
+                    <form action="" method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="id" value="{{ pr.id }}">
+                      <button type="submit" name="qlassic_score_letter" class="btn btn-sm btn-default w-100 mb-2 {% if pr.doc_qlassic_score_letter_status != 'pending' %}disabled{% endif %}">Score Letter</button>
+                      <button type="submit" name="qlassic_report" class="btn btn-sm btn-default w-100 mb-2 {% if pr.doc_qlassic_report_status != 'pending' %}disabled{% endif %}">Report</button>
+                      <button type="submit" name="qlassic_certificate" class="btn btn-sm btn-default w-100 mb-2 {% if pr.doc_qlassic_certificate_status != 'pending' %}disabled{% endif %}">Certificate</button>
+                    </form>
                   </td>
                   <td>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2">View Score Letter</button>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_report' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2">View Report</button>
-                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2">View Certificate</button>
+                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_score_letter_status == 'pending' %}disabled{% endif %}">Score Letter</a>
+                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_report' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_report_status == 'pending' %}disabled{% endif %}">Report</a>
+                    <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_certificate_status == 'pending' %}disabled{% endif %}">Certificate</a>
+                  </td>
+                  <td>
+                    {% comment %} CASC APPROVER {% endcomment %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
+                      {% if pr.doc_qlassic_score_letter_status == 'generated' %}
+                        <a href="{% url 'dashboard_report_casc_approve' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Overview Score Letter</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_report_status == 'generated' %}
+                        <a href="{% url 'dashboard_report_casc_approve' 'qlassic_report' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Overview Report</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_certificate_status == 'generated' %}
+                        <a href="{% url 'dashboard_report_casc_approve' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Overview Certificate</a>
+                      {% endif %}
+                    {% endif %}
+                    {% comment %} CIDB REVIEW {% endcomment %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_review' %}
+                      {% if pr.doc_qlassic_score_letter_status == 'casc_approved' %}
+                        <a href="{% url 'dashboard_report_review' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Score Letter</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_report_status == 'casc_approved' %}
+                        <a href="{% url 'dashboard_report_review' 'qlassic_report' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Report</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_certificate_status == 'casc_approved' %}
+                        <a href="{% url 'dashboard_report_review' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Certificate</a>
+                      {% endif %}
+                    {% endif %}
+                    {% comment %} CIDB VERIFY {% endcomment %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_verifier' %}
+                      {% if pr.doc_qlassic_score_letter_status == 'reviewed' %}
+                        <a href="{% url 'dashboard_report_verify' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Verify Score Letter</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_report_status == 'reviewed' %}
+                        <a href="{% url 'dashboard_report_verify' 'qlassic_report' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Verify Report</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_certificate_status == 'reviewed' %}
+                        <a href="{% url 'dashboard_report_verify' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Verify Certificate</a>
+                      {% endif %}
+                    {% endif %}
+                    {% comment %} CIDB APPROVE {% endcomment %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_approver' %}
+                      {% if pr.doc_qlassic_score_letter_status == 'verified' %}
+                        <a href="{% url 'dashboard_report_approve' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Approve Score Letter</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_report_status == 'verified' %}
+                        <a href="{% url 'dashboard_report_approve' 'qlassic_report' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Approve Report</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_certificate_status == 'verified' %}
+                        <a href="{% url 'dashboard_report_approve' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Approve Certificate</a>
+                      {% endif %}
+                    {% endif %}
+                    {% comment %} CASC APPROVAL SUBMIT {% endcomment %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
+                      {% if pr.doc_qlassic_score_letter_status == 'approved' %}
+                        <a href="{% url 'dashboard_report_submit' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Submit Score Letter</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_report_status == 'approved' %}
+                        <a href="{% url 'dashboard_report_submit' 'qlassic_report' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Submit Report</a>
+                      {% endif %}
+                      {% if pr.doc_qlassic_certificate_status == 'approved' %}
+                        <a href="{% url 'dashboard_report_submit' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Submit Certificate</a>
+                      {% endif %}
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}

@@ -69,10 +69,10 @@ def doc_test(request):
 #     return template_path
 
 # def get_url_data(request):
-    qr_url = request.build_absolute_uri()
-    host_url = request.scheme+'://'+request.META['HTTP_HOST'] 
-    url_data = {
-        'qr_url': qr_url,
-        'host_url': host_url,
-    }
-    return url_data
+    # qr_url = request.build_absolute_uri()
+    # host_url = request.scheme+'://'+request.META['HTTP_HOST'] 
+    # url_data = {
+    #     'qr_url': qr_url,
+    #     'host_url': host_url,
+    # }
+    # return url_data

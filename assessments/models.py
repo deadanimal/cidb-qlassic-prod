@@ -162,6 +162,26 @@ class QlassicAssessmentApplication(models.Model):
 
     qlassic_score = models.FloatField(null=True,blank=True, verbose_name='QLASSIC Score')
 
+    # Reporting
+    DOC_STATUS = [
+        # To follow SRS
+        ("pending",'Pending'),
+        ("generated",'Report Generated'),
+        ("casc_approved",'CASC Approved'),
+        ("reviewed",'Reviewed'),
+        ("verified",'Verified'),
+        ("approved",'Approved'),
+        ("submit",'Delivered to Applicant'),
+    ]
+    doc_qlassic_score_letter_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
+    doc_qlassic_report_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
+    doc_qlassic_certificate_status = models.CharField(null=True,default='pending',choices=DOC_STATUS,max_length=20)
+
+    # QLASSIC SCORE
+    ccd_point = models.FloatField(null=True, verbose_name="CCD Point")
+    qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score")
+    casc_qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score from CASC Approver (Leave blank for actual score)")
+
     reviewed_by = models.CharField(null=True, max_length=50)
     reviewed_date = models.DateTimeField(null=True)
     remarks1 = models.TextField(null=True, blank=True, max_length=255, verbose_name="Remarks 1 - by CASC Reviewer")
@@ -511,7 +531,7 @@ class AssessmentData(models.Model):
             sample = self.number_of_sample
 
         return round(sample)
-    
+
     # category A&B: P 40% S 40% C 20% daripada total sample
     # category C&D: P 60% S 15% C 25% dariapda total sample
     def get_ptotal(self):
@@ -685,9 +705,7 @@ class QlassicReporting(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True)
     qaa_number = models.CharField(null=True, max_length=255)
-    # pi = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE, null=True)
-    ad = models.ForeignKey(AssessmentData, on_delete=models.CASCADE, null=True)
-
+    
     report_number = models.CharField(null=True, max_length=255)
     
     TYPE_OF_REPORT = [

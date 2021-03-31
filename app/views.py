@@ -26,7 +26,7 @@ from portal.helpers import TEMPLATE_TYPE
 from trainings.helpers import get_pass_fail_translation
 
 # Forms
-from assessments.forms import DefectGroupCreateForm, SubComponentCreateForm, ElementCreateForm, ComponentCreateForm
+from assessments.forms import DefectGroupCreateForm, SubComponentCreateForm, ElementCreateForm, ComponentCreateForm, ScoreApplicationForm
 from projects.forms import VerifiedContractorForm
 from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateForm
 from trainings.forms import TrainingTypeCreateForm
@@ -94,6 +94,22 @@ def dashboard_report_list(request):
     context = {
         'projects':projects,
     }
+    if request.method == 'POST':
+        qaa_id = request.POST['id']
+        qaa = get_object_or_404(QlassicAssessmentApplication, id=qaa_id)
+        if 'qlassic_score_letter' in request.POST:
+            qaa.doc_qlassic_score_letter_status = 'generated'
+            qaa.save()
+            messages.info(request,'Succesfully generated the Score Letter.')
+        if 'qlassic_report' in request.POST:
+            qaa.doc_qlassic_report_status = 'generated'
+            qaa.save()
+            messages.info(request,'Succesfully generated the QLASSIC Report.')
+        if 'qlassic_certificate' in request.POST:
+            qaa.doc_qlassic_certificate_status = 'generated'
+            qaa.save()
+            messages.info(request,'Succesfully generated the QLASSIC Status.')
+        return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_list.html", context)
 
 @login_required(login_url="/login/")
@@ -108,6 +124,38 @@ def dashboard_qlassic_report_view(request, report_type, id):
     return render(request, "dashboard/reporting/report_detail.html", context)
 
 @login_required(login_url="/login/")
+def dashboard_report_casc_approve(request, report_type, id):
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    mode = 'casc_approve'
+    form_score = ScoreApplicationForm(instance=qaa)
+    context = {
+        'qaa':qaa,
+        'report_type':report_type,
+        'form_score':form_score,
+        'mode':mode,
+    }
+    if request.method == 'POST':
+        if 'approve' in request.POST:
+            if report_type == 'qlassic_score_letter':
+                qaa.doc_qlassic_score_letter_status = 'casc_approved'
+                messages.info(request,'Succesfully submitted the Score Letter for review.')
+            if report_type == 'qlassic_report':
+                qaa.doc_qlassic_report_status = 'casc_approved'
+                messages.info(request,'Succesfully submitted the QLASSIC Report for review.')
+            if report_type == 'qlassic_certificate':
+                qaa.doc_qlassic_certificate_status = 'casc_approved'
+                messages.info(request,'Succesfully submitted the QLASSIC Status for review.')
+            qaa.save()
+            return redirect('dashboard_report_list')
+        if 'score' in request.POST:
+            form_score = ScoreApplicationForm(request.POST,instance=qaa)
+            if form_score.is_valid():
+                form_score.save()
+                messages.info(request,'Succesfully updated the score details.')
+            return redirect('dashboard_report_casc_approve', report_type, id)
+    return render(request, "dashboard/reporting/report_detail.html", context)
+
+@login_required(login_url="/login/")
 def dashboard_report_review(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     mode = 'review'
@@ -116,6 +164,19 @@ def dashboard_report_review(request, report_type, id):
         'report_type':report_type,
         'mode':mode,
     }
+    if request.method == 'POST':
+        if 'approve' in request.POST:
+            if report_type == 'qlassic_score_letter':
+                qaa.doc_qlassic_score_letter_status = 'reviewed'
+                messages.info(request,'Succesfully reviewed the Score Letter.')
+            if report_type == 'qlassic_report':
+                qaa.doc_qlassic_report_status = 'reviewed'
+                messages.info(request,'Succesfully reviewed the QLASSIC Report.')
+            if report_type == 'qlassic_certificate':
+                qaa.doc_qlassic_certificate_status = 'reviewed'
+                messages.info(request,'Succesfully reviewed the QLASSIC Status.')
+            qaa.save()
+        return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_detail.html", context)
 
 @login_required(login_url="/login/")
@@ -127,6 +188,19 @@ def dashboard_report_verify(request, report_type, id):
         'report_type':report_type,
         'mode':mode,
     }
+    if request.method == 'POST':
+        if 'approve' in request.POST:
+            if report_type == 'qlassic_score_letter':
+                qaa.doc_qlassic_score_letter_status = 'verified'
+                messages.info(request,'Succesfully verified the Score Letter.')
+            if report_type == 'qlassic_report':
+                qaa.doc_qlassic_report_status = 'verified'
+                messages.info(request,'Succesfully verified the QLASSIC Report.')
+            if report_type == 'qlassic_certificate':
+                qaa.doc_qlassic_certificate_status = 'verified'
+                messages.info(request,'Succesfully verified the QLASSIC Status.')
+            qaa.save()
+        return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_detail.html", context)
 
 @login_required(login_url="/login/")
@@ -138,6 +212,43 @@ def dashboard_report_approve(request, report_type, id):
         'report_type':report_type,
         'mode':mode,
     }
+    if request.method == 'POST':
+        if 'approve' in request.POST:
+            if report_type == 'qlassic_score_letter':
+                qaa.doc_qlassic_score_letter_status = 'approved'
+                messages.info(request,'Succesfully approved the Score Letter.')
+            if report_type == 'qlassic_report':
+                qaa.doc_qlassic_report_status = 'approved'
+                messages.info(request,'Succesfully approved the QLASSIC Report.')
+            if report_type == 'qlassic_certificate':
+                qaa.doc_qlassic_certificate_status = 'approved'
+                messages.info(request,'Succesfully approved the QLASSIC Status.')
+            qaa.save()
+        return redirect('dashboard_report_list')
+    return render(request, "dashboard/reporting/report_detail.html", context)
+
+@login_required(login_url="/login/")
+def dashboard_report_submit(request, report_type, id):
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    mode = 'submit'
+    context = {
+        'qaa':qaa,
+        'report_type':report_type,
+        'mode':mode,
+    }
+    if request.method == 'POST':
+        if 'approve' in request.POST:
+            if report_type == 'qlassic_score_letter':
+                qaa.doc_qlassic_score_letter_status = 'submitted'
+                messages.info(request,'Succesfully submitted the Score Letter via email.')
+            if report_type == 'qlassic_report':
+                qaa.doc_qlassic_report_status = 'submitted'
+                messages.info(request,'Succesfully submitted the QLASSIC Report via email.')
+            if report_type == 'qlassic_certificate':
+                qaa.doc_qlassic_certificate_status = 'submitted'
+                messages.info(request,'Succesfully submitted the QLASSIC Status via email.')
+            qaa.save()
+        return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_detail.html", context)
 
 # def report_view(request, report_type, id):
@@ -195,6 +306,7 @@ def dashboard_report_approve(request, report_type, id):
 #        return HttpResponse('We had some errors <pre>' + html + '</pre>')
 #     return response
 
+from assessments.views import get_qlassic_score
 def qlassic_report_generate(request, report_type, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     tmpl_ctx = ''
@@ -208,8 +320,8 @@ def qlassic_report_generate(request, report_type, id):
             'contractor': qaa.pi.contractor_name,
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': '',
-            'qlassic_score': '',
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
         }
     elif report_type == 'qlassic_report':
         tmpl_ctx = {
@@ -221,8 +333,8 @@ def qlassic_report_generate(request, report_type, id):
             'contractor': qaa.pi.contractor_name,
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': '',
-            'qlassic_score': '',
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
         }
     elif report_type == 'qlassic_certificate':
         tmpl_ctx = {
@@ -234,8 +346,8 @@ def qlassic_report_generate(request, report_type, id):
             'contractor': qaa.pi.contractor_name,
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': '',
-            'qlassic_score': '',
+            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
         }
     else:
         raise Http404

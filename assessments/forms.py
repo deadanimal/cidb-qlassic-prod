@@ -156,6 +156,11 @@ class QAAApplicationForm(ModelForm):
         model = QlassicAssessmentApplication
         fields = ('building_type','proposed_date','contract_type')
 
+class ScoreApplicationForm(ModelForm):
+    class Meta:
+        model = QlassicAssessmentApplication
+        fields = ('ccd_point','casc_qlassic_score')
+
 class QAAReviewForm(ModelForm):
     class Meta:
         model = QlassicAssessmentApplication

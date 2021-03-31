@@ -149,39 +149,39 @@ def verify_contractor(contractor_registration_number):
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
-    # try:
-    session = Session()
-    session.verify = False
-    if settings.CUSTOM_DEV_MODE == 0:
-        session.verify = certificate_path
+    try:
+        session = Session()
+        session.verify = False
+        if settings.CUSTOM_DEV_MODE == 0:
+            session.verify = certificate_path
 
-    client = Client(wsdl,plugins=[history],transport=Transport(session=session))
+        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
 
-    request_data = {
-        # 'EncryptedData': '195139',
-        # 'EncryptedData': '1961018-SL009468',
-        # 'EncryptedData': '0120020729-PH073265',
-        'EncryptedData': str(contractor_registration_number),
-    }
+        request_data = {
+            # 'EncryptedData': '195139',
+            # 'EncryptedData': '1961018-SL009468',
+            # 'EncryptedData': '0120020729-PH073265',
+            'EncryptedData': str(contractor_registration_number),
+        }
 
-    response = client.service.GetContractorInfo(**request_data)
-    
-    found = False
-    message = ''
-    if response.ssmNo != None:
-        print(response.ssmNo + 'dsdasdsaoop')
-        found = True
+        response = client.service.GetContractorInfo(**request_data)
         
-    else:
-        print('not found contractor')
         found = False
-        message = 'Record not found in CIMS System. Please correct your details to verify again.'
+        message = ''
+        if response.ssmNo != None:
+            print(response.ssmNo + 'dsdasdsaoop')
+            found = True
+            
+        else:
+            print('not found contractor')
+            found = False
+            message = 'Record not found in CIMS System. Please correct your details to verify again.'
 
-    return found, message
-    # except Exception:
-    #     message = 'Error connecting with CIMS WSDL. Please contact the admin.'
-    #     print(message)
-    #     return False, message
+        return found, message
+    except Exception:
+        message = 'Error connecting with CIMS WSDL. Please contact the admin.'
+        print(message)
+        return False, message
 
 def check_applied_contractor(contractor_registration_number):
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)
