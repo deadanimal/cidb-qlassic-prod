@@ -78,7 +78,9 @@
                     {% endif %}
                     <td>
                       {% if request.user.role == 'trainee' or request.user.role == 'applicant' %}
-                          {% if tr.is_end == True %}
+                          {% if tr.is_registered == True %}
+                            <button class="btn btn-sm w-100 mb-2 btn-secondary disabled">Registered</button>
+                          {% elif tr.is_end == True %}
                             <button class="btn btn-sm w-100 mb-2 btn-secondary disabled">Ended</button>
                           {% elif tr.is_available == False %}
                             <button class="btn btn-sm w-100 mb-2 btn-secondary disabled">Not Available</button>
