@@ -331,7 +331,7 @@ if CUSTOM_DEV_MODE == 0:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     CSRF_TRUSTED_ORIGINS = [
-        'qlassicstg.cidb.gov.my'
+        'qlassicstg.cidb.gov.my',
         'qlassic.cidb.gov.my'
     ]
     ABSOLUTEURI_PROTOCOL = 'https'
