@@ -78,12 +78,13 @@
                     {% endif %}
                     <td>
                       {% if request.user.role == 'trainee' or request.user.role == 'applicant' %}
-                        <a 
-                          href="{% url 'dashboard_training_join' tr.id %}"
-                          class="btn btn-sm w-100 mb-2 {% if tr.is_available == False %}disabled btn-secondary{% else %}btn-info{% endif %}"
-                        >
-                          Register
-                        </a>
+                          {% elif tr.is_end == True %}
+                            <button class="btn btn-sm w-100 mb-2 btn-secondary disabled">Ended</button>
+                          {% elif tr.is_available == False %}
+                            <button class="btn btn-sm w-100 mb-2 btn-secondary disabled">Not Available</button>
+                          {% else%}
+                            <a href="{% url 'dashboard_training_join' tr.id %}" class="btn btn-sm w-100 mb-2 btn-info">Register</a>
+                          {% endif %}
                       {% endif %}
                       {% if request.user.role == 'cidb_reviewer' or request.user.role == 'superadmin' %}
                         <a href="{% url 'dashboard_training_participant' tr.id %}" class="btn btn-sm btn-info w-100 mb-2">View Participant</a>
