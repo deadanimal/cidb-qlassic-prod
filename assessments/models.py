@@ -511,7 +511,7 @@ class AssessmentData(models.Model):
             sample = self.number_of_sample
 
         return round(sample)
-
+    
     # category A&B: P 40% S 40% C 20% daripada total sample
     # category C&D: P 60% S 15% C 25% dariapda total sample
     def get_ptotal(self):
