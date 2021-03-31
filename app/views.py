@@ -257,15 +257,33 @@ def dashboard_report_submit(request, report_type, id):
     }
     if request.method == 'POST':
         if 'approve' in request.POST:
+            reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
+            title = ''
             if report_type == 'qlassic_score_letter':
+                title = 'QLASSIC Score Letter'
                 qaa.doc_qlassic_score_letter_status = 'submitted'
                 messages.info(request,'Succesfully submitted the Score Letter via email.')
             if report_type == 'qlassic_report':
+                title = 'QLASSIC Report'
                 qaa.doc_qlassic_report_status = 'submitted'
                 messages.info(request,'Succesfully submitted the QLASSIC Report via email.')
             if report_type == 'qlassic_certificate':
+                title = 'QLASSIC Certificate'
                 qaa.doc_qlassic_certificate_status = 'submitted'
                 messages.info(request,'Succesfully submitted the QLASSIC Status via email.')
+            
+            # Email
+            user = qaa.user
+            to = [user.email]
+            subject = "QLASSIC Assessment - " + title + ' ('+ qaa.qaa_number +')'
+            attachments = [reporting.report_file]
+            email_ctx = {
+                'title':title,
+                'qaa': qaa,
+                'user': user,
+            }
+            send_email_with_attachment(subject, to, email_ctx, 'email/qaa-cert-submit.html', attachments)
+
             qaa.save()
         return redirect('dashboard_report_list')
     return render(request, "dashboard/reporting/report_detail.html", context)
