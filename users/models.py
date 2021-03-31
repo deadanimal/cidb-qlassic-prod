@@ -163,7 +163,8 @@ class CustomUser(AbstractUser):
                 self.code_id = prefix+'{0:04d}'.format(int(last_instance_id)+1)
             else:
                 self.code_id = prefix+'{0:04d}'.format(1)
-            
+        if self.role == '':
+            self.role = 'contractor'  
         super(CustomUser, self).save(*args, **kwargs)
 
     class Meta:
