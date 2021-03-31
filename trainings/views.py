@@ -536,17 +536,18 @@ def dashboard_available_training_list(request):
             'is_registered': False,
             'is_end': False,
         }
+        for rt in registration_trainings:
+            if rt.training == tr:
+                if rt.status=="accepted" or rt.status=='need_payment':
+                    tr_dict['is_available'] = False
+                    tr_dict['is_registered'] = True
+                    break 
         if tr.attendance_review_status == 'approved':
             tr_dict['is_end'] = True
-        elif tr.is_available() == False:
-            tr_dict['is_available'] = False
         else:
-            for rt in registration_trainings:
-                if rt.training == tr:
-                    if rt.status=="accepted" or rt.status=='need_payment':
-                        tr_dict['is_available'] = False
-                        tr_dict['is_registered'] = True
-                        break 
+            if tr_dict['is_available'] == True:
+                if tr.is_available() == False:
+                    tr_dict['is_available'] = False
         filtered_trainings.append(tr_dict)
                     
 
