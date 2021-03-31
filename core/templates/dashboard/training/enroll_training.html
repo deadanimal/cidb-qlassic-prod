@@ -80,7 +80,7 @@
                       {% if request.user.role == 'trainee' or request.user.role == 'applicant' %}
                         <a 
                           href="{% url 'dashboard_training_join' tr.id %}"
-                          class="btn btn-sm btn-info w-100 mb-2 {% if tr.is_available == False %}disabled{% endif %}"
+                          class="btn btn-sm w-100 mb-2 {% if tr.is_available == False %}disabled btn-secondary{% else %}btn-info{% endif %}"
                         >
                           Register
                         </a>
