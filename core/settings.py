@@ -269,7 +269,7 @@ ACCOUNT_EMAIL_SUBJECT_PREFIX = '[QLASSIC Portal] '
 
 if CUSTOM_DEV_MODE == 0:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_USE_TLS = True
+    EMAIL_USE_TLS = False
     EMAIL_HOST = 'pro.turbo-smtp.com'
     EMAIL_HOST_USER = config('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
