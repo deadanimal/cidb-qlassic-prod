@@ -3,6 +3,7 @@ from requests import Session
 from requests.auth import HTTPBasicAuth
 from zeep.transports import Transport
 from zeep.settings import Settings
+from django.contrib import messages
 
 from zeep.plugins import HistoryPlugin
 
@@ -63,34 +64,42 @@ def request_contractor(contractor_registration_number):
 
     # session = Session()
     # session.auth = HTTPBasicAuth("RFID_INTEGRATION", "Rfid_1nt")
+    session = Session()
+    session.verify = False
 
     # client = Client(wsdl, transport=Transport(session=session),
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
-    client = Client(wsdl,plugins=[history])
-    request_data = {
-        # 'EncryptedData': '195139',
-        # 'EncryptedData': '1961018-SL009468',
-        # 'EncryptedData': '0120020729-PH073265',
-        'EncryptedData': str(contractor_registration_number),
-    }
+    try:
+        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
+        request_data = {
+            # 'EncryptedData': '195139',
+            # 'EncryptedData': '1961018-SL009468',
+            # 'EncryptedData': '0120020729-PH073265',
+            'EncryptedData': str(contractor_registration_number),
+        }
 
-    contractor = client.service.GetContractorInfo(**request_data)
-    projects = None
-    if contractor.projectList == None:
+        contractor = client.service.GetContractorInfo(**request_data)
         projects = None
-    else:
-        projects = contractor.projectList.ProjectInfo
-    # To get grade value
-    specialization_list = contractor.specialization.SpecializationInfo
-    grade = ''
-    for specialization in specialization_list:
-        if specialization.Specialization.find('B04') != -1:
-            grade = specialization.Grade
-            break
+        if contractor.projectList == None:
+            projects = None
+        else:
+            projects = contractor.projectList.ProjectInfo
+        # To get grade value
+        specialization_list = contractor.specialization.SpecializationInfo
+        grade = ''
+        for specialization in specialization_list:
+            if specialization.Specialization.find('B04') != -1:
+                grade = specialization.Grade
+                break
 
-    return contractor, projects, grade
+        return contractor, projects, grade
+    
+    except Exception:
+        print('Error connecting with CIMS WSDL')
+        return None, None, ''
+
 
 def test_request_contractor(request):
     wsdl = CIMS_WSDL
@@ -102,16 +111,25 @@ def test_request_contractor(request):
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
-    client = Client(wsdl,plugins=[history])
-    request_data = {
-        # 'EncryptedData': '195139',
-        'EncryptedData': '1961018-SL009468',
-        # 'EncryptedData': '0120020729-PH073265',
-    }
+    try:
+        session = Session()
+        session.verify = False
 
-    response = client.service.GetContractorInfo(**request_data)
+        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
+    
+        request_data = {
+            # 'EncryptedData': '195139',
+            'EncryptedData': '1961018-SL009468',
+            # 'EncryptedData': '0120020729-PH073265',
+        }
 
-    return HttpResponse(str(response))
+        response = client.service.GetContractorInfo(**request_data)
+        
+        return HttpResponse(str(response))
+    except Exception:
+        messages.warning(request, 'Error connecting with CIMS WSDL')
+        return HttpResponse(str('Error connecting with CIMS WSDL'))
+    
 
 def verify_contractor(contractor_registration_number):
     wsdl = CIMS_WSDL
@@ -123,25 +141,33 @@ def verify_contractor(contractor_registration_number):
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
-    client = Client(wsdl,plugins=[history])
-    request_data = {
-        # 'EncryptedData': '195139',
-        # 'EncryptedData': '1961018-SL009468',
-        # 'EncryptedData': '0120020729-PH073265',
-        'EncryptedData': str(contractor_registration_number),
-    }
+    try:
+        session = Session()
+        session.verify = False
 
-    response = client.service.GetContractorInfo(**request_data)
-    
-    found = False
-    if response.ssmNo != None:
-        print(response.ssmNo + 'dsdasdsaoop')
-        found = True
-    else:
-        print('not found contractor')
+        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
+
+        request_data = {
+            # 'EncryptedData': '195139',
+            # 'EncryptedData': '1961018-SL009468',
+            # 'EncryptedData': '0120020729-PH073265',
+            'EncryptedData': str(contractor_registration_number),
+        }
+
+        response = client.service.GetContractorInfo(**request_data)
+        
         found = False
+        if response.ssmNo != None:
+            print(response.ssmNo + 'dsdasdsaoop')
+            found = True
+        else:
+            print('not found contractor')
+            found = False
 
-    return found
+        return found
+    except Exception:
+        print('Error connecting with CIMS WSDL')
+        return False
 
 def check_applied_contractor(contractor_registration_number):
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)
