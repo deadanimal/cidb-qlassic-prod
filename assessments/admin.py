@@ -21,7 +21,7 @@ class ElementResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result', 'element_code', 'dg_name', 'created_date')
 
 class AssignedAssessorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'ad', 'role_in_assessment', 'complete', 'created_date')
+    list_display = ('id', 'assessor', 'ad', 'role_in_assessment', 'complete', 'created_date')
 
 admin.site.register(QlassicAssessmentApplication, QAAAdmin)
 admin.site.register(SupportingDocuments, SDAdmin)
