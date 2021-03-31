@@ -59,6 +59,7 @@ def get_project(contractor_registration_number):
 
 def request_contractor(contractor_registration_number):
     wsdl = CIMS_WSDL
+    print(wsdl)
 
     # session = Session()
     # session.auth = HTTPBasicAuth("RFID_INTEGRATION", "Rfid_1nt")
