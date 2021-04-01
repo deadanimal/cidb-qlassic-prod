@@ -20,7 +20,7 @@ def encrypt_data_rsa(data):
     return encrypted_data
 
 # Decrypt
-def encrypt_data_rsa(encrypted_data):
+def decrypt_data_rsa(encrypted_data):
     private_key = RSA.import_key(open(private_key).read())
 
     # Decrypt the session key with the private RSA key
