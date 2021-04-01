@@ -166,7 +166,8 @@ def verify_contractor(contractor_registration_number):
             'EncryptedData': encrypt_data_rsa(str(contractor_registration_number)),
         }
 
-        response = client.service.GetContractorInfo(**request_data)
+        # response = client.service.GetContractorInfo(**request_data)
+        response = client.service.GetContractorInfoWithEnc(**request_data)
         
         found = False
         message = ''
