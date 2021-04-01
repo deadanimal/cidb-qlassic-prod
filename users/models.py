@@ -244,7 +244,7 @@ class WorkExperience(models.Model):
     modified_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.user
+        return self.user.name
 
 class Assessor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
