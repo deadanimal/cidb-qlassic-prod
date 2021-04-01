@@ -3,8 +3,8 @@ from Crypto.PublicKey import RSA
 # from Crypto.Random import get_random_bytes
 from Crypto.Cipher import PKCS1_OAEP
 
-public_key = "receiver.pem"
-private_key = "private.pem"
+public_key = "C:/nginx/ssl/star_cidb_gov_my.pem"
+private_key = "C:/nginx/ssl/qlassicstg.key"
 
 
 # Encrypt

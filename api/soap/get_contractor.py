@@ -17,6 +17,8 @@ from decouple import config
 from projects.models import Contractor, ProjectInfo
 from assessments.models import QlassicAssessmentApplication
 
+from api.helpers.crypto import encrypt_data_rsa, decrypt_data_rsa
+
 import json
 import requests
 import xmltodict
@@ -161,7 +163,7 @@ def verify_contractor(contractor_registration_number):
             # 'EncryptedData': '195139',
             # 'EncryptedData': '1961018-SL009468',
             # 'EncryptedData': '0120020729-PH073265',
-            'EncryptedData': str(contractor_registration_number),
+            'EncryptedData': encrypt_data_rsa(str(contractor_registration_number)),
         }
 
         response = client.service.GetContractorInfo(**request_data)
