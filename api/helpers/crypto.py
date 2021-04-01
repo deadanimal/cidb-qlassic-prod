@@ -11,7 +11,6 @@ private_key = "private.pem"
 def encrypt_data_rsa(data):
     # data = "I met aliens in UFO. Here is the map.".encode("utf-8")
     file_out = open("encrypted_data.bin", "wb")
-
     recipient_key = RSA.import_key(open(public_key).read())
     # session_key = get_random_bytes(16)
 
