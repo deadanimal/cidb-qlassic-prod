@@ -52,6 +52,7 @@ Pillow==8.0.1
 psycopg2==2.8.6
 pycodestyle==2.6.0
 pycparser==2.20
+pycryptodome==3.10.1
 PyJWT==1.7.1
 PyPDF2==1.26.0
 python-bidi==0.4.2
