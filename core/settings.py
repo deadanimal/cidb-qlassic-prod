@@ -169,7 +169,7 @@ db_from_env = dj_database_url.config(default=config('DATABASE_URL', default=None
 DATABASES['default'].update(db_from_env)
 
 if any(db_from_env):
-    use_mssql = config('USE_MSSQL', default=False)
+    use_mssql = config('USE_MSSQL', default=0)
     if use_mssql == True:
         DATABASES['default']['ENGINE'] = 'sql_server.pyodbc'
         DATABASES['default']['OPTIONS']['driver'] = 'ODBC Driver 13 for SQL Server'
