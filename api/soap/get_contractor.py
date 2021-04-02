@@ -25,6 +25,7 @@ import xmltodict
 import datetime
 
 CIMS_WSDL = config('CIMS_WSDL', default='http://202.171.33.96/CIMSService/CIMSService.svc?wsdl')
+# CIMS_WSDL = 'http://202.171.33.96/CIMSService/CIMSService.svc?wsdl'
 # CIMS_WSDL = config('CIMS_WSDL', default='http://cims.cidb.gov.my/CIMSService/CIMSService.svc?wsdl')
 certificate_path = 'C:/nginx/ssl/qlassic_cidb_gov_my.pem'
 if settings.CUSTOM_STG_MODE == 1:
@@ -74,40 +75,37 @@ def request_contractor(contractor_registration_number):
     # client = Client(wsdl, transport=Transport(session=session),
     #                 settings=Settings(strict=False, raw_response=True))
     
-    history = HistoryPlugin()
-    try:
-        session = Session()
-        session.verify = False
-        if settings.CUSTOM_DEV_MODE == 0:
-            session.verify = certificate_path
-        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
-        request_data = {
-            # 'EncryptedData': '195139',
-            # 'EncryptedData': '1961018-SL009468',
-            # 'EncryptedData': '0120020729-PH073265',
-            'EncryptedData': str(contractor_registration_number),
-        }
+    session = Session()
+    session.verify = False
+    client = Client(
+        wsdl, 
+        transport=Transport(session=session),
+        settings=Settings(strict=False)
+    )
 
-        contractor = client.service.GetContractorInfo(**request_data)
+    request_data = {
+        # 'EncryptedData': '195139',
+        # 'EncryptedData': '1961018-SL009468',
+        # 'EncryptedData': '0120020729-PH073265',
+        'EncryptedData': (str(contractor_registration_number).encode("utf-8")),
+    }
+
+    contractor = client.service.GetContractorInfoNoEnc(**request_data)
+
+    projects = None
+    if contractor.projectList == None:
         projects = None
-        if contractor.projectList == None:
-            projects = None
-        else:
-            projects = contractor.projectList.ProjectInfo
-        # To get grade value
-        specialization_list = contractor.specialization.SpecializationInfo
-        grade = ''
-        for specialization in specialization_list:
-            if specialization.Specialization.find('B04') != -1:
-                grade = specialization.Grade
-                break
+    else:
+        projects = contractor.projectList.ProjectInfo
+    # To get grade value
+    specialization_list = contractor.specialization.SpecializationInfo
+    grade = ''
+    for specialization in specialization_list:
+        if specialization.Specialization.find('B04') != -1:
+            grade = specialization.Grade
+            break
 
-        return contractor, projects, grade
-    
-    except Exception:
-        print('Error connecting with CIMS WSDL')
-        return None, None, ''
-
+    return contractor, projects, grade
 
 def test_request_contractor(request):
     wsdl = CIMS_WSDL
@@ -151,40 +149,35 @@ def verify_contractor(contractor_registration_number):
     #                 settings=Settings(strict=False, raw_response=True))
     
     history = HistoryPlugin()
-    try:
-        session = Session()
-        session.verify = False
-        if settings.CUSTOM_DEV_MODE == 0:
-            session.verify = certificate_path
 
-        client = Client(wsdl,plugins=[history],transport=Transport(session=session))
+    session = Session()
+    session.verify = False
+    client = Client(
+        wsdl, 
+        transport=Transport(session=session),
+        settings=Settings(strict=False)
+    )
 
-        request_data = {
-            # 'EncryptedData': '195139',
-            # 'EncryptedData': '1961018-SL009468',
-            # 'EncryptedData': '0120020729-PH073265',
-            'EncryptedData': encrypt_data_rsa(str(contractor_registration_number)),
-        }
+    request_data = {
+        # 'EncryptedData': '195139',
+        # 'EncryptedData': '1961018-SL009468',
+        # 'EncryptedData': '0120020729-PH073265',
+        'EncryptedData': (str(contractor_registration_number).encode("utf-8")),
+    }
 
-        # response = client.service.GetContractorInfo(**request_data)
-        response = client.service.GetContractorInfoWithEnc(**request_data)
+    response = client.service.GetContractorInfoNoEnc(**request_data)
+    print(response)
+    found = False
+    message = ''
+    if response.ssmNo != None:
+        found = True
         
+    else:
+        print('not found contractor')
         found = False
-        message = ''
-        if response.ssmNo != None:
-            print(response.ssmNo + 'dsdasdsaoop')
-            found = True
-            
-        else:
-            print('not found contractor')
-            found = False
-            message = 'Record not found in CIMS System. Please correct your details to verify again.'
+        message = 'Record not found in CIMS System. Please correct your details to verify again.'
 
-        return found, message
-    except Exception:
-        message = 'Error connecting with CIMS WSDL. Please contact the admin.'
-        print(message)
-        return False, message
+    return found, message
 
 def check_applied_contractor(contractor_registration_number):
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)

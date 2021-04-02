@@ -9,7 +9,10 @@ def job_remove_temp():
         shutil.rmtree(TEMPLATE_TEMP_PATH) 
         print('JOB: Clear up tmp folder')
 
+# Models
 from billings.models import Payment
+from projects.models import Contractor
+
 from api.soap.create_transaction import cancel_proforma
 import datetime
 from django.utils.timezone import localtime, now
@@ -33,3 +36,9 @@ def job_remove_failed_sync():
     sync_results = SyncResult.objects.all().filter(sync_complete=False)
     if len(sync_results) > 0:
         sync_results.delete()
+
+def job_update_contractor_info():
+    print("Cron: Update Contractor Results")
+    current_contractors = Contractor.objects.all()
+    distinct_contractor = Contractor.objects.all().distinct('contractor_registration_number')
+    
