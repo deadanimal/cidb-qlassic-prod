@@ -734,7 +734,7 @@ def dashboard_verified_contractor_id(request, id):
             else:
                 messages.warning(request, error_message)
 
-        return redirect('dashboard_verified_contractor_id', id)
+        return redirect('dashboard_verified_contractor')
     context = {"vc": vc,'form_vc':form_vc}
     return render(request, "dashboard/management/verified_contractor_id.html", context)
 
