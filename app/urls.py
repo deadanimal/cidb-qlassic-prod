@@ -57,6 +57,6 @@ urlpatterns = [
     # Matches any html file
     # re_path(r'^.*\.*', views.pages, name='pages'),
 
-    # Tester
-    path('docx/view/', views.view_pdf, name='doc_test'),
+    # Test anythong here
+    path('sandbox/', views.sandbox, name='sandbox'),
 ]

@@ -11,9 +11,12 @@ def job_remove_temp():
 
 # Models
 from billings.models import Payment
-from projects.models import Contractor
+from projects.models import Contractor, VerifiedContractor
 
+# API
 from api.soap.create_transaction import cancel_proforma
+from api.soap.get_contractor import get_project
+
 import datetime
 from django.utils.timezone import localtime, now
 from django.db.models import Q
@@ -39,6 +42,15 @@ def job_remove_failed_sync():
 
 def job_update_contractor_info():
     print("Cron: Update Contractor Results")
+    verified_contractors = VerifiedContractor.objects.all().distinct('contractor_registration_number')
     current_contractors = Contractor.objects.all()
-    distinct_contractor = Contractor.objects.all().distinct('contractor_registration_number')
-    
+
+    count = 0 # check if there is new data
+    for ver in verified_contractors:
+        ver.contractor_registration_number
+        updated = get_project(ver.contractor_registration_number)
+        count += len(updated)
+
+    if count < 1:
+        if len(current_contractors) > 0:
+            current_contractors.delete()
