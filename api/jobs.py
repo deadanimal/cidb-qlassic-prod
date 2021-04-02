@@ -44,13 +44,11 @@ def job_update_contractor_info():
     print("Cron: Update Contractor Results")
     verified_contractors = VerifiedContractor.objects.all().distinct('contractor_registration_number')
     current_contractors = Contractor.objects.all()
+    if len(current_contractors) > 0:
+        current_contractors.delete()
 
     count = 0 # check if there is new data
     for ver in verified_contractors:
         ver.contractor_registration_number
         updated = get_project(ver.contractor_registration_number)
         count += len(updated)
-
-    if count < 1:
-        if len(current_contractors) > 0:
-            current_contractors.delete()
