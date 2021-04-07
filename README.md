@@ -1,7 +1,7 @@
 # cidb-qlassic-prod
 Production Version of CDIB QLASSIC
 
-## NOTES
+## NOTES (Prerequisite)
 
 ### Variable to be added in .env file
 
@@ -21,3 +21,10 @@ STG=1
 PROD=1
 USE_MSSQL=1
 ```
+
+### Change site_id
+- Change the site_id in django admin to the domain/localhost to be used when running the server. You must be a superuser in order to change the setting in django admin.
+
+Site_id Example:
+127.0.0.1:8000
+qlassic.cidb.gov.my
