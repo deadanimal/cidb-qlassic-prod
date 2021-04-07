@@ -27,4 +27,6 @@ USE_MSSQL=1
 
 Site_id Example:
 - 127.0.0.1:8000
+- qlassicstg.cidb.gov.my
 - qlassic.cidb.gov.my
+
