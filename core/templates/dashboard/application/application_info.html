@@ -564,83 +564,39 @@
 
               <h3 class="mt-3">SUPPORTING DOCUMENTS</h3>
               <hr class="my-1">
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SURAT PENGESAHAN PEMILIKAN KOSONG ATAU VACANT(VP) OLEH PEMILIK PROJEK/KLIEN</label>
-                    <p>{% if sd_1 %}<a href="{{ sd_1.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
+              {% for sd in supporting_documents %}
+                <div class="form-group">
+                  <label for="" class="form-control-label">{{ sd.title }}</label>
+                  <p class="mb-0"><strong>Original: </strong>{% if sd.sd.file %}<a href="{{ sd.sd.file.url }}">Download</a>{% else %}None{% endif %}</p>
+                  <p class="mb-0"><strong>Reviewed: </strong>{% if sd.sd.reviewed_file %}<a href="{{ sd.sd.reviewed_file.url }}">Download</a>{% else %}None{% endif %}</p>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SURAT PERAKUAN SIAP KERJA OLEH ARKITEK</label>
-                    <p>{% if sd_2 %}<a href="{{ sd_2.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SURAT PENGESAHAN OLEH ARKITEK</label>
-                    <p>{% if sd_3 %}<a href="{{ sd_3.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SALINAN SURAT TAWARAN PROJEK/PROJECTS LETTER OF AWARD</label>
-                    <p>{% if sd_4 %}<a href="{{ sd_4.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SALINAN PELAN LOKASI TAPAK/SITE LOCATION MAP</label>
-                    <p>{% if sd_5 %}<a href="{{ sd_5.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SALINAN PROJECT LAYOUT</label>
-                    <p>{% if sd_6 %}<a href="{{ sd_6.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SALINAN FLOOR PLAN</label>
-                    <p>{% if sd_7 %}<a href="{{ sd_7.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SALINAN EXTERNAL WORKS LAYOUT PLAN (Jika berkenaan)</label>
-                    <p>{% if sd_8 %}<a href="{{ sd_8.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="form-control-label">SURAT PERAKUAN</label>
-                    <p>{% if sd_9 %}<a href="{{ sd_9.file.url }}">Download</a>{% else %}None{% endif %}</p>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
           </div>
         </div>
       </div>
       {% if mode == 'review' or mode == 'verify' %}
         <div class="col-lg-5">
+          <div class="card">
+            <div class="card-header text-center">
+              <h2 class="mb-0">Review Supporting Documents</h2>
+            </div>
+            <div class="card-body">
+              <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for sd in supporting_documents %}
+                  <div class="form-group">
+                    <label for="" class="form-control-label">{{ sd.title }}</label>
+                    <p class="mb-0"><strong>Original: </strong>{% if sd.sd.file %}<a href="{{ sd.sd.file.url }}">Download</a>{% else %}None{% endif %}</p>
+                    <p class="mb-0"><strong>Reviewed: </strong>{% if sd.sd.reviewed_file %}<a href="{{ sd.sd.reviewed_file.url }}">Download</a>{% else %}None{% endif %}</p>
+                    <input type="file" class="form-control" name="{{ sd.name }}">
+                  </div>
+                {% endfor %}
+                <div class="d-flex justify-content-center">
+                  <button type="submit" name="review_sd" class="btn btn-primary">Save</a>
+                </div>
+              </form>
+            </div>
+          </div>
           <div class="card">
             <div class="card-header text-center">
               <h2 class="mb-0">To be filled by 

@@ -320,8 +320,11 @@ class GetDocumentView(APIView):
                 doc_json = {
                     'id': doc.id,
                     'name': get_qaa_sd_name(doc.file_name),
-                    'link': doc.file.url,
                 }
+                if doc.reviewed_file != None:
+                    doc_json['link'] = doc.reviewed_file.url
+                else:
+                    doc_json['link'] = doc.file.url
                 context.append(doc_json)
 
         except QlassicAssessmentApplication.DoesNotExist:

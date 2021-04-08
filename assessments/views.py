@@ -20,6 +20,7 @@ from billings.models import Payment
 import requests
 
 from core.helpers import get_state_code, get_sector_code, send_email_default, get_domain
+from .helpers import get_qaa_sd_name
 
 # Forms
 from users.forms import UserUpdateForm
@@ -405,28 +406,11 @@ def dashboard_application_info(request, id):
     mode = ''
 
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'mode': mode,
         'qaa':qaa,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents':supporting_documents,
     }
         
     return render(request, "dashboard/application/application_info.html", context)
@@ -436,30 +420,13 @@ def dashboard_application_info_assessor(request, id, assessor_mode):
     mode = ''
 
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'mode': mode,
         'assessor_view': True,
         'assessor_mode': assessor_mode,
         'qaa':qaa,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents':supporting_documents,
     }
         
     return render(request, "dashboard/application/application_info.html", context)
@@ -470,29 +437,13 @@ def dashboard_application_review(request, id):
 
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     form_review = QAAReviewForm(instance=qaa)
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+ 
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'mode': mode,
         'qaa':qaa,
         'form_review':form_review,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents': supporting_documents
     }
 
     # Add special element that sub_component type is zero
@@ -564,7 +515,14 @@ def dashboard_application_review(request, id):
             else:
                 messages.warning(request,'Problem with reviewing the application:'+form_review.errors.as_text())
                 return redirect('dashboard_application_review', qaa.id)
-        
+        if 'review_sd' in request.POST:
+            status = save_reviewed_supporting_documents(request, supporting_documents)
+            if status == True:
+                messages.info(request,'Successfully uploaded the reviewed document.')
+            else:
+                messages.warning(request,'Problem with uploading the reviewed document.')
+            return redirect('dashboard_application_review', qaa.id)
+
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
@@ -574,29 +532,13 @@ def dashboard_application_verify(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
 
     form_verify = QAAVerifyForm(instance=qaa)
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'mode': mode,
         'qaa':qaa,
         'form_verify':form_verify,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents':supporting_documents,
     }
 
     add_component_form(context, qaa)
@@ -677,6 +619,14 @@ def dashboard_application_verify(request, id):
             else:
                 messages.warning(request,'Problem with verifying the application:'+form_verify.errors.as_text())
                 return redirect('dashboard_application_verify', qaa.id)
+        if 'review_sd' in request.POST:
+            status = save_reviewed_supporting_documents(request, supporting_documents)
+            if status == True:
+                messages.info(request,'Successfully uploaded the reviewed document.')
+            else:
+                messages.warning(request,'Problem with uploading the reviewed document.')
+            return redirect('dashboard_application_review', qaa.id)
+    
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
@@ -932,29 +882,12 @@ def dashboard_application_assessor_assign(request, id):
     pi = qaa.pi
     suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
     
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'suggested_assessors':suggested_assessors,
         'mode': mode,
         'qaa':qaa,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents':supporting_documents,
     }
     if request.method == 'POST':
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
@@ -994,30 +927,13 @@ def dashboard_application_assessor_approve(request, id):
     qaa = suggested_assessor.qaa
     assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
 
-    sd = SupportingDocuments.objects.all().filter(qaa=qaa)
-    sd_1, created = sd.get_or_create(qaa=qaa, file_name='sd_1')
-    sd_2, created = sd.get_or_create(qaa=qaa, file_name='sd_2')
-    sd_3, created = sd.get_or_create(qaa=qaa, file_name='sd_3')
-    sd_4, created = sd.get_or_create(qaa=qaa, file_name='sd_4')
-    sd_5, created = sd.get_or_create(qaa=qaa, file_name='sd_5')
-    sd_6, created = sd.get_or_create(qaa=qaa, file_name='sd_6')
-    sd_7, created = sd.get_or_create(qaa=qaa, file_name='sd_7')
-    sd_8, created = sd.get_or_create(qaa=qaa, file_name='sd_8')
-    sd_9, created = sd.get_or_create(qaa=qaa, file_name='sd_9')
+    supporting_documents = get_supporting_documents(qaa)
     context = {
         'suggested_assessor':suggested_assessor,
         'mode': mode,
         'assessor_view': True,
         'qaa': qaa,
-        'sd_1':sd_1,
-        'sd_2':sd_2,
-        'sd_3':sd_3,
-        'sd_4':sd_4,
-        'sd_5':sd_5,
-        'sd_6':sd_6,
-        'sd_7':sd_7,
-        'sd_8':sd_8,
-        'sd_9':sd_9,
+        'supporting_documents':supporting_documents,
     }
     if request.method == 'POST':
         if 'reject' in request.POST:
@@ -1091,6 +1007,49 @@ def dashboard_application_assessor_change(request, id):
 from decimal import Decimal
 
 ## Functions
+def get_supporting_documents(qaa):
+    index = ['1','2','3','4','5','6','7','8','9']
+    supporting_documents = []
+    sds = SupportingDocuments.objects.all().filter(qaa=qaa)
+    for i in index:
+        name = "sd_" + i
+        sd, created = sds.get_or_create(qaa=qaa, file_name=name)
+        supporting_documents.append({
+            'no':i,
+            'name':name,
+            'title':get_qaa_sd_name(name),
+            'sd':sd
+        })
+
+    return supporting_documents
+
+## Will return form valid status (True or False)
+def save_supporting_documents(request, supporting_documents):
+    form_sd = SupportingDocumentsUploadForm(request.POST,request.FILES)
+    if form_sd.is_valid():
+        for sd in supporting_documents:
+            data_sd = form_sd.cleaned_data.get(sd['name'])
+            if data_sd != None:
+                supporting_documents.sd.file = data_sd
+                supporting_documents.sd.save()
+        return True
+    else:
+        return False
+
+def save_reviewed_supporting_documents(request, supporting_documents):
+    form_sd = SupportingDocumentsUploadForm(request.POST,request.FILES)
+    if form_sd.is_valid():
+        for sd in supporting_documents:
+            name = sd['name']
+            data_sd = form_sd.cleaned_data.get(sd['name'])
+            print(name+str(data_sd))
+            if data_sd != None:
+                sd['sd'].reviewed_file = data_sd
+                sd['sd'].save()
+        return True
+    else:
+        return False
+
 def add_component_form(context, qaa):
     component_form = []
 

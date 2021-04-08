@@ -185,11 +185,11 @@ class QlassicAssessmentApplication(models.Model):
     qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score")
     casc_qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score from CASC Approver (Leave blank for actual score)")
 
-    reviewed_by = models.CharField(null=True, max_length=50)
-    reviewed_date = models.DateTimeField(null=True)
+    reviewed_by = models.CharField(null=True,blank=True, max_length=50)
+    reviewed_date = models.DateTimeField(null=True,blank=True)
     remarks1 = models.TextField(null=True, blank=True, max_length=255, verbose_name="Remarks 1 - by CASC Reviewer")
-    verified_by = models.CharField(null=True, max_length=50)
-    verified_date = models.DateTimeField(null=True)
+    verified_by = models.CharField(null=True,blank=True, max_length=50)
+    verified_date = models.DateTimeField(null=True,blank=True)
     remarks2 = models.TextField(null=True, blank=True, max_length=255, verbose_name="Remarks 2 - by CASC Verifier")
     # approved_by = models.CharField(null=True, max_length=50)
     # approved_date = models.DateTimeField(null=True)
@@ -590,6 +590,7 @@ class SupportingDocuments(models.Model):
     
     file_name = models.CharField(null=True, max_length=255)
     file = models.FileField(null=True, max_length=255, upload_to=PathAndRename('documents'), validators=[file_size_validator])
+    reviewed_file = models.FileField(null=True, max_length=255, upload_to=PathAndRename('documents/reviewed'), validators=[file_size_validator])
     
     upload_date = models.DateTimeField(auto_now_add=True)
 
