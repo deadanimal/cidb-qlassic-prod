@@ -30,3 +30,5 @@ Site_id Example:
 - qlassicstg.cidb.gov.my
 - qlassic.cidb.gov.my
 
+### Install LibreOffice
+- Some functions require libreoffice software in order to make it functional.

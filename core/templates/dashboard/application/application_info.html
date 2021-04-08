@@ -692,6 +692,20 @@
                     <input type="text" name="assessment_date" value="{{ qaa.proposed_date }}" class="dateinput form-control" required="">
                   </div>
                 {% endif %}
+                {% if component_form %}
+                  <div class="mb-3">
+                    <h3>Awarded Elements</h3>
+                    {% for comp in component_form %}
+                      <h4>{{ comp.name }}</h4>
+                      {% for elem in comp.elements %}
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="{{ elem.id }}" id="{{ elem.id }}" {% if elem.checked %}checked{% endif %}>
+                        <label class="form-check-label" for="{{ elem.id }}">{{ elem.name }} ({{ elem.score }})</label>
+                      </div>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
 
                 <div class="d-flex justify-content-center">
                   <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_reject">Reject</a>

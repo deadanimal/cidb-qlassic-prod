@@ -494,6 +494,10 @@ def dashboard_application_review(request, id):
         'sd_8':sd_8,
         'sd_9':sd_9,
     }
+
+    # Add special element that sub_component type is zero
+    add_component_form(context, qaa)
+
     if request.method == 'POST':
         if 'reject' in request.POST or 'reject_amendment' in request.POST:
             if 'reject' in request.POST:
@@ -526,6 +530,9 @@ def dashboard_application_review(request, id):
         if 'accept' in request.POST:
             form_review = QAAReviewForm(request.POST, instance=qaa)
             if form_review.is_valid():
+
+                validate_component_form(context, request, qaa)
+
                 form_review.save()
                 qaa.reviewed_by = request.user.name
                 qaa.reviewed_date = datetime.datetime.now()
@@ -591,6 +598,9 @@ def dashboard_application_verify(request, id):
         'sd_8':sd_8,
         'sd_9':sd_9,
     }
+
+    add_component_form(context, qaa)
+
     if request.method == 'POST':
         if 'reject' in request.POST or 'reject_amendment' in request.POST:
             if 'reject' in request.POST:
@@ -599,6 +609,7 @@ def dashboard_application_verify(request, id):
             if 'reject_amendment' in request.POST:
                 qaa.application_status = 'rejected_amendment'
                 messages.info(request,'Successfully rejected (with amendment) the application')
+
             qaa.remarks2 = request.POST['remarks2']
             qaa.verified_by = request.user.name
             qaa.verified_date = datetime.datetime.now()
@@ -617,6 +628,9 @@ def dashboard_application_verify(request, id):
         if 'accept' in request.POST:
             form_verify = QAAVerifyForm(request.POST, instance=qaa)
             if form_verify.is_valid():
+
+                validate_component_form(context, request, qaa)
+
                 form_verify.save()
                 qaa.verified_by = request.user.name
                 qaa.verified_date = datetime.datetime.now()
@@ -1077,6 +1091,56 @@ def dashboard_application_assessor_change(request, id):
 from decimal import Decimal
 
 ## Functions
+def add_component_form(context, qaa):
+    component_form = []
+
+    sub_components = SubComponent.objects.all().filter(type=0)
+    element_results = ElementResult.objects.all().filter(qaa=qaa)
+    for sub_component in sub_components:
+        elements = Element.objects.all().filter(sub_component=sub_component)
+        dict_sub_element = {
+            'name': sub_component.name,
+            'elements': []
+        }
+        for element in elements:
+
+            form_element = {
+                'name': element.name,
+                'id': 'sub_component_id_' + str(element.id),
+                'code': element.code_id,
+                'no_of_check': element.no_of_check,
+                'score': element.weightage
+            }
+            for result in element_results:
+                if form_element['code'] == result.element_code:
+                    if result.total_check > 0:
+                        form_element['checked'] = True
+                    break
+            dict_sub_element['elements'].append(form_element)
+        component_form.append(dict_sub_element)
+    
+    if len(component_form) > 0:
+        context['component_form'] = component_form
+
+def validate_component_form(context, request, qaa):
+    for component in context['component_form']:
+        for element in component['elements']:
+            code = element['code']
+            form_name = str(element['id'])
+            form = request.POST.get(form_name,'')
+            # element_id = form_name.replace('sub_component_id_','')
+            element_result, created = ElementResult.objects.get_or_create(qaa=qaa, element_code=code)
+            if form != 'on':
+                element_result.delete()
+            else:
+                no_of_check = element['no_of_check']
+                element_result.element_name = element['name']
+                element_result.result = '[\'Yes\']'
+                element_result.total_compliance = no_of_check
+                element_result.total_check = no_of_check
+                element_result.save()
+            
+
 def get_qaa_result(qaa):
     components = Component.objects.all().order_by('created_date')
     element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
@@ -1269,16 +1333,16 @@ def get_qaa_result(qaa):
                         score_sc['name'] = subcomponent['name']
                         score_sc['total_weightage'] = subcomponent['actual_weightage']
                         score_sc['elements'] = []
-                        if subcomponent['type'] == 0:
-                            total_score_element = 0
-                            if 'elements' in subcomponent:
-                                for element in subcomponent['elements']:
-                                    if element['total_check'] != 0:
-                                        element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
-                                        total_score_element += element_score
-                            score_sc['score'] = 0
+                        # if subcomponent['type'] == 0:
+                        #     total_score_element = 0
+                        #     if 'elements' in subcomponent:
+                        #         for element in subcomponent['elements']:
+                        #             if element['total_check'] != 0:
+                        #                 element_score = float(element['total_compliance']) / float(element['total_check']) * float(element['actual_weightage'])
+                        #                 total_score_element += element_score
+                        #     score_sc['score'] = 0
                         # score_sc_array.append(score_sc)
-                        if subcomponent['type'] == 3 or subcomponent['type'] == 2:
+                        if subcomponent['type'] == 3 or subcomponent['type'] == 2 or subcomponent['type'] == 0:
                             if 'elements' in subcomponent:
                                 for element in subcomponent['elements']:
                                     score_e = {}
@@ -1323,16 +1387,21 @@ def get_qaa_result(qaa):
     return score
 
 def get_qlassic_score(qaa):
-    if qaa.casc_qlassic_score != None:
-        return qaa.casc_qlassic_score
-    elif qaa.qlassic_score != None:
-        return qaa.qlassic_score
-    else:
+    if qaa.qlassic_score == None:
         score_obj = get_qaa_result(qaa)
         score = score_obj['score']
         qaa.qlassic_score = score
         qaa.save()
-        return score
+    if qaa.casc_qlassic_score != None:
+        return qaa.casc_qlassic_score
+    else:
+        return qaa.qlassic_score
+
+def generate_qlassic_score(qaa):
+    score_obj = get_qaa_result(qaa)
+    score = score_obj['score']
+    qaa.qlassic_score = score
+    qaa.save()
 
 ## AJAX
 @login_required(login_url="/login/")

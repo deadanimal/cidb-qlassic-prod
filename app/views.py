@@ -453,9 +453,11 @@ from api.jobs import job_update_contractor_info
 
 @login_required(login_url="/login/")
 def sandbox(request):
-    job_update_contractor_info()
-    
-    return HttpResponse('OK')
+    # job_update_contractor_info()
+    qaa = QlassicAssessmentApplication.objects.get(qaa_number="NS21 BP0001 C (P)")
+    aa = get_qaa_result(qaa)
+    print(aa)
+    return JsonResponse(aa)
 
 @login_required(login_url="/login/")
 def generate_pdf(request):
@@ -1078,7 +1080,8 @@ def assessment_report_generate(request, report_type, qaa):
     print(reporting)
     qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     generate_and_save_qr(qr_path, reporting.qr_file)
-    
+    qlassic_score = get_qlassic_score(qaa)
+    rounded_qlassic_score = str(round(qlassic_score, 2))
     if report_type == 'qlassic_score_letter':
         template_ctx = {
             'title': qaa.pi.project_title,
@@ -1092,14 +1095,14 @@ def assessment_report_generate(request, report_type, qaa):
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
             'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+            'qlassic_score': rounded_qlassic_score,
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
         reporting.report_file.save('pdf', response_cert)
     elif report_type == 'qlassic_report':
         qaa_result = get_qaa_result(qaa)
         assessors = AssignedAssessor.objects.all().filter(ad__qaa=qaa)
-        casc_score = str(round(qaa.qlassic_score, 2))
+        casc_score = rounded_qlassic_score
         if qaa.casc_qlassic_score != None:
             casc_score = str(round(qaa.casc_qlassic_score, 2))
         template_ctx = {
@@ -1145,7 +1148,7 @@ def assessment_report_generate(request, report_type, qaa):
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
             'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(get_qlassic_score(qaa), 2)),
+            'qlassic_score': rounded_qlassic_score,
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
         reporting.report_file.save('pdf', response_cert)
