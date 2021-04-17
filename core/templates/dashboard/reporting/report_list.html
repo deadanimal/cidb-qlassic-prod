@@ -44,9 +44,12 @@
                   <th>Project Title</th>
                   <th>Status</th>
                   <th>DLP Status</th>
+
+                  <th>Assesment Details</th>
                   {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
                   <th>Report Generation</th>
                   {% endif %}
+
                   <th>View</th>
                   <th>Action</th>
                 </tr>
@@ -57,6 +60,9 @@
                   <th>{{ pr.pi.project_title }}</th>
                   <th>{{ pr.get_application_status_display }}</th>
                   <th>END</th>
+                  <td>
+                    <a href="{% url 'dashboard_assessment_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">View</a>
+                  </td>
                   <td>
                     <form action="" method="POST">
                       {% csrf_token %}

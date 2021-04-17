@@ -32,7 +32,7 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, Component, QlassicAssessmentApplication, SupportingDocuments
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
@@ -88,9 +88,10 @@ def publication(request, id):
 @login_required(login_url="/login/")
 def dashboard_report_list(request):
     projects = QlassicAssessmentApplication.objects.all().filter(
-        Q(application_status='completed')|
-        Q(application_status='approved')
+        # Q(application_status='completed')|
+        # Q(application_status='approved')
     )
+
     context = {
         'projects':projects,
     }
@@ -1071,6 +1072,28 @@ def dashboard_manage_edit_component_v2(request, mode, id):
     return render(request, "dashboard/management/manage_component_edit_v2.html", context)
 
 
+# assessment detail page
+# ISRAA CODES START HERE
+@login_required(login_url="/login/")
+def assessment_report_detail(request, id):
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    sample_result_qaa = SampleResult.objects.filter(qaa=qaa) 
+
+    er_list = {}
+    for i in sample_result_qaa:
+        er_list[i.id] = {"sample_result_values": i}            
+        temp = ElementResult.objects.filter(sample_result=i)
+        for j in temp:
+            er_list[i.id] = {f"element_result_values{j.id}": j}            
+
+
+    
+    context = {}
+    if request.method == 'POST':
+        pass
+    return render(request, "dashboard/reporting/assessment_detail.html", context)
+
+
 
 ### Functions ###
 
@@ -1157,3 +1180,5 @@ def assessment_report_generate(request, report_type, qaa):
 
     
     return reporting
+
+

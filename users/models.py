@@ -50,7 +50,7 @@ class CustomUser(AbstractUser):
         choices=MARITAL_STATUS,
     )      
 
-    greencard_no = models.CharField(null=True, blank=True, max_length=16, verbose_name='Green card number')
+    greencard_no = models.CharField(null=True, blank=True, max_length=30, verbose_name='Green card number')
     greencard_exp_date = models.DateField(null=True, blank=True, verbose_name='Green card\'s expired date')
 
     organization = models.TextField(null=True, max_length=50)
@@ -64,7 +64,7 @@ class CustomUser(AbstractUser):
         # ('assessor','Assessor'),
         # ('trainer','Trainer'),
         ('trainee','Trainee'),
-        # ('applicant','Applicant'),
+        ('applicant','Applicant'),
         ('casc_reviewer','CASC Reviewer'),
         ('casc_verifier','CASC Verifier'),
         ('casc_approver','CASC Approver'),
@@ -164,7 +164,7 @@ class CustomUser(AbstractUser):
             else:
                 self.code_id = prefix+'{0:04d}'.format(1)
         if self.role == '' or self.role == None:
-            self.role = 'contractor'  
+            self.role = 'applicant'  
         super(CustomUser, self).save(*args, **kwargs)
 
     class Meta:
