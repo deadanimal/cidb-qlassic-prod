@@ -168,7 +168,7 @@ def verify_contractor(contractor_registration_number):
 
     print("breakpoint1")
     print("client",client)
-    response = client.service.GetContractorInfoWithEnc(**request_data)
+    response = client.service.GetContractorInfoNoEnc(**request_data)
     print("breakpoint1")
 
     print(response)
