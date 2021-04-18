@@ -152,7 +152,9 @@ def verify_contractor(contractor_registration_number):
     history = HistoryPlugin()
 
     session = Session()
-    session.verify = False
+    # session.verify = False
+    session.verify = certificate_path
+
     client = Client(
         wsdl, 
         transport=Transport(session=session),
@@ -166,8 +168,6 @@ def verify_contractor(contractor_registration_number):
         'EncryptedData': (str(contractor_registration_number).encode("utf-8")),
     }
 
-    response = {}
-    response['ssmNo'] = None
     try:
         # line ni error dekat production
         response = client.service.GetContractorInfoNoEnc(**request_data)
