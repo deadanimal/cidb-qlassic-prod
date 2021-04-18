@@ -166,10 +166,10 @@ def verify_contractor(contractor_registration_number):
         'EncryptedData': (str(contractor_registration_number).encode("utf-8")),
     }
 
-    print("breakpoint1")
-    print("client",client)
-    response = client.service.GetContractorInfoNoEnc(**request_data)
-    print("breakpoint1")
+    try:
+        response = client.service.GetContractorInfoNoEnc(**request_data)
+    except ValueError as e:
+        print("verify_contractor_error", e)
 
     print(response)
     found = False

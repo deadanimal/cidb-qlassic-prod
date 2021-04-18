@@ -667,10 +667,7 @@ def dashboard_verified_contractor(request):
             form_vc = VerifiedContractorForm(request.POST)
             contractor_registration_number = request.POST['contractor_registration_number']
 
-            try:
-                found, error_message = verify_contractor(contractor_registration_number)
-            except ValueError as e:
-                print(e)
+            found, error_message = verify_contractor(contractor_registration_number)
 
             if found is True:
                 if form_vc.is_valid():
