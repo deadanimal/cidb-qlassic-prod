@@ -171,7 +171,7 @@ def verify_contractor(contractor_registration_number):
 
     try:
         # line ni error dekat production
-        response = client.service.GetContractorInfoNoEnc(**request_data)
+        response = client.service.GetContractorInfoWithEnc(**request_data)
     except ValueError as e:
         print("verify_contractor_error", e)
 
