@@ -141,6 +141,7 @@ def test_request_contractor(request):
 
 def verify_contractor(contractor_registration_number):
     wsdl = CIMS_WSDL
+    print("the wsdl", wsdl)
 
     # session = Session()
     # session.auth = HTTPBasicAuth("RFID_INTEGRATION", "Rfid_1nt")
