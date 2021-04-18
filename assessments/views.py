@@ -916,6 +916,56 @@ def dashboard_application_assessor_assign(request, id):
     return render(request, "dashboard/application/application_info.html", context)
 
 @login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier'])
+def dashboard_application_assessor_reassign(request, id):
+    print("GOES HERE")
+    mode = 'assign_assessor'
+    
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    pi = qaa.pi
+    suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
+
+    # reset assessor status
+    for sa in suggested_assessors:
+        sa.acception = None
+        sa.save()
+    
+    supporting_documents = get_supporting_documents(qaa)
+    context = {
+        'suggested_assessors':suggested_assessors,
+        'mode': mode,
+        'qaa':qaa,
+        'supporting_documents':supporting_documents,
+    }
+    if request.method == 'POST':
+        assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
+        assessment_data.user = request.user
+        assessment_data.save()
+        
+        # Email Assigned Assessor
+        to = []
+        for sa in suggested_assessors:
+            if sa.acception == 'accept' or sa.acception == 'pending':
+                pass
+            else:
+                sa.acception = 'pending'
+                sa.save()
+
+            to.append(sa.assessor.user.email)
+        subject = "Assessor Assignation - " + qaa.qaa_number
+        ctx_email = {
+            'qaa':qaa,
+        }
+        send_email_default(subject, to, ctx_email, 'email/qaa-assessor-assigned.html')
+
+        qaa.save()
+        messages.info(request,'Successfully assigned the assessors.')
+        return redirect('dashboard_application_assessor_list_all')
+    return render(request, "dashboard/application/application_info.html", context)
+
+
+
+@login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin','assessor'])
 def dashboard_application_assessor_approve(request, id):
     mode = 'verify_assessor'
