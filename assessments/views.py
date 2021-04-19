@@ -881,6 +881,12 @@ def dashboard_application_assessor_assign(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     pi = qaa.pi
     suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
+
+    for sa in suggested_assessors:
+        sa.acception = None
+        sa.save()
+    
+
     
     supporting_documents = get_supporting_documents(qaa)
     context = {
@@ -938,6 +944,7 @@ def dashboard_application_assessor_reassign(request, id):
         'supporting_documents':supporting_documents,
     }
     if request.method == 'POST':
+        print("I GOT CALLED")
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         assessment_data.user = request.user
         assessment_data.save()
@@ -952,6 +959,8 @@ def dashboard_application_assessor_reassign(request, id):
                 sa.save()
 
             to.append(sa.assessor.user.email)
+
+        print("receiver", to)
         subject = "Assessor Assignation - " + qaa.qaa_number
         ctx_email = {
             'qaa':qaa,

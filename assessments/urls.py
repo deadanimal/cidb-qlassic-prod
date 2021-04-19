@@ -27,7 +27,7 @@ urlpatterns = [
     path('dashboard/application/assessor/list/all/', views.dashboard_application_assessor_list_all, name="dashboard_application_assessor_list_all"),
     path('dashboard/application/assessor/list/', views.dashboard_application_assessor_list_own, name="dashboard_application_assessor_list_own"),
     path('dashboard/application/assessor/assign/<str:id>/', views.dashboard_application_assessor_assign, name="dashboard_application_assessor_assign"),
-    path('dashboard/application/assessor/reassign/<str:id>/', views.dashboard_application_assessor_reassign, name="dashboard_application_assessor_reassign"),
+    #path('dashboard/application/assessor/reassign/<str:id>/', views.dashboard_application_assessor_reassign, name="dashboard_application_assessor_reassign"),
     path('dashboard/application/assessor/verify/<str:id>/', views.dashboard_application_assessor_approve, name="dashboard_application_assessor_approve"),
 
     ### Assign Assessor
