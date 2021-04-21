@@ -98,7 +98,7 @@
 
                     {% if request.user.role == 'superadmin' or request.user.role == 'casc_verifier' %}
                       {% if qaa.application_status == 'assessor_assign' %}
-                      <a href="{% url 'dashboard_application_assessor_assign' qaa.id %}" class="btn btn-sm btn-warning w-100 mb-2">Re-Assign</button>
+                      <a href="{% url 'dashboard_application_assessor_reassign' qaa.id %}" class="btn btn-sm btn-warning w-100 mb-2">Re-Assign</button>
                       {% endif %}
                     {% endif %}
 

@@ -642,6 +642,12 @@ def dashboard_application_list(request):
         'contractor',
         'applicant',
     ]
+
+    # alert for none
+    #print(request.user.role)
+    #if request.user.role == 'none':
+    #    messages.warning(request, 'WE DID IT BABYYY')
+
     
     role_type = ''
     if request.user.role in role_display_staff:
@@ -651,7 +657,7 @@ def dashboard_application_list(request):
         role_type = 'applicant'
         qaas = QlassicAssessmentApplication.objects.all().filter(user=request.user).order_by('-created_date')
     else:
-        messages.warning(request, 'You are not eligible to view the list of applications.')
+        messages.warning(request, "Please write us a letter and email at qlassic@cream.my for verification purpose. Download template letter at Homepage>Publication (click CIDB's logo)")
         qaas = None
     
     # GET Filter
@@ -881,13 +887,7 @@ def dashboard_application_assessor_assign(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     pi = qaa.pi
     suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
-
-    for sa in suggested_assessors:
-        sa.acception = None
-        sa.save()
-    
-
-    
+        
     supporting_documents = get_supporting_documents(qaa)
     context = {
         'suggested_assessors':suggested_assessors,
@@ -899,10 +899,23 @@ def dashboard_application_assessor_assign(request, id):
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         assessment_data.user = request.user
         assessment_data.save()
+
+        print("suggested assessors2", suggested_assessors)
         
         # Email Assigned Assessor
         to = []
+
         for sa in suggested_assessors:
+            # check if assessor changed or not
+
+            # previous logic
+            # if acceptance == none -> pending
+            # else pass
+
+
+            # new logic
+            # if acceptance == prev_acceptance and is not None
+
             if sa.acception == 'accept' or sa.acception == 'pending':
                 pass
             else:
@@ -944,7 +957,7 @@ def dashboard_application_assessor_reassign(request, id):
         'supporting_documents':supporting_documents,
     }
     if request.method == 'POST':
-        print("I GOT CALLED")
+
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         assessment_data.user = request.user
         assessment_data.save()
@@ -970,7 +983,7 @@ def dashboard_application_assessor_reassign(request, id):
         qaa.save()
         messages.info(request,'Successfully assigned the assessors.')
         return redirect('dashboard_application_assessor_list_all')
-    return render(request, "dashboard/application/application_info.html", context)
+    return render(request, "dashboard/application/application_info_reassign.html", context)
 
 
 
@@ -1424,7 +1437,6 @@ def generate_qlassic_score(qaa):
 ## AJAX
 @login_required(login_url="/login/")
 def ajax_api_application_payment_request(request):
-    print('aasds')
     if request.method == 'POST':
         id = request.POST['id']
         qaa = get_object_or_404(QlassicAssessmentApplication, id=id)

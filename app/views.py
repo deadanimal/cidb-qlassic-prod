@@ -32,7 +32,7 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
@@ -1076,21 +1076,41 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 
 # assessment detail page
 # ISRAA CODES START HERE
+
+from pprint import pprint
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    sample_result_qaa = SampleResult.objects.filter(qaa=qaa) 
+    assessment_data = AssessmentData.objects.filter(qaa=qaa).values()
+    context = {}
+    
 
-    er_list = {}
-    for i in sample_result_qaa:
-        er_list[i.id] = {"sample_result_values": i}            
-        temp = ElementResult.objects.filter(sample_result=i)
-        for j in temp:
-            er_list[i.id] = {f"element_result_values{j.id}": j}            
+    sample_result = SampleResult.objects.filter(qaa=qaa)
+    print("ssda", len(sample_result))
+
+
+    for i in sample_result.values():
+        element_result = ElementResult.objects.filter(sample_result__id=i['id']).values()
+        element_list = set([j['element_code'] for j in element_result])
+        for j in element_list:
+            context[j] = []
+            for k in element_result:
+                if k['element_code'] == j:
+                    context[j].append(i)
+                    context[j].append(k)
+
+    pprint(context)
+
+
+
+        #for i in element_result:
+        #    for k,v in i.items():
+        #        print(k,v)
+        #
+        #print("####")
 
 
     
-    context = {}
     if request.method == 'POST':
         pass
     return render(request, "dashboard/reporting/assessment_detail.html", context)

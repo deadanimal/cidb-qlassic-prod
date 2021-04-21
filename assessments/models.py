@@ -626,6 +626,14 @@ class SuggestedAssessor(models.Model):
         max_length=10
     )
 
+    prev_acception = models.CharField(
+        null=True,
+        blank=True,
+        choices=ACCEPTION,
+        max_length=10
+    )
+
+
     remarks = models.CharField(null=True, max_length=255)
 
     # Date

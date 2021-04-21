@@ -62,7 +62,7 @@ class CustomUser(AbstractUser):
         ('staff','Staff'),
         ('contractor','Contractor'),
         # ('assessor','Assessor'),
-        # ('trainer','Trainer'),
+        ('none','None'),
         ('trainee','Trainee'),
         ('applicant','Applicant'),
         ('casc_reviewer','CASC Reviewer'),
@@ -164,7 +164,7 @@ class CustomUser(AbstractUser):
             else:
                 self.code_id = prefix+'{0:04d}'.format(1)
         if self.role == '' or self.role == None:
-            self.role = 'applicant'  
+            self.role = 'none'  
         super(CustomUser, self).save(*args, **kwargs)
 
     class Meta:
