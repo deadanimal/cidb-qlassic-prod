@@ -32,6 +32,8 @@ urlpatterns = [
 
     ### Assign Assessor
     path('dashboard/application/assessor/<str:id>/change/', views.dashboard_application_assessor_change, name="dashboard_application_assessor_change"),
+    path('dashboard/application/assessor/<str:id>/rechange/', views.dashboard_application_assessor_rechange, name="dashboard_application_assessor_rechange"),
+
     
     path('ajax/application/payment/', views.ajax_api_application_payment_request, name="ajax_api_application_payment_request"),
 ]

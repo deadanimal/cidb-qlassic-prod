@@ -937,18 +937,14 @@ def dashboard_application_assessor_assign(request, id):
 @login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin','casc_verifier'])
 def dashboard_application_assessor_reassign(request, id):
-    print("GOES HERE")
     mode = 'assign_assessor'
     
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     pi = qaa.pi
     suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
-
-    # reset assessor status
     for sa in suggested_assessors:
-        sa.acception = None
-        sa.save()
-    
+        print(sa.acception)
+
     supporting_documents = get_supporting_documents(qaa)
     context = {
         'suggested_assessors':suggested_assessors,
@@ -968,10 +964,10 @@ def dashboard_application_assessor_reassign(request, id):
             if sa.acception == 'accept' or sa.acception == 'pending':
                 pass
             else:
+
+                to.append(sa.assessor.user.email)
                 sa.acception = 'pending'
                 sa.save()
-
-            to.append(sa.assessor.user.email)
 
         print("receiver", to)
         subject = "Assessor Assignation - " + qaa.qaa_number
@@ -1074,6 +1070,29 @@ def dashboard_application_assessor_change(request, id):
         'assessors': assessors
     }
     return render(request, "dashboard/application/assessor_change.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin','casc_verifier'])
+def dashboard_application_assessor_rechange(request, id):
+    current = get_object_or_404(SuggestedAssessor, id=id)
+    assessors = Assessor.objects.all()
+    if request.method == 'POST':
+        assessor_id = request.POST['assessor_id']
+        assessor = Assessor.objects.get(id=assessor_id)
+        current.assessor = assessor
+        current.assessor_no = assessor.assessor_no
+        current.acception = None
+        current.save()
+        messages.info(request,'Successfully changed the Suggested Assessor')
+        return redirect('dashboard_application_assessor_reassign', current.qaa.id)
+    context = {
+        'current': current,
+        'assessors': assessors
+    }
+    return render(request, "dashboard/application/assessor_change.html", context)
+
+
+
 
 
 from decimal import Decimal
