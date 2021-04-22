@@ -657,7 +657,7 @@ def dashboard_application_list(request):
         role_type = 'applicant'
         qaas = QlassicAssessmentApplication.objects.all().filter(user=request.user).order_by('-created_date')
     else:
-        messages.warning(request, "Please write us a letter and email at qlassic@cream.my for verification purpose. Download template letter at Homepage>Publication (click CIDB's logo)")
+        messages.warning(request, "Please write us a letter and email at casc@cream.my for verification purpose. Download template letter at Homepage>Publication (click CIDB's logo)")
         qaas = None
     
     # GET Filter
@@ -1031,6 +1031,15 @@ def dashboard_application_assessor_approve(request, id):
                     break
             if complete == True:
                 qaa.application_status = 'assessor_assign'
+
+                # send email goes here manega
+                subject = 'QLASSIC Site Assessment ('+ qaa.qaa_number +')'
+                context = {
+                    'qaa': qaa,
+                }
+                to = [qaa.user.email, "israasaifullah@gmail.com"]
+                send_email_default(subject, to, context, 'email/notify_contractor_after_assigned.html')
+            
                 qaa.save()
 
                 # Assign Lead Assessor

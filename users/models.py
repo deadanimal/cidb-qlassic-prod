@@ -64,7 +64,7 @@ class CustomUser(AbstractUser):
         # ('assessor','Assessor'),
         ('none','None'),
         ('trainee','Trainee'),
-        ('applicant','Applicant'),
+        # ('applicant','Applicant'),
         ('casc_reviewer','CASC Reviewer'),
         ('casc_verifier','CASC Verifier'),
         ('casc_approver','CASC Approver'),
