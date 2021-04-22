@@ -1036,6 +1036,7 @@ def dashboard_application_assessor_approve(request, id):
                 subject = 'QLASSIC Site Assessment ('+ qaa.qaa_number +')'
                 context = {
                     'qaa': qaa,
+                    'assessment_data': assessment_data 
                 }
                 to = [qaa.user.email, "israasaifullah@gmail.com"]
                 send_email_default(subject, to, context, 'email/notify_contractor_after_assigned.html')
