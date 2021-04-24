@@ -95,6 +95,8 @@ def dashboard_report_list(request):
     context = {
         'projects':projects,
     }
+
+    # method to generate report
     if request.method == 'POST':
         qaa_id = request.POST['id']
         qaa = get_object_or_404(QlassicAssessmentApplication, id=qaa_id)

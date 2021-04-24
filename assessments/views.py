@@ -1444,6 +1444,7 @@ def get_qaa_result(qaa):
                 element['total_weightage'] = round(element['total_weightage'],2)
 
     # print(result)
+    print("score_data", score)
     return score
 
 def get_qlassic_score(qaa):

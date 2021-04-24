@@ -106,6 +106,7 @@ class QlassicAssessmentApplication(models.Model):
         ('completed','Completed'),
         ('approved','Approved'),
     ]
+    # add default value
     application_status = models.CharField(
         null=True,
         blank=True,
