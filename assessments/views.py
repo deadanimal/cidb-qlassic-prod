@@ -1202,6 +1202,7 @@ def validate_component_form(context, request, qaa):
             
 
 def get_qaa_result(qaa):
+    print("goes this method")
     components = Component.objects.all().order_by('created_date')
     element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
     sub_components = SubComponent.objects.all().filter().order_by('created_date')
