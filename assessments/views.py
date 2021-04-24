@@ -1262,15 +1262,23 @@ def get_qaa_result(qaa):
                         # Calculate Result
                         number_of_compliance = 0
                         number_of_check = 0
-                        element_results = ElementResult.objects.all().filter(
-                            Q(qaa=qaa,element_code=element.id)|
-                            Q(qaa=qaa,element_code=element.code_id)
-                        )
+
+                        # checking if this is the fricking issue
+
+#                        element_results = ElementResult.objects.all().filter(
+#                            Q(qaa=qaa,element_code=element.id)|
+#                            Q(qaa=qaa,element_code=element.code_id)
+#                        )
+#
+                        element_results = ElementResult.objects.all()[0:3]
+
+                        print("ELEMENT RESULT", element_results)
                         for element_result in element_results:
                             number_of_compliance += element_result.total_compliance
                             component_total_compliance += element_result.total_compliance
 
                             number_of_check += element_result.total_check
+                            print("CHECKSSSS", number_of_check)
                             component_total_check += element_result.total_check
 
                         result_e['total_compliance'] = number_of_compliance
@@ -1286,6 +1294,9 @@ def get_qaa_result(qaa):
         result_c['total_check'] = component_total_check
         result['components'].append(result_c)
         index_c = chr(ord(index_c) + 1)
+
+    
+    print("result after component-subcompononent loop", result)
 
     ## Element Component
     for element_component in element_components:
@@ -1320,6 +1331,8 @@ def get_qaa_result(qaa):
         result_c['total_check'] = number_of_check
         result['components'].append(result_c)
         index_c = chr(ord(index_c) + 1)
+
+    print("result after element  loop", result)
 
     #### Calculate Result
 
@@ -1362,6 +1375,9 @@ def get_qaa_result(qaa):
                             else:
                                 element['actual_weightage'] = 0
     
+    print("result after recalculate  loop", result)
+
+
     # Step 3: Calculate Score
     # for component in result['component']
     score = {}
@@ -1377,6 +1393,7 @@ def get_qaa_result(qaa):
         score_c['total_weightage'] = component['actual_weightage']
         score_c['subcomponents'] = []
 
+        
         if component['type'] == 2 or component['type'] == 3:
             if component['total_check'] != 0:
                 score_c['score'] = float(component['total_compliance']) / float(component['total_check']) * float(component['actual_weightage'])
@@ -1445,7 +1462,6 @@ def get_qaa_result(qaa):
                 element['total_weightage'] = round(element['total_weightage'],2)
 
     # print(result)
-    print("score_data", score)
     return score
 
 def get_qlassic_score(qaa):
