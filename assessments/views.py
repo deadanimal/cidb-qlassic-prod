@@ -1202,7 +1202,6 @@ def validate_component_form(context, request, qaa):
             
 
 def get_qaa_result(qaa):
-    print("goes this method")
     components = Component.objects.all().order_by('created_date')
     element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
     sub_components = SubComponent.objects.all().filter().order_by('created_date')
@@ -1296,8 +1295,6 @@ def get_qaa_result(qaa):
         index_c = chr(ord(index_c) + 1)
 
     
-    print("result after component-subcompononent loop", result)
-
     ## Element Component
     for element_component in element_components:
         index_sc = 1
@@ -1331,8 +1328,6 @@ def get_qaa_result(qaa):
         result_c['total_check'] = number_of_check
         result['components'].append(result_c)
         index_c = chr(ord(index_c) + 1)
-
-    print("result after element  loop", result)
 
     #### Calculate Result
 
@@ -1375,8 +1370,6 @@ def get_qaa_result(qaa):
                             else:
                                 element['actual_weightage'] = 0
     
-    print("result after recalculate  loop", result)
-
 
     # Step 3: Calculate Score
     # for component in result['component']
@@ -1462,13 +1455,16 @@ def get_qaa_result(qaa):
                 element['total_weightage'] = round(element['total_weightage'],2)
 
     # print(result)
+    print("score", score['score'])
     return score
 
 def get_qlassic_score(qaa):
+    print("QLASSIC SCORE")
     if qaa.qlassic_score == None:
         score_obj = get_qaa_result(qaa)
         score = score_obj['score']
         qaa.qlassic_score = score
+        print("SCORE", qaa.qlassic_score)
         qaa.save()
     if qaa.casc_qlassic_score != None:
         return qaa.casc_qlassic_score
@@ -1476,6 +1472,7 @@ def get_qlassic_score(qaa):
         return qaa.qlassic_score
 
 def generate_qlassic_score(qaa):
+    print("QLASSIC SCORE GENERATED")
     score_obj = get_qaa_result(qaa)
     score = score_obj['score']
     qaa.qlassic_score = score
