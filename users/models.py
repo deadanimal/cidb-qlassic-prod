@@ -12,7 +12,7 @@ from core.helpers import PathAndRename, STATE_CHOICES
 # Create your models here.
 class CustomUser(AbstractUser):
     username = None
-    email = models.EmailField(_('email address'), max_length=30, unique=True)
+    email = models.EmailField(_('email address'), max_length=100, unique=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
