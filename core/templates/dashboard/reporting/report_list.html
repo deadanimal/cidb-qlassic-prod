@@ -42,6 +42,7 @@
               <thead class="thead-light">
                 <tr>
                   <th>Project Title</th>
+                  <th>Qaa Number</th>
                   <th>Status</th>
                   <th>DLP Status</th>
 
@@ -58,6 +59,7 @@
                 {% for pr in projects %}
                 <tr>
                   <th>{{ pr.pi.project_title }}</th>
+                  <th>{{ pr.qaa_number }}</th>
                   <th>{{ pr.get_application_status_display }}</th>
                   <th>END</th>
                   <td>
