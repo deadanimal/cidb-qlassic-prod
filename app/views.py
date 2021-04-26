@@ -1129,10 +1129,6 @@ def assessment_report_generate(request, report_type, qaa):
     qlassic_score = get_qlassic_score(qaa)
     rounded_qlassic_score = str(round(qlassic_score, 2))
 
-    # alert for ccd
-    if qaa.ccd_point == None:
-        messages.warning(request, 'CCD for this assessment is not filled yet.')
-
     if report_type == 'qlassic_score_letter':
         template_ctx = {
             'title': qaa.pi.project_title,

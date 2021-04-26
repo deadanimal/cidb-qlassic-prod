@@ -1262,14 +1262,15 @@ def get_qaa_result(qaa):
                         number_of_compliance = 0
                         number_of_check = 0
 
-                        # checking if this is the fricking issue
 
-#                        element_results = ElementResult.objects.all().filter(
-#                            Q(qaa=qaa,element_code=element.id)|
-#                            Q(qaa=qaa,element_code=element.code_id)
-#                        )
-#
-                        element_results = ElementResult.objects.all()[0:3]
+                        element_results = ElementResult.objects.all().filter(
+                            Q(qaa=qaa,element_code=element.id)|
+                            Q(qaa=qaa,element_code=element.code_id)
+                        )
+
+                        
+                        # check rendering to pdf ok or not
+                        #element_results = ElementResult.objects.all()[0:3]
 
                         print("ELEMENT RESULT", element_results)
                         for element_result in element_results:

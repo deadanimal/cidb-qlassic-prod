@@ -182,7 +182,7 @@ class QlassicAssessmentApplication(models.Model):
     qlassic_certificate_qr_file = models.ImageField(null=True, blank=True, upload_to=PathAndRename('assessment/qr/'), verbose_name='QLASSIC Cert QR File')
 
     # QLASSIC SCORE
-    ccd_point = models.FloatField(null=True, verbose_name="CCD Point")
+    ccd_point = models.FloatField(null=True, default=20, verbose_name="CCD Point")
     qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score")
     casc_qlassic_score = models.FloatField(null=True, blank=True, verbose_name="QLASSIC score from CASC Approver (Leave blank for actual score)")
 
