@@ -195,6 +195,9 @@ class SyncView(APIView):
     permission_classes = (AllowAny, )
 
     def post(self, request):
+        print("Initiating SyncView Inspection")
+
+        print("Post Body", request.data)
 
         ### REQUEST
         # Request Data
@@ -231,6 +234,8 @@ class SyncView(APIView):
         #     sample_results.delete()
 
         # Result 1
+        print("result1", result1)
+        print("breakpoint1")
     
         for sub1 in json.loads(result1):
             id = sub1['id']
@@ -303,7 +308,9 @@ class SyncView(APIView):
                     i += 1
 
         # Result 2
-        # print(result2)
+        print("result2", result2)
+        print("breakpoint2")
+
         for sub2 in json.loads(result2):
             id = sub2['id']
             id = id.replace(str(qaa.id)+'_', '')

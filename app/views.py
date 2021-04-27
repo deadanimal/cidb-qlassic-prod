@@ -88,8 +88,8 @@ def publication(request, id):
 @login_required(login_url="/login/")
 def dashboard_report_list(request):
     projects = QlassicAssessmentApplication.objects.all().filter(
-        # Q(application_status='completed')|
-        # Q(application_status='approved')
+        Q(application_status='completed')|
+        Q(application_status='approved')
     )
 
     context = {
@@ -1083,35 +1083,54 @@ from pprint import pprint
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    assessment_data = AssessmentData.objects.filter(qaa=qaa).values()
+
+    components = Component.objects.filter(name="Architectural Works")
+    element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
+    sub_components = SubComponent.objects.filter(name="Internal Finishes")
+    elements = Element.objects.all().filter(category_weightage=False).order_by('created_date')
+    sample_result = SampleResult.objects.all().filter(qaa=qaa)
+
+    # group by elements 
+    # use sync_code
+    # group by sync_code
+
+    ret = {}
+    for i in sample_result:
+        print(i.sync_code)
+        #er = ElementResult.objects.get(i.sync_code)
+        #ret[i.name][i.unit] = []
+        #ret[i.name][i.unit].append(er)
+    print("ret", ret)
+
+
+
+
+    #ret = {}
+    #for component in components:
+    #    ret[component.name] = {}
+    #    for sub_component in sub_components:
+    #        ret[component.name][sub_component.name] = {}
+    #        for element in elements:
+    #            
+    #            if element.sub_component == sub_component:
+    #                ret[component.name][sub_component.name][element.name] = []
+    #                element_results = ElementResult.objects.all().filter(
+    #                    Q(qaa=qaa,element_code=element.id)|
+    #                    Q(qaa=qaa,element_code=element.code_id)
+    #                )
+
+    #                # this loop got issue 
+    #                # for er in element_results:
+    #                #     for i in sample_result:
+    #                #         if i.id == er.sample_result.id:
+    #                #             ret[component.name][sub_component.name][element.name].append(er)
+
+                    
+
+
+    #print("RET", ret)
+
     context = {}
-    
-
-    sample_result = SampleResult.objects.filter(qaa=qaa)
-    print("ssda", len(sample_result))
-
-
-    for i in sample_result.values():
-        element_result = ElementResult.objects.filter(sample_result__id=i['id']).values()
-        element_list = set([j['element_code'] for j in element_result])
-        for j in element_list:
-            context[j] = []
-            for k in element_result:
-                if k['element_code'] == j:
-                    context[j].append(i)
-                    context[j].append(k)
-
-    pprint(context)
-
-
-
-        #for i in element_result:
-        #    for k,v in i.items():
-        #        print(k,v)
-        #
-        #print("####")
-
-
     
     if request.method == 'POST':
         pass

@@ -134,9 +134,19 @@
                 <input type='text' class="form-control" value="{{ qaa.pi.get_project_location_display }}" readonly>
               </div>
               <div class="form-group">
+                <label class="form-control-label" for="input_title">Assessment Date</label>
+                <input type='text' class="form-control" value="{{ qaa.proposed_date }}" readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-control-label" for="input_title">Number of Days</label>
+                <input type='text' class="form-control" value="{{ qaa.no_of_days }}" readonly>
+              </div>
+              <div class="form-group">
                 <label class="form-control-label" for="input_title">You Have Been Assigned To This Project</label>
                 <input type='text' class="form-control" value="{{ request.user.name }}" readonly>
               </div>
+
+
               <div class="form-group">
                 <label class="form-control-label" for="input_title">You Have Been Assigned To This Project</label>
                 <textarea class="form-control" name="remarks" id="input_announcement" rows="3"></textarea>

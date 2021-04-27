@@ -1038,7 +1038,7 @@ def dashboard_application_assessor_approve(request, id):
                     'qaa': qaa,
                     'assessment_data': assessment_data 
                 }
-                to = [qaa.user.email, "israasaifullah@gmail.com"]
+                to = [qaa.user.email]
                 send_email_default(subject, to, context, 'email/notify_contractor_after_assigned.html')
             
                 qaa.save()
@@ -1272,13 +1272,11 @@ def get_qaa_result(qaa):
                         # check rendering to pdf ok or not
                         #element_results = ElementResult.objects.all()[0:3]
 
-                        print("ELEMENT RESULT", element_results)
                         for element_result in element_results:
                             number_of_compliance += element_result.total_compliance
                             component_total_compliance += element_result.total_compliance
 
                             number_of_check += element_result.total_check
-                            print("CHECKSSSS", number_of_check)
                             component_total_check += element_result.total_check
 
                         result_e['total_compliance'] = number_of_compliance
