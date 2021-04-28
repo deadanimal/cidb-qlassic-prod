@@ -211,6 +211,10 @@ class SyncView(APIView):
         assessorId = data['assessorId']
         coordinate = data['coordinate']
         print(projectID)
+
+        print("len1", len(result1))
+        print("len2", len(result2))
+        
         partners = ''
         for partner in json.loads(result_partners):
             partner_results = partner['result']
