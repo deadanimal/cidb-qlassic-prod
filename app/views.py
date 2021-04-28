@@ -32,7 +32,7 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData, SyncResult
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
@@ -1082,53 +1082,28 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 from pprint import pprint
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
+    # Architectural Works
+    # Internal Finishes
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)
+    component = Component.objects.all().filter(name="Architectural Works")
+    sub_component = SubComponent.objects.all().get(name="Internal Finishes")
+    elements = Element.objects.all()
+    
+    element_result = {}
+    for element in elements:
+        element_result[element.name] = []
 
-    components = Component.objects.filter(name="Architectural Works")
-    element_components = Element.objects.all().filter(category_weightage=True).order_by('created_date')
-    sub_components = SubComponent.objects.filter(name="Internal Finishes")
-    elements = Element.objects.all().filter(category_weightage=False).order_by('created_date')
-    sample_result = SampleResult.objects.all().filter(qaa=qaa)
+        if element.sub_component == sub_component:
+            element_results = ElementResult.objects.all().filter(
+                Q(qaa=qaa,element_code=element.id)|
+                Q(qaa=qaa,element_code=element.code_id)
+            )
+            print("er", element_results)
+            element_result[element.name].append(element_results)
 
-    # group by elements 
-    # use sync_code
-    # group by sync_code
-
-    ret = {}
-    for i in sample_result:
-        print(i.sync_code)
-        #er = ElementResult.objects.get(i.sync_code)
-        #ret[i.name][i.unit] = []
-        #ret[i.name][i.unit].append(er)
-    print("ret", ret)
-
-
-
-
-    #ret = {}
-    #for component in components:
-    #    ret[component.name] = {}
-    #    for sub_component in sub_components:
-    #        ret[component.name][sub_component.name] = {}
-    #        for element in elements:
-    #            
-    #            if element.sub_component == sub_component:
-    #                ret[component.name][sub_component.name][element.name] = []
-    #                element_results = ElementResult.objects.all().filter(
-    #                    Q(qaa=qaa,element_code=element.id)|
-    #                    Q(qaa=qaa,element_code=element.code_id)
-    #                )
-
-    #                # this loop got issue 
-    #                # for er in element_results:
-    #                #     for i in sample_result:
-    #                #         if i.id == er.sample_result.id:
-    #                #             ret[component.name][sub_component.name][element.name].append(er)
-
-                    
-
-
-    #print("RET", ret)
+    print(element_result)
+    print(sample_results)
 
     context = {}
     

@@ -430,6 +430,7 @@ class SyncView(APIView):
         sync.save()
 
         response = sync_object(ad)
+        print("response", response)
 
         return Response(response)
 
