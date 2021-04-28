@@ -424,6 +424,7 @@ class SyncView(APIView):
                 label_table.append(component.name)
                 result_table.append(sample_complete)
 
+        print("sync process start")
         sync.result = str(result_table)
         sync.label = str(label_table)
         sync.sync_complete = True
