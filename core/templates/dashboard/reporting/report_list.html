@@ -74,11 +74,13 @@
                       <button type="submit" name="qlassic_certificate" class="btn btn-sm btn-default w-100 mb-2 {% if pr.doc_qlassic_certificate_status != 'pending' %}disabled{% endif %}">Certificate</button>
                     </form>
                   </td>
+                  {% comment %}
                   <td>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_score_letter_status == 'pending' %}disabled{% endif %}">Score Letter</a>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_report' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_report_status == 'pending' %}disabled{% endif %}">Report</a>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_certificate_status == 'pending' %}disabled{% endif %}">Certificate</a>
                   </td>
+                  {% endcomment %}
                   <td>
                     {% comment %} CASC APPROVER {% endcomment %}
                     {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
@@ -93,7 +95,7 @@
                       {% endif %}
                     {% endif %}
                     {% comment %} CIDB REVIEW {% endcomment %}
-                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_review' %}
+                    {% if request.user.role == 'superadmin' or request.user.role == 'cidb_reviewer' %}
                       {% if pr.doc_qlassic_score_letter_status == 'casc_approved' %}
                         <a href="{% url 'dashboard_report_review' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-info w-100 mb-2">Review Score Letter</a>
                       {% endif %}

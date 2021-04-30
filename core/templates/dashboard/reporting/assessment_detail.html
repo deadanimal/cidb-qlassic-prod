@@ -39,6 +39,41 @@
           <div class="card-header text-center">
             <h2 class="mb-0">Assessment Details</h2>
           </div>
+          {% for d in data %}
+          <div class="table-responsive py-4">
+            <h3 class="text-center">{{ d.element }}</h3>
+            <table class="table table-custom-simplified table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th>Block</th>
+                  <th>Unit</th>
+                  <th>Type</th>
+                  <th>Room</th>
+                  {% for dg_name in d.dg_headers %}
+                  <th>{{ dg_name }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                  {% for sr in d.sample_results %}
+                  <tr>
+                      <th>{{ sr.block }}</th>
+                      <th>{{ sr.unit }}</th>
+                      <th>{{ sr.test_type }}</th>
+                      <th>{{ sr.selection_value }}</th>
+
+                      {% for dg_val in d.dg_values %}
+                        {% for i in dg_val %}
+                          <th>{{ i.result }}</th>
+                        {% endfor %}
+                      {% endfor %}
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endfor %}
+          
 
         </div>
 
@@ -55,5 +90,8 @@
 
   <script src="/static/assets/vendor/chart.js/dist/Chart.min.js"></script>
   <script src="/static/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+
+  <script>
+  </script>
 
 {% endblock javascripts %}

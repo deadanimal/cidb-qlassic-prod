@@ -134,6 +134,7 @@ def dashboard_qlassic_report_view(request, report_type, id):
 
 @login_required(login_url="/login/")
 def dashboard_report_casc_approve(request, report_type, id):
+
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'casc_approve'
@@ -146,7 +147,9 @@ def dashboard_report_casc_approve(request, report_type, id):
         'mode':mode,
     }
     if request.method == 'POST':
+        print("request.POST", request.POST)
         if 'approve' in request.POST:
+            print("goes here ya")
             if report_type == 'qlassic_score_letter':
                 qaa.doc_qlassic_score_letter_status = 'casc_approved'
                 messages.info(request,'Succesfully submitted the Score Letter for review.')
@@ -1085,27 +1088,55 @@ def assessment_report_detail(request, id):
     # Architectural Works
     # Internal Finishes
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    sample_results = SampleResult.objects.all().filter(qaa=qaa)
     component = Component.objects.all().filter(name="Architectural Works")
     sub_component = SubComponent.objects.all().get(name="Internal Finishes")
     elements = Element.objects.all()
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)[0:50]
+    print("srlen", len(sample_results))
     
-    element_result = {}
+    ret = []
+    ret2 = [] # for the second logic
+    dg_names = []
     for element in elements:
-        element_result[element.name] = []
-
         if element.sub_component == sub_component:
+
+            temp = {}
+            data = {} #for the second logic
             element_results = ElementResult.objects.all().filter(
                 Q(qaa=qaa,element_code=element.id)|
                 Q(qaa=qaa,element_code=element.code_id)
-            )
-            print("er", element_results)
-            element_result[element.name].append(element_results)
+                )[0:50]
 
-    print(element_result)
-    print(sample_results)
+            sample_result_list = set([i.sample_result for i in element_results])
+            dg_names_list = set([i.dg_name for i in element_results])
 
-    context = {}
+            group_by_dg = {}
+            data['element'] = element.name
+
+            data['dg_headers'] = [i for i in dg_names_list]
+            data['sample_results'] = [i for i in sample_result_list]
+            
+            tempList = {}
+            for i in dg_names_list:
+                tempList[i] = []
+
+            for sr in sample_result_list:
+                er = [i for i in element_results if i.sample_result == sr]
+                for dgn in dg_names_list:
+                    for e in er:
+                        if e.dg_name == dgn:
+                            tempList[dgn].append(e)
+
+
+            data['dg_values'] = []
+            for i in dg_names_list:
+                data['dg_values'].append(tempList[i])
+
+            ret2.append(data)                    
+
+    context = {"data": ret2}
+    
+
     
     if request.method == 'POST':
         pass
