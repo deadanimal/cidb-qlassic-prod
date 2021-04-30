@@ -65,6 +65,7 @@
                   <td>
                     <a href="{% url 'dashboard_assessment_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">View</a>
                   </td>
+                  {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
                   <td>
                     <form action="" method="POST">
                       {% csrf_token %}
@@ -74,13 +75,12 @@
                       <button type="submit" name="qlassic_certificate" class="btn btn-sm btn-default w-100 mb-2 {% if pr.doc_qlassic_certificate_status != 'pending' %}disabled{% endif %}">Certificate</button>
                     </form>
                   </td>
-                  {% comment %}
+                  {% endif %}
                   <td>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_score_letter' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_score_letter_status == 'pending' %}disabled{% endif %}">Score Letter</a>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_report' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_report_status == 'pending' %}disabled{% endif %}">Report</a>
                     <a href="{% url 'dashboard_qlassic_report_view' 'qlassic_certificate' pr.id %}" class="btn btn-sm btn-warning w-100 mb-2 {% if pr.doc_qlassic_certificate_status == 'pending' %}disabled{% endif %}">Certificate</a>
                   </td>
-                  {% endcomment %}
                   <td>
                     {% comment %} CASC APPROVER {% endcomment %}
                     {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
