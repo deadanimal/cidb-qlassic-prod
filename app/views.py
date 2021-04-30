@@ -123,12 +123,15 @@ def dashboard_report_list(request):
 
 @login_required(login_url="/login/")
 def dashboard_qlassic_report_view(request, report_type, id):
+    print("button orange")
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    report, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     mode = 'view'
     context = {
         'qaa':qaa,
         'report_type':report_type,
         'mode':mode,
+        'report':report,
     }
     return render(request, "dashboard/reporting/report_detail.html", context)
 
