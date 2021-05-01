@@ -63,7 +63,7 @@
                   <th>{{ pr.get_application_status_display }}</th>
                   <th>END</th>
                   <td>
-                    <a href="{% url 'dashboard_assessment_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">View</a>
+                    <a href="{% url 'dashboard_assessment_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">Internal Finishes</a>
                   </td>
                   {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
                   <td>

@@ -2,7 +2,7 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
-
+import numpy as np
 from django.http.response import JsonResponse
 from assessments.views import get_qaa_result
 from datetime import date, datetime
@@ -1085,7 +1085,6 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 # assessment detail page
 # ISRAA CODES START HERE
 
-from pprint import pprint
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
     # Architectural Works
@@ -1095,7 +1094,6 @@ def assessment_report_detail(request, id):
     sub_component = SubComponent.objects.all().get(name="Internal Finishes")
     elements = Element.objects.all()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)[0:50]
-    print("srlen", len(sample_results))
     
     ret = []
     ret2 = [] # for the second logic
@@ -1118,22 +1116,26 @@ def assessment_report_detail(request, id):
 
             data['dg_headers'] = [i for i in dg_names_list]
             data['sample_results'] = [i for i in sample_result_list]
-            
-            tempList = {}
-            for i in dg_names_list:
-                tempList[i] = []
-
-            for sr in sample_result_list:
-                er = [i for i in element_results if i.sample_result == sr]
-                for dgn in dg_names_list:
-                    for e in er:
-                        if e.dg_name == dgn:
-                            tempList[dgn].append(e)
 
 
-            data['dg_values'] = []
-            for i in dg_names_list:
-                data['dg_values'].append(tempList[i])
+            # for sr in data['sample_results']:
+            #     element_results2 = ElementResult.objects.all().filter(sample_result = sample_result)
+
+            #     temps = {}
+
+            #     for i in dg_names_list:
+            #         temps[i] = []
+            #     for dgn in dg_names_list:
+            #         for er in element_results2:
+            #             if er.dg_name == dgn:
+            #                 temps[dgn].append(er.total_check)
+
+
+            #     data['dg_values'] = []
+            #     for i in dg_names_list:
+            #         s = sum(temp[i])
+            #         dg_values.append(s)
+
 
             ret2.append(data)                    
 
@@ -1144,6 +1146,38 @@ def assessment_report_detail(request, id):
     if request.method == 'POST':
         pass
     return render(request, "dashboard/reporting/assessment_detail.html", context)
+
+@login_required(login_url="/login/")
+def assessment_report_detail_result(request, id):
+    sample_result = SampleResult.objects.get(id=id) 
+    element_results = ElementResult.objects.all().filter(sample_result = sample_result)
+    print(len(element_results))
+    dg_names_list = set([i.dg_name for i in element_results])
+
+    temp = {}
+    for i in dg_names_list:
+        temp[i] = []
+
+    for dgn in dg_names_list:
+        for er in element_results:
+            if er.dg_name == dgn:
+                temp[dgn].append(er.total_check)
+
+    dg_values = []
+    for i in dg_names_list:
+        s = sum(temp[i])
+        dg_values.append(s)
+
+    
+    context = {
+        "dg_names": dg_names_list,
+        "dg_values": dg_values,
+    }
+    ret = []
+
+    if request.method == 'POST':
+        pass
+    return render(request, "dashboard/reporting/assessment_detail_result.html", context)
 
 
 ### Functions ###

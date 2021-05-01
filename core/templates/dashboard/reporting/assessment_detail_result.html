@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Dashboard - Assessment Details {% endblock %}
+{% block title %} Dashboard - Result {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -21,7 +21,7 @@
                 <li class="breadcrumb-item"><a href="#"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboards</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'dashboard_report_list' %}">Reporting & Certification List</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Assessment Details</li>
+                <li class="breadcrumb-item active" aria-current="page">Scoring Results</li>
               </ol>
             </nav>
           </div>
@@ -37,36 +37,27 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header text-center">
-            <h2 class="mb-0">Assessment Details</h2>
+            <h2 class="mb-0">Scoring Results</h2>
           </div>
-          {% for d in data %}
           <div class="table-responsive py-4">
-            <h3 class="text-center">{{ d.element }}</h3>
             <table class="table table-custom-simplified table-flush">
               <thead class="thead-light">
                 <tr>
-                  <th>Block</th>
-                  <th>Unit</th>
-                  <th>Type</th>
-                  <th>Room</th>
-                  <th>Result</th>
-
+                {% for dg in dg_names %}
+                  <th>{{ dg }}</th>
+                {% endfor %}
                 </tr>
               </thead>
               <tbody>
-                  {% for sr in d.sample_results %}
-                  <tr>
-                    <th>{{ sr.block }}</th>
-                    <th>{{ sr.unit }}</th>
-                    <th>{{ sr.test_type }}</th>
-                    <th>{{ sr.selection_value }}</th>
-                    <th><a href="{% url 'dashboard_assessment_detail_result' sr.id %}" class="btn btn-sm btn-success w-100 mb-2">View</a></th>
-                  </tr>
-                  {% endfor %}
+                <tr>
+                {% for dg in dg_values %}
+                  <th>{{ dg }}</th>
+                {% endfor %}
+                </tr>
+
               </tbody>
             </table>
           </div>
-          {% endfor %}
           
 
         </div>
@@ -89,3 +80,4 @@
   </script>
 
 {% endblock javascripts %}
+

@@ -26,7 +26,7 @@ urlpatterns = [
     path('dashboard/report/approve/<str:report_type>/<str:id>/', views.dashboard_report_approve, name="dashboard_report_approve"),
     path('dashboard/report/submit/<str:report_type>/<str:id>/', views.dashboard_report_submit, name="dashboard_report_submit"),
     path('dashboard/report/assessment_detail/<str:id>/', views.assessment_report_detail, name="dashboard_assessment_detail"),
-
+    path('dashboard/report/assessment_detail_result/<str:id>/', views.assessment_report_detail_result, name="dashboard_assessment_detail_result"),
     
     # PDF
     # path('report/<str:report_type>/view/<str:id>/', views.qlassic_report_generate, name="qlassic_report_generate"),
