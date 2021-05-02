@@ -1094,7 +1094,7 @@ def assessment_report_detail(request, id):
     sub_component = SubComponent.objects.all().get(name="Internal Finishes")
     elements = Element.objects.all()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)[0:50]
-    
+
     ret = []
     ret2 = [] # for the second logic
     dg_names = []

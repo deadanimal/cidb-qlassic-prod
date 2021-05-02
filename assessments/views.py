@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 """
 Copyright (c) 2019 - present AppSeed.us
 """
@@ -1085,14 +1084,32 @@ def dashboard_application_assessor_change(request, id):
 @allowed_users(allowed_roles=['superadmin','casc_verifier'])
 def dashboard_application_assessor_rechange(request, id):
     current = get_object_or_404(SuggestedAssessor, id=id)
+    qaa = current.qaa
+    prevAssessor = current.assessor
     assessors = Assessor.objects.all()
     if request.method == 'POST':
+
         assessor_id = request.POST['assessor_id']
         assessor = Assessor.objects.get(id=assessor_id)
         current.assessor = assessor
         current.assessor_no = assessor.assessor_no
         current.acception = None
         current.save()
+
+        # delete the previous
+        ad = AssessmentData.objects.get(qaa=qaa)
+        prev_assessors = AssignedAssessor.objects.all().filter(ad_id=ad.id)
+        print("before", prev_assessors)
+
+        prev_assessor = []
+        for i in prev_assessors:
+            if i.assessor == prevAssessor:
+                i.delete()
+
+        prev_assessors = AssignedAssessor.objects.all().filter(ad_id=ad.id)
+        print("after", prev_assessors)
+
+        
         messages.info(request,'Successfully changed the Suggested Assessor')
         return redirect('dashboard_application_assessor_reassign', current.qaa.id)
     context = {
