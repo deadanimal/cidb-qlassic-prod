@@ -314,7 +314,8 @@ class SyncView(APIView):
                     erList.append(er)
                     i += 1
                     
-        er = ElementResult.objects.bulk_create(erList)
+        if len(erList) != 0:
+            er = ElementResult.objects.bulk_create(erList)
 
 
         # Result 2
