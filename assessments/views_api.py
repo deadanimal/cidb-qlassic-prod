@@ -298,7 +298,7 @@ class SyncView(APIView):
                                             total_check += 1
 
                                     ## Pending, upload picture       
-                                    ElementResult.objects.create (
+                                    er = ElementResult.objects.create (
                                         qaa=qaa,
                                         sample_result=sample_result,
                                         element_name=element_name,
@@ -311,6 +311,8 @@ class SyncView(APIView):
                                         sync=sync,
                                         sync_code=str(sync.id)
                                     )
+
+                                    print("ElementResult", er) 
                                 i += 1
                         except Exception as e:
                             print("error1", e)
