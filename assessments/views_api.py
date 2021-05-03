@@ -321,7 +321,8 @@ class SyncView(APIView):
         # Result 2
         print("result2", result2)
         print("breakpoint2")
-
+        
+        erList = []
         for sub2 in json.loads(result2):
             id = sub2['id']
             id = id.replace(str(qaa.id)+'_', '')
@@ -374,7 +375,18 @@ class SyncView(APIView):
                                 total_compliance += 1
                             if data != 'NA':
                                 total_check += 1
-                        ElementResult.objects.create (
+                        #ElementResult.objects.create (
+                        #    qaa=qaa,
+                        #    element_code=id,
+                        #    dg_name=dg_name,
+                        #    result=str(dg_result),
+                        #    total_compliance=total_compliance,
+                        #    total_check=total_check,
+                        #    sample_result=sample_result,
+                        #    sync=sync,
+                        #    sync_code=str(sync.id)
+                        #)
+                        er = ElementResult(
                             qaa=qaa,
                             element_code=id,
                             dg_name=dg_name,
@@ -384,7 +396,11 @@ class SyncView(APIView):
                             sample_result=sample_result,
                             sync=sync,
                             sync_code=str(sync.id)
+
                         )
+                        erList.append(er)
+
+        er = ElementResult.objects.bulk_create(erList)
         print('Synced')
         ### RESPONSE
         components = Component.objects.all().order_by('created_date')
