@@ -241,85 +241,81 @@ class SyncView(APIView):
         print("result1", result1)
         print("breakpoint1")
     
-        try:
-            for sub1 in json.loads(result1):
-                id = sub1['id']
-                id = id.replace(str(qaa.id)+'_+', '')
-                id = id.replace('_thirdResult', '')
-                id_array = id.split('+')
+        for sub1 in json.loads(result1):
+            id = sub1['id']
+            id = id.replace(str(qaa.id)+'_+', '')
+            id = id.replace('_thirdResult', '')
+            id_array = id.split('+')
 
-                results = sub1['result']
+            results = sub1['result']
 
-                try: 
-                    for result in results:
-                        block = result['block']
-                        unit = result['unit']
-                        period = result['period']
-                        test_type = result['testType']
-                        selection_value = result['selectionValue']
-                        sample_id = result['sampleid']
-                        photo = result['photo']
-                            
-                        sample_result = SampleResult.objects.create(
-                            block=block,
-                            unit=unit,
-                            period=period,
-                            test_type=test_type,
-                            selection_value=selection_value,
-                            sample_id=sample_id,
-                            assessor_name=assessorName,
-                            assessor_id=assessorId,
-                            partners=partners,
-                            qaa=qaa,
-                            sync=sync,
-                            sync_code=str(sync.id)
-                        )
-                        if photo != 'assets/add.png':
-                            photo_data, photo_name = convert_string_to_file(photo, 'photo_1')
-                            sample_result.photo_1.save(photo_name, photo_data)
+            for result in results:
+                block = result['block']
+                unit = result['unit']
+                period = result['period']
+                test_type = result['testType']
+                selection_value = result['selectionValue']
+                sample_id = result['sampleid']
+                photo = result['photo']
+                    
+                sample_result = SampleResult.objects.create(
+                    block=block,
+                    unit=unit,
+                    period=period,
+                    test_type=test_type,
+                    selection_value=selection_value,
+                    sample_id=sample_id,
+                    assessor_name=assessorName,
+                    assessor_id=assessorId,
+                    partners=partners,
+                    qaa=qaa,
+                    sync=sync,
+                    sync_code=str(sync.id)
+                )
+                if photo != 'assets/add.png':
+                    photo_data, photo_name = convert_string_to_file(photo, 'photo_1')
+                    sample_result.photo_1.save(photo_name, photo_data)
+                
+                topics = result['topics']
+                
+                i = 0
+                erList = []
+                for topic in topics:
+                    element_id = id_array[i]
+                    element_name = topic['topic']
+                    subtopics = topic['subtopics']
+                    for subtopic in subtopics:
+                        dg_name = subtopic['subtopic']
+                        dg_result = subtopic['result']
+                        total_compliance = 0
+                        total_check = 0
+                        for data in dg_result:
+                            if data == "Yes":
+                                total_compliance += 1
+                            if data != 'NA':
+                                total_check += 1
+
+                        ## Pending, upload picture       
                         
-                        topics = result['topics']
-                        
-                        i = 0
-                        try:
-                            for topic in topics:
-                                element_id = id_array[i]
-                                element_name = topic['topic']
-                                subtopics = topic['subtopics']
-                                for subtopic in subtopics:
-                                    dg_name = subtopic['subtopic']
-                                    dg_result = subtopic['result']
-                                    total_compliance = 0
-                                    total_check = 0
-                                    for data in dg_result:
-                                        if data == "Yes":
-                                            total_compliance += 1
-                                        if data != 'NA':
-                                            total_check += 1
+                    er = ElementResult(
+                        qaa=qaa,
+                        sample_result=sample_result,
+                        element_name=element_name,
+                        element_code=element_id,
+                        dg_name=dg_name,
+                        test_type=test_type,
+                        result=str(dg_result),
+                        total_compliance=total_compliance,
+                        total_check=total_check,
+                        sync=sync,
+                        sync_code=str(sync.id)
+                    )
 
-                                    ## Pending, upload picture       
-                                    er = ElementResult.objects.create (
-                                        qaa=qaa,
-                                        sample_result=sample_result,
-                                        element_name=element_name,
-                                        element_code=element_id,
-                                        dg_name=dg_name,
-                                        test_type=test_type,
-                                        result=str(dg_result),
-                                        total_compliance=total_compliance,
-                                        total_check=total_check,
-                                        sync=sync,
-                                        sync_code=str(sync.id)
-                                    )
+                    erList.append(er)
+                    i += 1
+                    
+        er = ElementResult.objects.bulk_create(erList)
 
-                                    print("ElementResult", er) 
-                                i += 1
-                        except Exception as e:
-                            print("error1", e)
-                except Exception as e:
-                    print("error2", e)
-        except Exception as e:
-            print("ERROR", e)
 
         # Result 2
         print("result2", result2)
