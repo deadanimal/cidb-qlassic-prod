@@ -241,6 +241,7 @@ class SyncView(APIView):
         print("result1", result1)
         print("breakpoint1")
     
+        erList = []
         for sub1 in json.loads(result1):
             id = sub1['id']
             id = id.replace(str(qaa.id)+'_+', '')
@@ -314,8 +315,7 @@ class SyncView(APIView):
                     erList.append(er)
                     i += 1
                     
-        if len(erList) != 0:
-            er = ElementResult.objects.bulk_create(erList)
+        er = ElementResult.objects.bulk_create(erList)
 
 
         # Result 2
