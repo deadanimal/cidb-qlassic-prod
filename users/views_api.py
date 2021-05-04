@@ -42,7 +42,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         user = authenticate(username=attrs['email'], password=attrs['password'])
         if user is not None:
-            if user.is_active and user.is_assessor():
+            #if user.is_active and user.is_assessor():
+            if user.is_active:
                 data = super().validate(attrs)
                 refresh = self.get_token(self.user)
                 refresh['username'] = self.user.email
@@ -70,30 +71,34 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                     assessors = AssignedAssessor.objects.all().filter(ad=project.ad)
                     
                     lead_assessor = assessors.filter(role_in_assessment='lead_assessor').first()
-                    
-                    if qaa.application_status != 'verified':
-                        project_json = {
-                            'name': qaa.pi.project_title,
-                            'id': qaa.id,
-                            'code': qaa.qaa_number,
-                            'status': 'On-Going',
-                            'phase': 'On-Going',
-                            'location': qaa.pi.project_location,
-                            'sample': project.ad.calculate_sample(),
-                            'days': qaa.no_of_days,
-                            'date': qaa.assessment_date,
-                            'leadName': lead_assessor.assessor.user.name,
-                            'leadNric': lead_assessor.assessor.user.icno,
-                            'assessors': [],
-                        }
-                        for assessor in assessors:
-                            assessor_json = {
-                                'name': assessor.assessor.user.name,
-                                'nric': assessor.assessor.user.icno
-                            }
-                            project_json['assessors'].append(assessor_json)
 
-                        data['project'].append(project_json)
+
+                    try:                    
+                        if qaa.application_status != 'verified':
+                            project_json = {
+                                'name': qaa.pi.project_title,
+                                'id': qaa.id,
+                                'code': qaa.qaa_number,
+                                'status': 'On-Going',
+                                'phase': 'On-Going',
+                                'location': qaa.pi.project_location,
+                                'sample': project.ad.calculate_sample(),
+                                'days': qaa.no_of_days,
+                                'date': qaa.assessment_date,
+                                'leadName': lead_assessor.assessor.user.name,
+                                'leadNric': lead_assessor.assessor.user.icno,
+                                'assessors': [],
+                            }
+                            for assessor in assessors:
+                                assessor_json = {
+                                    'name': assessor.assessor.user.name,
+                                    'nric': assessor.assessor.user.icno
+                                }
+                                project_json['assessors'].append(assessor_json)
+
+                            data['project'].append(project_json)
+                    except Exception as e:
+                        print(e)
                             
                     # for project in projects:
                     #     data.update({'projects':project.ad})

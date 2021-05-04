@@ -527,7 +527,14 @@ def sync_object(ad):
                 "subtopictotal": subtopic_count,
                 "subtopic": subtopic_array,
                 "complete": sample_complete,
-                "total": sample_total
+                "total": sample_total,
+
+                # israa codes starts here
+
+                "p": total_p,
+                "s": total_s,
+                "c": total_c,
+                "total_external": sample_total - total_p - total_s - total_c,
             }
             response['header'].append(response_header)
         else:
@@ -547,7 +554,7 @@ def sync_object(ad):
                 "subtopictotal": subtopic_count,
                 "subtopic": subtopic_array,
                 "complete": sample_complete,
-                "total": sample_total
+                "total": sample_total,
             }
             response['header'].append(response_header)
 
