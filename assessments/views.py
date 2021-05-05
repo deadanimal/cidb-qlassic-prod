@@ -624,7 +624,7 @@ def dashboard_application_verify(request, id):
                 messages.info(request,'Successfully uploaded the reviewed document.')
             else:
                 messages.warning(request,'Problem with uploading the reviewed document.')
-            return redirect('dashboard_application_review', qaa.id)
+            return redirect('dashboard_application_verify', qaa.id)
     
     return render(request, "dashboard/application/application_info.html", context)
 
