@@ -47,6 +47,8 @@ from authentication.decorators import allowed_users
 # SOAP
 from api.soap.get_contractor import verify_contractor
 
+import json
+
 ### Landing Page ###
 # @login_required(login_url="/login/")
 def index(request):
@@ -1261,7 +1263,7 @@ def assessment_report_generate(request, report_type, qaa):
             'grade': qaa.pi.contractor_registration_grade,
             'ccd_score': str(round(qaa.ccd_point, 2)),
             'qlassic_score': rounded_qlassic_score,
-            'scope': scope
+            'scope': json.loads(scope)
 
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
