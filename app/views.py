@@ -1245,6 +1245,7 @@ def assessment_report_generate(request, report_type, qaa):
         response_cert = generate_document_file(request, report_type, template_ctx, None)
         reporting.report_file.save('pdf', response_cert)
     elif report_type == 'qlassic_certificate':
+        qaa_result = get_qaa_result(qaa)
         template_ctx = {
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
