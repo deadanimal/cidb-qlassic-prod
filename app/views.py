@@ -1258,7 +1258,7 @@ def assessment_report_generate(request, report_type, qaa):
             'grade': qaa.pi.contractor_registration_grade,
             'ccd_score': str(round(qaa.ccd_point, 2)),
             'qlassic_score': rounded_qlassic_score,
-            'scope': ["1", "2", "3"],
+            'scope': ["Architectural Works","External Works","Basic M&E Fitting"],
 
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
