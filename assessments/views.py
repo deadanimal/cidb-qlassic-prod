@@ -9,6 +9,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.db.models import Q
 import datetime
 import random
+import json
 
 # Payment
 from django.views.decorators.csrf import csrf_exempt
@@ -38,7 +39,8 @@ from assessments.models import (
     SupportingDocuments, 
     SuggestedAssessor, 
     AssignedAssessor, 
-    AssessmentData, SyncResult, WorkCompletionForm
+    AssessmentData, SyncResult, WorkCompletionForm,
+    Scope
 )
 
 # SOAP
@@ -1470,8 +1472,13 @@ def get_qaa_result(qaa):
                 element['score'] = round(element['score'],2)
                 element['total_weightage'] = round(element['total_weightage'],2)
 
-    # print(result)
-    print("score", score['score'])
+    # save scope
+    scope = Scope.objects.create(
+        qaa = qaa,
+        scope = score['scope']
+    )
+    print("scope", scope)
+
     return score
 
 def get_qlassic_score(qaa):

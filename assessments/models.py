@@ -908,3 +908,13 @@ class DefectGroupResult(models.Model):
 
     def __str__(self):
         return '%s' % (self.assessment_data)
+
+class Scope(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True, blank=True)
+    scope = models.TextField(null=True)
+
+    def __str__(self):
+        return self.qaa
+    
+
