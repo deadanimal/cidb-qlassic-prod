@@ -32,7 +32,7 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData, SyncResult
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData, SyncResult, Scope
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
