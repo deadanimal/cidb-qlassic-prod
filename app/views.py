@@ -1245,6 +1245,9 @@ def assessment_report_generate(request, report_type, qaa):
         response_cert = generate_document_file(request, report_type, template_ctx, None)
         reporting.report_file.save('pdf', response_cert)
     elif report_type == 'qlassic_certificate':
+        scope = Scope.objects.all().filter(qaa=qaa)
+        if len(scope) > 0:
+            scope = scope[0]
         template_ctx = {
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
@@ -1258,7 +1261,7 @@ def assessment_report_generate(request, report_type, qaa):
             'grade': qaa.pi.contractor_registration_grade,
             'ccd_score': str(round(qaa.ccd_point, 2)),
             'qlassic_score': rounded_qlassic_score,
-            'scope': ["1. Architectural Works","2. External Works","3. Basic M&E Fitting"],
+            'scope': scope
 
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
