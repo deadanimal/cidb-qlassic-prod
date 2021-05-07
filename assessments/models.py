@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 import uuid
 
 from django.db.models.fields import IntegerField
@@ -912,7 +913,8 @@ class DefectGroupResult(models.Model):
 class Scope(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qaa = models.ForeignKey(QlassicAssessmentApplication, on_delete=models.CASCADE, null=True, blank=True)
-    scope = models.TextField(null=True)
+    scope = ArrayField(models.CharField(max_length=200), blank=True)
+
 
     def __str__(self):
         return self.scope
