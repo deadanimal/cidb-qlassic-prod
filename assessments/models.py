@@ -915,6 +915,6 @@ class Scope(models.Model):
     scope = models.TextField(null=True)
 
     def __str__(self):
-        return self.qaa
+        return self.scope
     
 
