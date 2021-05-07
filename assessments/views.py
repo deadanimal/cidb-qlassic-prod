@@ -1477,8 +1477,6 @@ def get_qaa_result(qaa):
         qaa = qaa,
         scope = score['scope']
     )
-    print("scope", scope)
-
     return score
 
 def get_qlassic_score(qaa):
