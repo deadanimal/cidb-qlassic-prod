@@ -32,6 +32,8 @@ from assessments.serializers import (
     QlassicAssessmentApplicationSerializer,
 )
 
+import datetime
+
 class AssignedAssessorViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = AssignedAssessor.objects.all()
     serializer_class = AssignedAssessorSerializer
@@ -560,7 +562,8 @@ def sync_object(ad):
 
     sync_results = SyncResult.objects.all().filter(qaa=qaa).order_by('-created_date')
     for sync_result in sync_results:
-        sync_result_sync_time = sync_result.created_date.strftime("%d/%m/%Y, %H:%M:%S")
+        sync_result_sync_time = sync_result.created_date + datetime.timedelta(hours=8)
+        sync_result_sync_time = sync_result_sync_time.strftime("%d/%m/%Y, %H:%M:%S")
         sync_result_job_status = sync_result_sync_time + "\n" + sync_result.assessor
         sync_result_body = {
             'jobStatus': sync_result_job_status,
