@@ -1089,61 +1089,51 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
-    # Architectural Works
-    # Internal Finishes
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     component = Component.objects.all().filter(name="Architectural Works")
     sub_component = SubComponent.objects.all().get(name="Internal Finishes")
-    elements = Element.objects.all()
-    sample_results = SampleResult.objects.all().filter(qaa=qaa)[0:50]
+    elements = Element.objects.all().filter(sub_component=sub_component)
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
+    context = {}
     ret = []
-    ret2 = [] # for the second logic
-    dg_names = []
     for element in elements:
-        if element.sub_component == sub_component:
+        temp = {} 
+        temp2 = []
+        
+        element_results = ElementResult.objects.all().filter(
+            Q(qaa=qaa,element_code=element.id)|
+            Q(qaa=qaa,element_code=element.code_id)
+        )[0:50]
 
-            temp = {}
-            data = {} #for the second logic
-            element_results = ElementResult.objects.all().filter(
-                Q(qaa=qaa,element_code=element.id)|
-                Q(qaa=qaa,element_code=element.code_id)
-                )[0:50]
+        # construct column headers
+        dg = DefectGroup.objects.all().filter(element=element)
+        column_headers = ["Block", "Unit", "Type", "Selection Value"]
+        for i in dg:
+            column_headers.append(i.name)
 
-            sample_result_list = set([i.sample_result for i in element_results])
-            dg_names_list = set([i.dg_name for i in element_results])
+        # construct column results
+        for sr in sample_results:
+            temp2.append(sr.block)
+            temp2.append(sr.unit)
+            temp2.append(sr.test_type)
+            temp2.append(sr.selection_value)
 
-            group_by_dg = {}
-            data['element'] = element.name
-
-            data['dg_headers'] = [i for i in dg_names_list]
-            data['sample_results'] = [i for i in sample_result_list]
-
-
-            # for sr in data['sample_results']:
-            #     element_results2 = ElementResult.objects.all().filter(sample_result = sample_result)
-
-            #     temps = {}
-
-            #     for i in dg_names_list:
-            #         temps[i] = []
-            #     for dgn in dg_names_list:
-            #         for er in element_results2:
-            #             if er.dg_name == dgn:
-            #                 temps[dgn].append(er.total_check)
+        print(temp2)
 
 
-            #     data['dg_values'] = []
-            #     for i in dg_names_list:
-            #         s = sum(temp[i])
-            #         dg_values.append(s)
+        temp = {
+            "element_name": element.name,
+            "column_headers": column_headers,
+            #"column_results": column_results
+        }
 
+        ret.append(temp)
+    context['data'] = ret
+    print(context)
 
-            ret2.append(data)                    
-
-    context = {"data": ret2}
-    
-
+        
+        
     
     if request.method == 'POST':
         pass

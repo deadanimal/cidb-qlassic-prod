@@ -1457,6 +1457,12 @@ def get_qaa_result(qaa):
         if score_c['total_weightage'] > 0:
             count_scope += 1
             score['scope'].append(str(count_scope) + '. ' + component['name'])
+            # save scope
+            scope = Scope.objects.create(
+                qaa = qaa,
+                scope = component['name']
+            )
+
         total_score += score_c['score']
     score['score'] = total_score
     score['sample'] = SampleResult.objects.all().filter(qaa=qaa).count()
@@ -1472,11 +1478,7 @@ def get_qaa_result(qaa):
                 element['score'] = round(element['score'],2)
                 element['total_weightage'] = round(element['total_weightage'],2)
 
-    # save scope
-    scope = Scope.objects.create(
-        qaa = qaa,
-        scope = score['scope']
-    )
+    
     return score
 
 def get_qlassic_score(qaa):
