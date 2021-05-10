@@ -321,6 +321,7 @@ class GetDocumentView(APIView):
         try:
             qaa = self.get_object(id=id)
             documents = SupportingDocuments.objects.all().filter(qaa=qaa)
+            print(documents)
             for doc in documents:
                 doc_json = {
                     'id': doc.id,
@@ -329,12 +330,16 @@ class GetDocumentView(APIView):
                 }
                 context.append(doc_json)
                 if doc.reviewed_file != None:
-                    doc_json = {
-                        'id': doc.id,
-                        'name': get_qaa_sd_name(doc.file_name) + " (Reviewed)",
-                        'link': doc.reviewed_file.url
-                    }
-                    context.append(doc_json)
+                    try: 
+                        doc_json = {
+                            'id': doc.id,
+                            'name': get_qaa_sd_name(doc.file_name) + " (Reviewed)",
+                            'link': doc.reviewed_file.url
+                        }
+                        context.append(doc_json)
+                    except Exception as e:
+                        print(e)
+                        pass
 
         except QlassicAssessmentApplication.DoesNotExist:
             context = []
