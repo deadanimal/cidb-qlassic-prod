@@ -578,8 +578,14 @@
               {% for sd in supporting_documents %}
                 <div class="form-group">
                   <label for="" class="form-control-label">{{ sd.title }}</label>
+                  {% if role == "contractor" %}
+                  <p class="mb-0"><strong>Original: </strong>{% if sd.sd.file %}<a href="{{ sd.sd.file.url }}">Download</a>{% else %}None{% endif %}</p>
+                  {% elif role == "casc_reviewer" %}
+                  <p class="mb-0"><strong>Reviewed: </strong>{% if sd.sd.reviewed_file %}<a href="{{ sd.sd.reviewed_file.url }}">Download</a>{% else %}None{% endif %}</p>
+                  {% else %}
                   <p class="mb-0"><strong>Original: </strong>{% if sd.sd.file %}<a href="{{ sd.sd.file.url }}">Download</a>{% else %}None{% endif %}</p>
                   <p class="mb-0"><strong>Reviewed: </strong>{% if sd.sd.reviewed_file %}<a href="{{ sd.sd.reviewed_file.url }}">Download</a>{% else %}None{% endif %}</p>
+                  {% endif %}
                 </div>
               {% endfor %}
           </div>

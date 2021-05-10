@@ -405,10 +405,10 @@ def generate_qaa_number(qaa):
 @login_required(login_url="/login/")
 def dashboard_application_info(request, id):
     mode = ''
-
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     supporting_documents = get_supporting_documents(qaa)
     context = {
+        'role':request.user.role,
         'mode': mode,
         'qaa':qaa,
         'supporting_documents':supporting_documents,
@@ -861,7 +861,7 @@ def dashboard_application_assessor_list_all(request):
     )
     suggested_assessors = SuggestedAssessor.objects.all()
     context = { 
-        'qaas':qaas,
+        'qaas':qaas.order_by('-modified_date'),
         'suggested_assessors':suggested_assessors,
         'mode':mode,
     }
