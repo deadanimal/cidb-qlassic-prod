@@ -1238,9 +1238,7 @@ def assessment_report_generate(request, report_type, qaa):
         reporting.report_file.save('pdf', response_cert)
     elif report_type == 'qlassic_certificate':
         scope = Scope.objects.all().filter(qaa=qaa)
-        if len(scope) > 0:
-            scope = scope[0]
-            print("the scope", scope.scope)
+        scope = [i.scope for i in scope]
         template_ctx = {
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
