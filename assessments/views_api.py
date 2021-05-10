@@ -601,19 +601,14 @@ class CompleteView(APIView):
         try:
             assessor = Assessor.objects.get(user__icno=nric)
         except ObjectDoesNotExist:
-            response = {
-                'projectId':project_id,
-                'message':'IC Number not found in Assessor lists',
-                'result':'false',
-            }
-            return Response(response)
+            pass
 
         days = qaa.no_of_days - 1
         end_date = qaa.assessment_date + datetime.timedelta(days=days)
 
         wcf, created = WorkCompletionForm.objects.get_or_create(qaa=qaa)
-        wcf.assessor=assessor
-        wcf.assessor_number=assessor.assessor_no
+        #wcf.assessor=assessor
+        #wcf.assessor_number=assessor.assessor_no
         wcf.coordinate=coordinate
         wcf.weather=weather
         wcf.name=name
