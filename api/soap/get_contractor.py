@@ -102,12 +102,16 @@ def request_contractor(contractor_registration_number):
     else:
         projects = contractor.projectList.ProjectInfo
     # To get grade value
-    specialization_list = contractor.specialization.SpecializationInfo
-    grade = ''
-    for specialization in specialization_list:
-        if specialization.Specialization.find('B04') != -1:
-            grade = specialization.Grade
-            break
+    try: 
+        specialization_list = contractor.specialization.SpecializationInfo
+        grade = ''
+        for specialization in specialization_list:
+            if specialization.Specialization.find('B04') != -1:
+                grade = specialization.Grade
+                break
+    except Exception as e:
+        print("cims error", e)
+        pass
 
     return contractor, projects, grade
 
