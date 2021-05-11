@@ -32,7 +32,7 @@ from portal.forms import LetterTemplateCreateForm, LetterTemplateTrainingCreateF
 from trainings.forms import TrainingTypeCreateForm
 
 # Models
-from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData, SyncResult, Scope
+from assessments.models import AssignedAssessor, DefectGroup, QlassicReporting, SubComponent, Element, ElementResult, Component, QlassicAssessmentApplication, SupportingDocuments, SampleResult, AssessmentData, SyncResult, Scope, SiteAttendance
 from trainings.models import TrainingType, Training
 from projects.models import ProjectInfo, VerifiedContractor
 from portal.models import Announcement, Publication, LetterTemplate
@@ -1138,6 +1138,16 @@ def assessment_report_detail(request, id):
     if request.method == 'POST':
         pass
     return render(request, "dashboard/reporting/assessment_detail.html", context)
+
+@login_required(login_url="/login/")
+def assessment_attendance_detail(request, id):
+    qaa = QlassicAssessmentApplication.objects.get(id=id)
+    sa = SiteAttendance.objects.all().filter(qaa=qaa)
+    context = {"sa":sa}
+       
+    return render(request, "dashboard/reporting/attendance_detail.html", context)
+
+
 
 @login_required(login_url="/login/")
 def assessment_report_detail_result(request, id):
