@@ -185,6 +185,7 @@ class GetProjectDataView(APIView):
                                 sc_json['subtopics'].append(el_json)
                         c_json['items'].append(sc_json)
             response.append(c_json)
+        print("suda habis run")
         
 
         return Response(response)
