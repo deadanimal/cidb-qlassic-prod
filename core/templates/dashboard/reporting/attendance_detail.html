@@ -47,6 +47,7 @@
                   <th>Telephone</th>
                   <th>Company</th>
                   <th>Assessment Date</th>
+                  <th>Signature</th>
                 </tr>
               </thead>
               <tbody>
@@ -58,6 +59,7 @@
                   <th>{{ i.hp_no }}</th>
                   <th>{{ i.company }}</th>
                   <th>{{ i.assessment_date }}</th>
+                  <th><a href="{{ i.signature.url }}" class="btn btn-sm btn-default w-100 mb-2">View Signature</a></th>
                 </tr>
                 {% endfor %}
               </tbody>
