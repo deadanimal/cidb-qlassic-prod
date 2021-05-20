@@ -41,28 +41,28 @@
           </div>
           {% for d in data %}
           <div class="table-responsive py-4">
-            <h3 class="text-center">{{ d.element }}</h3>
+            <h3 class="text-center">{{ d.element_name }}</h3>
             <table class="table table-custom-simplified table-flush">
               <thead class="thead-light">
-                <tr>
-                  <th>Block</th>
-                  <th>Unit</th>
-                  <th>Type</th>
-                  <th>Room</th>
-                  <th>Result</th>
 
+                <tr>
+                {% for header in d.column_headers %}
+                  <th>{{ header }}</th>
+                {% endfor %}
                 </tr>
+
               </thead>
               <tbody>
-                  {% for sr in d.sample_results %}
-                  <tr>
-                    <th>{{ sr.block }}</th>
-                    <th>{{ sr.unit }}</th>
-                    <th>{{ sr.test_type }}</th>
-                    <th>{{ sr.selection_value }}</th>
-                    <th><a href="{% url 'dashboard_assessment_detail_result' sr.id %}" class="btn btn-sm btn-success w-100 mb-2">View</a></th>
-                  </tr>
+
+
+                {% for result in d.column_results %}
+                <tr>
+                  {% for s in result %}
+                  <th>{{ s }}</th>
                   {% endfor %}
+                </tr>
+                {% endfor %}
+
               </tbody>
             </table>
           </div>

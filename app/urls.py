@@ -25,7 +25,11 @@ urlpatterns = [
     path('dashboard/report/verify/<str:report_type>/<str:id>/', views.dashboard_report_verify, name="dashboard_report_verify"),
     path('dashboard/report/approve/<str:report_type>/<str:id>/', views.dashboard_report_approve, name="dashboard_report_approve"),
     path('dashboard/report/submit/<str:report_type>/<str:id>/', views.dashboard_report_submit, name="dashboard_report_submit"),
+
     path('dashboard/report/assessment_detail/<str:id>/', views.assessment_report_detail, name="dashboard_assessment_detail"),
+    path('dashboard/report/assessment_detail_ef/<str:id>/', views.assessment_report_detail_ef, name="dashboard_assessment_detail_ef"),
+    path('dashboard/report/assessment_detail_ew/<str:id>/', views.assessment_report_detail_ew, name="dashboard_assessment_detail_ew"),
+
     path('dashboard/report/assessment_detail_result/<str:id>/', views.assessment_report_detail_result, name="dashboard_assessment_detail_result"),
     path('dashboard/report/attendance_detail/<str:id>/', views.assessment_attendance_detail, name="dashboard_attendance_detail"),
 

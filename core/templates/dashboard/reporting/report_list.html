@@ -65,6 +65,9 @@
                   <th><a href="{% url 'dashboard_attendance_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">View Attendance</a></th>
                   <td>
                     <a href="{% url 'dashboard_assessment_detail' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">Internal Finishes</a>
+                    <a href="{% url 'dashboard_assessment_detail_ef' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">External Finishes</a>
+                    <a href="{% url 'dashboard_assessment_detail_ew' pr.id %}" class="btn btn-sm btn-default w-100 mb-2">External Works</a>
+
                   </td>
                   {% if request.user.role == 'superadmin' or request.user.role == 'casc_approver' %}
                   <td>

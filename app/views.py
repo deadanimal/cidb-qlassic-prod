@@ -2,6 +2,7 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from time import time
 import numpy as np
 from django.http.response import JsonResponse
 from assessments.views import get_qaa_result
@@ -1089,6 +1090,7 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 
 @login_required(login_url="/login/")
 def assessment_report_detail(request, id):
+    init = int(time())
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     component = Component.objects.all().filter(name="Architectural Works")
     sub_component = SubComponent.objects.all().get(name="Internal Finishes")
@@ -1104,36 +1106,182 @@ def assessment_report_detail(request, id):
         element_results = ElementResult.objects.all().filter(
             Q(qaa=qaa,element_code=element.id)|
             Q(qaa=qaa,element_code=element.code_id)
-        )[0:50]
+        )
 
-        # construct column headers
-        dg = DefectGroup.objects.all().filter(element=element)
+
+        sr = set([i.sample_result for i in element_results])
         column_headers = ["Block", "Unit", "Type", "Selection Value"]
+        #dg = DefectGroup.objects.all().filter(element=element)
+
+        dg = set([i.dg_name for i in element_results])
         for i in dg:
-            column_headers.append(i.name)
+            column_headers.append(i)
 
-        # construct column results
-        for sr in sample_results:
-            temp2.append(sr.block)
-            temp2.append(sr.unit)
-            temp2.append(sr.test_type)
-            temp2.append(sr.selection_value)
+        column_results = []
+           
+        for s in sr:
+            #er = ElementResult.objects.all().filter(sample_result = s)
+            er = ElementResult.objects.all().filter(
+                Q(qaa=qaa,element_code=element.id, sample_result = s)|
+                Q(qaa=qaa,element_code=element.code_id, sample_result = s)
+            )
 
-        print(temp2)
+            sub = []
+            sub.append(s.block)
+            sub.append(s.unit)
+            sub.append(s.test_type)
+            sub.append(s.selection_value)
 
+            for d in dg:
+                for e in er:
+                    if e.dg_name == d:
+                        sub.append(e.result)
+        
+            column_results.append(sub)
 
         temp = {
             "element_name": element.name,
             "column_headers": column_headers,
-            #"column_results": column_results
+            "column_results": column_results, 
         }
 
         ret.append(temp)
     context['data'] = ret
-    print(context)
 
+    print(int(time()) - init)
+    
+    if request.method == 'POST':
+        pass
+    return render(request, "dashboard/reporting/assessment_detail.html", context)
+
+
+@login_required(login_url="/login/")
+def assessment_report_detail_ef(request, id):
+    init = int(time())
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    component = Component.objects.all().filter(name="Architectural Works")
+    sub_component = SubComponent.objects.all().get(name="External Finishes")
+    elements = Element.objects.all().filter(sub_component=sub_component)
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)
+
+    context = {}
+    ret = []
+    for element in elements:
+        temp = {} 
+        temp2 = []
         
+        element_results = ElementResult.objects.all().filter(
+            Q(qaa=qaa,element_code=element.id)|
+            Q(qaa=qaa,element_code=element.code_id)
+        )
+
+
+        sr = set([i.sample_result for i in element_results])
+        column_headers = ["Block", "Unit", "Type", "Selection Value"]
+        #dg = DefectGroup.objects.all().filter(element=element)
+
+        dg = set([i.dg_name for i in element_results])
+        for i in dg:
+            column_headers.append(i)
+
+        column_results = []
+           
+        for s in sr:
+            er = ElementResult.objects.all().filter(
+                Q(qaa=qaa,element_code=element.id, sample_result = s)|
+                Q(qaa=qaa,element_code=element.code_id, sample_result = s)
+            )
+
+            sub = []
+            sub.append(s.block)
+            sub.append(s.unit)
+            sub.append(s.test_type)
+            sub.append(s.selection_value)
+
+            for d in dg:
+                for e in er:
+                    if e.dg_name == d:
+                        sub.append(e.result)
         
+            column_results.append(sub)
+
+        temp = {
+            "element_name": element.name,
+            "column_headers": column_headers,
+            "column_results": column_results, 
+        }
+
+        ret.append(temp)
+    context['data'] = ret
+
+    print(int(time()) - init)
+    
+    if request.method == 'POST':
+        pass
+    return render(request, "dashboard/reporting/assessment_detail.html", context)
+
+
+@login_required(login_url="/login/")
+def assessment_report_detail_ew(request, id):
+    init = int(time())
+    qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
+    component = Component.objects.all().filter(name="Architectural Works")
+    sub_component = SubComponent.objects.all().get(name="Infrastructure")
+    elements = Element.objects.all().filter(sub_component=sub_component)
+    sample_results = SampleResult.objects.all().filter(qaa=qaa)
+
+    context = {}
+    ret = []
+    for element in elements:
+        temp = {} 
+        temp2 = []
+        
+        element_results = ElementResult.objects.all().filter(
+            Q(qaa=qaa,element_code=element.id)|
+            Q(qaa=qaa,element_code=element.code_id)
+        )
+
+
+        sr = set([i.sample_result for i in element_results])
+        column_headers = ["Block", "Unit", "Type", "Selection Value"]
+        #dg = DefectGroup.objects.all().filter(element=element)
+
+        dg = set([i.dg_name for i in element_results])
+        for i in dg:
+            column_headers.append(i)
+
+        column_results = []
+           
+        for s in sr:
+            #er = ElementResult.objects.all().filter(sample_result = s)
+            er = ElementResult.objects.all().filter(
+                Q(qaa=qaa,element_code=element.id, sample_result = s)|
+                Q(qaa=qaa,element_code=element.code_id, sample_result = s)
+            )
+
+            sub = []
+            sub.append(s.block)
+            sub.append(s.unit)
+            sub.append(s.test_type)
+            sub.append(s.selection_value)
+
+            for d in dg:
+                for e in er:
+                    if e.dg_name == d:
+                        sub.append(e.result)
+        
+            column_results.append(sub)
+
+        temp = {
+            "element_name": element.name,
+            "column_headers": column_headers,
+            "column_results": column_results, 
+        }
+
+        ret.append(temp)
+    context['data'] = ret
+
+    print(int(time()) - init)
     
     if request.method == 'POST':
         pass

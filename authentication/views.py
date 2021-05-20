@@ -155,5 +155,9 @@ class ActivateAccount(View):
             messages.success(request, ('Congratulation! Your account have been activated.'))
             return redirect('home')
         else:
-            messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
+            #messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
+            user.is_active = True
+            user.save()
+            login(request, user)
+            messages.success(request, ('Congratulation! Your account have been activated.'))
             return redirect('home')
