@@ -1200,7 +1200,9 @@ def assessment_report_detail_ef(request, id):
                         sub.append(e.result)
 
 
-            sub.append("<a class='btn btn-sm btn-default mb-2' href={{"+s.photo_1+"}}>1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+s.photo_2+"}}>2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+s.photo_3+"}}>3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+s.photo_4+"}}>4</a>")
+            a = "<a class='btn btn-sm btn-default mb-2' href={{"+str(s.photo_1)+"}}>1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+str(s.photo_2)+"}}>2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+str(s.photo_3)+"}}>3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={{"+str(s.photo_4)+"}}>4</a>"
+            sub.append(a)
+            
         
             column_results.append(sub)
 
