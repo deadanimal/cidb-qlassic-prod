@@ -1137,6 +1137,13 @@ def assessment_report_detail(request, id):
                 for e in er:
                     if e.dg_name == d:
                         sub.append(e.result)
+
+            try:
+                a = "<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_1.url)+">1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_2.url)+">2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_3.url)+">3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_4.url)+">4</a>"
+                sub.append(a)
+            except Exception as e:
+                print(e)
+
         
             column_results.append(sub)
 
@@ -1271,6 +1278,13 @@ def assessment_report_detail_ew(request, id):
                 for e in er:
                     if e.dg_name == d:
                         sub.append(e.result)
+
+            try:
+                a = "<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_1.url)+">1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_2.url)+">2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_3.url)+">3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_4.url)+">4</a>"
+                sub.append(a)
+            except Exception as e:
+                print(e)
+
         
             column_results.append(sub)
 
