@@ -1114,6 +1114,7 @@ def assessment_report_detail(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
+        print(dg)
         for i in dg:
             column_headers.append(i)
 
@@ -1177,8 +1178,7 @@ def assessment_report_detail_ef(request, id):
 
 
         sr = set([i.sample_result for i in element_results])
-        column_headers = ["Block", "Unit", "Type", "Selection Value"]
-        #dg = DefectGroup.objects.all().filter(element=element)
+        column_headers = []
 
         dg = set([i.dg_name for i in element_results])
         for i in dg:
@@ -1193,17 +1193,18 @@ def assessment_report_detail_ef(request, id):
             )
 
             sub = []
-            sub.append(s.block)
-            sub.append(s.unit)
-            sub.append(s.test_type)
-            sub.append(s.selection_value)
 
             for d in dg:
                 for e in er:
                     if e.dg_name == d:
                         sub.append(e.result)
+
+
+            sub.append(f"<a class='btn btn-sm btn-default mb-2' href={s.photo_1}>1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={s.photo_2}>2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={s.photo_3}>3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href={s.photo_4}>4</a>")
         
             column_results.append(sub)
+
+        column_headers.append("Photos")
 
         temp = {
             "element_name": element.name,
@@ -1243,7 +1244,7 @@ def assessment_report_detail_ew(request, id):
 
 
         sr = set([i.sample_result for i in element_results])
-        column_headers = ["Block", "Unit", "Type", "Selection Value"]
+        column_headers = []
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
@@ -1260,10 +1261,6 @@ def assessment_report_detail_ew(request, id):
             )
 
             sub = []
-            sub.append(s.block)
-            sub.append(s.unit)
-            sub.append(s.test_type)
-            sub.append(s.selection_value)
 
             for d in dg:
                 for e in er:

@@ -58,7 +58,7 @@
                 {% for result in d.column_results %}
                 <tr>
                   {% for s in result %}
-                  <th>{{ s }}</th>
+                  <th>{{ s|safe }}</th>
                   {% endfor %}
                 </tr>
                 {% endfor %}
