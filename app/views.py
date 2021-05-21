@@ -1114,7 +1114,6 @@ def assessment_report_detail(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
-        print(dg)
         for i in dg:
             column_headers.append(i)
 
@@ -1142,11 +1141,11 @@ def assessment_report_detail(request, id):
                 a = "<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_1.url)+">1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_2.url)+">2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_3.url)+">3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_4.url)+">4</a>"
                 sub.append(a)
             except Exception as e:
-                print(e)
+                pass
 
-        
             column_results.append(sub)
 
+        column_headers.append("Photos")
         temp = {
             "element_name": element.name,
             "column_headers": column_headers,
@@ -1211,7 +1210,7 @@ def assessment_report_detail_ef(request, id):
                 a = "<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_1.url)+">1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_2.url)+">2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_3.url)+">3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_4.url)+">4</a>"
                 sub.append(a)
             except Exception as e:
-                print(e)
+                pass
             
         
             column_results.append(sub)
@@ -1283,7 +1282,7 @@ def assessment_report_detail_ew(request, id):
                 a = "<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_1.url)+">1</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_2.url)+">2</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_3.url)+">3</a>&nbsp<a class='btn btn-sm btn-default mb-2' href="+str(s.photo_4.url)+">4</a>"
                 sub.append(a)
             except Exception as e:
-                print(e)
+                pass
 
         
             column_results.append(sub)
