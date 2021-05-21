@@ -1287,6 +1287,7 @@ def assessment_report_detail_ew(request, id):
         
             column_results.append(sub)
 
+        column_headers.append("Photos")
         temp = {
             "element_name": element.name,
             "column_headers": column_headers,
