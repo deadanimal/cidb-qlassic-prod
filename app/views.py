@@ -1108,6 +1108,9 @@ def assessment_report_detail(request, id):
             Q(qaa=qaa,element_code=element.code_id)
         )
 
+        # if len element_results > 50 only show 50
+        if (len(element_results) > 50):
+            element_results = element_results[0:49]
 
         sr = set([i.sample_result for i in element_results])
         column_headers = ["Block", "Unit", "Type", "Selection Value"]
