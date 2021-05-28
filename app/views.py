@@ -1092,8 +1092,21 @@ def dashboard_manage_edit_component_v2(request, mode, id):
 def assessment_report_detail(request, id):
     init = int(time())
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    component = Component.objects.all().filter(name="Architectural Works")
-    sub_component = SubComponent.objects.all().get(name="Internal Finishes")
+    component_type = "Architectural Works"
+    subcomponent_type = "Internal Finishes"
+    
+    try:
+        component = Component.objects.all().filter(name=component_type)
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+
+    except Exception as e:
+        component_type = component_type.upper()
+        subcomponent_type = subcomponent_type.upper()
+
+        component = Component.objects.all().filter(name=component_type)
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+
+
     elements = Element.objects.all().filter(sub_component=sub_component)
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
@@ -1169,8 +1182,22 @@ def assessment_report_detail(request, id):
 def assessment_report_detail_ef(request, id):
     init = int(time())
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
-    component = Component.objects.all().filter(name="Architectural Works")
-    sub_component = SubComponent.objects.all().get(name="External Finishes")
+
+    component_type = "Architectural Works"
+    subcomponent_type = "External Finishes"
+    
+    try:
+        component = Component.objects.all().filter(name=component_type)
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+
+    except Exception as e:
+        component_type = component_type.upper()
+        subcomponent_type = subcomponent_type.upper()
+
+        component = Component.objects.all().filter(name=component_type)
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+
+
     elements = Element.objects.all().filter(sub_component=sub_component)
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
@@ -1241,8 +1268,16 @@ def assessment_report_detail_ew(request, id):
     init = int(time())
     qaa = get_object_or_404(QlassicAssessmentApplication, id=id)
     component = Component.objects.all().filter(name="Architectural Works")
-    sub_component = SubComponent.objects.all().get(name="Infrastructure")
+
+    subcomponent_type = "Infrastructure"
+    try:
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+    except Exception as e:
+        subcomponent_type = subcomponent_type.upper()
+        sub_component = SubComponent.objects.all().get(name=subcomponent_type)
+
     elements = Element.objects.all().filter(sub_component=sub_component)
+
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
     context = {}

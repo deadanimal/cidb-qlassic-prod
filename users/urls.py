@@ -10,4 +10,6 @@ urlpatterns = [
     ### Training Module
     path('dashboard/management/users/', views.dashboard_management_user, name="dashboard_management_user"),
     path('dashboard/management/users/<str:id>/', views.dashboard_management_user_id, name="dashboard_management_user_id"),
+    path('dashboard/management/users_delete/<str:id>/', views.dashboard_management_user_id_delete, name="dashboard_management_user_id_delete"),
+
 ]

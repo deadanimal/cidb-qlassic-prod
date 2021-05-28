@@ -70,3 +70,10 @@ def dashboard_management_user_id(request, id):
         return redirect('dashboard_management_user_id', user.id)
 
     return render(request, "dashboard/management/user_id.html", context)
+
+@login_required(login_url="/login/")
+@allowed_users(allowed_roles=['superadmin'])
+def dashboard_management_user_id_delete(request, id):
+    #user = get_object_or_404(CustomUser, id=id)
+    #user.delete()
+    return redirect('dashboard_management_user')
