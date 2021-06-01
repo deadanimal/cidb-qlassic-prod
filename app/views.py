@@ -6,7 +6,7 @@ from time import time
 import numpy as np
 from django.http.response import JsonResponse
 from assessments.views import get_qaa_result
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -1393,21 +1393,28 @@ def assessment_report_generate(request, report_type, qaa):
     qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     generate_and_save_qr(qr_path, reporting.qr_file)
     qlassic_score = get_qlassic_score(qaa)
-    rounded_qlassic_score = str(round(qlassic_score, 2))
+    rounded_qlassic_score = str(int(round(qlassic_score, 2)))
+
+    if qaa.no_of_days > 1:
+        end_date = qaa.assessment_date + timedelta(days=qaa.no_of_days)
+
+        assessment_date = f"{translate_malay_date(standard_date(qaa.assessment_date))} - {standard_date(end_date)}"
+    if qaa.no_of_days == 1:
+        assessment_date = translate_malay_date(standard_date(qaa.assessment_date))
 
     if report_type == 'qlassic_score_letter':
         template_ctx = {
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
             'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'assessment_date': assessment_date,
             'now': translate_malay_date(standard_date(datetime.now())),
             'developer': qaa.pi.developer,
             'developer_ssm_number': qaa.pi.developer_ssm_number,
             'contractor': qaa.pi.contractor_name,
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'ccd_score': str(int(round(qaa.ccd_point, 2))),
             'qlassic_score': rounded_qlassic_score,
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
@@ -1422,7 +1429,7 @@ def assessment_report_generate(request, report_type, qaa):
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
             'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'assessment_date': assessment_date,
             'now': translate_malay_date(standard_date(datetime.now())),
             'assessors': assessors,
             'gfa': qaa.pi.gfa,
@@ -1437,8 +1444,8 @@ def assessment_report_generate(request, report_type, qaa):
             'architect_firm': qaa.pi.architect_firm,
             'structural_civil_engineer_firm': qaa.pi.structural_civil_engineer_firm,
             'mechanical_electrical_firm': qaa.pi.mechanical_electrical_firm,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
-            'qlassic_score': str(round(qaa.qlassic_score, 2)),
+            'ccd_score': str(int(round(qaa.ccd_point, 2))),
+            'qlassic_score': str(int(round(qaa.qlassic_score, 2))),
             'casc_qlassic_score': casc_score,
             'qaa_result': qaa_result,
             'weather': qaa_result['weather'],
@@ -1455,14 +1462,14 @@ def assessment_report_generate(request, report_type, qaa):
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
             'qaa_number': qaa.qaa_number,
-            'assessment_date': translate_malay_date(standard_date(qaa.assessment_date)),
+            'assessment_date': assessment_date,
             'now': translate_malay_date(standard_date(datetime.now())),
             'developer': qaa.pi.developer,
             'developer_ssm_number': qaa.pi.developer_ssm_number,
             'contractor': qaa.pi.contractor_name,
             'cidb_number': qaa.pi.contractor_cidb_registration_no,
             'grade': qaa.pi.contractor_registration_grade,
-            'ccd_score': str(round(qaa.ccd_point, 2)),
+            'ccd_score': str(int(round(qaa.ccd_point, 2))),
             'qlassic_score': rounded_qlassic_score,
             'scope': scope
         }

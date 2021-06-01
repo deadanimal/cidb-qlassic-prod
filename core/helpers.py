@@ -127,10 +127,10 @@ def get_sector_code(sector):
     return code
 
 def translate_malay_date(date):
-    str_date = str(date)
-    str_date = translate_month(str_date)
-    str_date = translate_day(str_date)
-    return str_date
+    #str_date = str(date)
+    #str_date = translate_month(str_date)
+    #str_date = translate_day(str_date)
+    return date
 
 def standard_date(date):
     return date.strftime("%d %B %Y")
