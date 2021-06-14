@@ -1108,6 +1108,7 @@ def assessment_report_detail(request, id):
 
 
     elements = Element.objects.all().filter(sub_component=sub_component)
+    elements.reverse()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
     context = {}
@@ -1199,6 +1200,7 @@ def assessment_report_detail_ef(request, id):
 
 
     elements = Element.objects.all().filter(sub_component=sub_component)
+    elements.reverse()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
     context = {}
@@ -1277,6 +1279,7 @@ def assessment_report_detail_ew(request, id):
         sub_component = SubComponent.objects.all().get(name=subcomponent_type)
 
     elements = Element.objects.all().filter(sub_component=sub_component)
+    elements.reverse()
 
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
@@ -1389,9 +1392,11 @@ def assessment_report_detail_result(request, id):
 def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
-    print(reporting)
     qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     generate_and_save_qr(qr_path, reporting.qr_file)
+
+    # print qr directory
+
     qlassic_score = get_qlassic_score(qaa)
     rounded_qlassic_score = str(int(round(qlassic_score, 2)))
 
