@@ -1131,6 +1131,7 @@ def assessment_report_detail(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
+        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
@@ -1219,6 +1220,7 @@ def assessment_report_detail_ef(request, id):
         column_headers = []
 
         dg = set([i.dg_name for i in element_results])
+        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
@@ -1300,6 +1302,7 @@ def assessment_report_detail_ew(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
+        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
