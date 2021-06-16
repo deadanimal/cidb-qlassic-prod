@@ -1108,7 +1108,6 @@ def assessment_report_detail(request, id):
 
 
     elements = Element.objects.all().filter(sub_component=sub_component)
-    elements.reverse()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
     context = {}
@@ -1131,7 +1130,6 @@ def assessment_report_detail(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
-        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
@@ -1171,6 +1169,8 @@ def assessment_report_detail(request, id):
         }
 
         ret.append(temp)
+
+    ret.reverse()
     context['data'] = ret
 
     print(int(time()) - init)
@@ -1201,7 +1201,6 @@ def assessment_report_detail_ef(request, id):
 
 
     elements = Element.objects.all().filter(sub_component=sub_component)
-    elements.reverse()
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
     context = {}
@@ -1220,7 +1219,6 @@ def assessment_report_detail_ef(request, id):
         column_headers = []
 
         dg = set([i.dg_name for i in element_results])
-        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
@@ -1257,6 +1255,7 @@ def assessment_report_detail_ef(request, id):
             "column_results": column_results, 
         }
 
+        ret.reverse()
         ret.append(temp)
     context['data'] = ret
 
@@ -1281,7 +1280,6 @@ def assessment_report_detail_ew(request, id):
         sub_component = SubComponent.objects.all().get(name=subcomponent_type)
 
     elements = Element.objects.all().filter(sub_component=sub_component)
-    elements.reverse()
 
     sample_results = SampleResult.objects.all().filter(qaa=qaa)
 
@@ -1302,7 +1300,6 @@ def assessment_report_detail_ew(request, id):
         #dg = DefectGroup.objects.all().filter(element=element)
 
         dg = set([i.dg_name for i in element_results])
-        dg.reverse()
         for i in dg:
             column_headers.append(i)
 
@@ -1339,6 +1336,7 @@ def assessment_report_detail_ew(request, id):
         }
 
         ret.append(temp)
+        ret.reverse()
     context['data'] = ret
 
     print(int(time()) - init)
