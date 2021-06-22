@@ -591,9 +591,7 @@ def dashboard_component(request):
         return redirect('dashboard_component')
     context = {"components": components, 'form_component': form_component}
     return render(request, "dashboard/management/component.html", context)
-
-@login_required(login_url="/login/")
-@allowed_users(allowed_roles=['superadmin'])
+@login_required(login_url="/login/") @allowed_users(allowed_roles=['superadmin'])
 def dashboard_component_id(request, id):
     component = get_object_or_404(Component, id=id)
     form_component = ComponentCreateForm(instance=component)
@@ -1393,7 +1391,9 @@ def assessment_report_detail_result(request, id):
 def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
-    qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
+    #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
+    qr_path = absoluteuri.build_absolute_uri('/dashboard/report/review/'+report_type+'/'+str(qaa.id)+'/')
+
     generate_and_save_qr(qr_path, reporting.qr_file)
 
     # print qr directory
