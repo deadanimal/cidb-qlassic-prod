@@ -1394,9 +1394,10 @@ def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
-    qr_path = absoluteuri.build_absolute_uri(reporting.report_file.url)
-    print("qrpath", qr_path)
-    #qr_path = absoluteuri.build_absolute_uri('/dashboard/report/review/'+report_type+'/'+str(qaa.id)+'/')
+    #qr_path = absoluteuri.build_absolute_uri('https://pipeline-project.sgp1.digitaloceanspaces.com/cidb-qlassic/assessment/report/'+str(qaa.id)+'.pdf')
+    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    print("path", qr_path)
+    print("type", type(qr_path))
 
     generate_and_save_qr(qr_path, reporting.qr_file)
 
