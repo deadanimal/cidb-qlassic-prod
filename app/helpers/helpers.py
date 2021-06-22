@@ -65,6 +65,7 @@ def docx_to_pdf_process_file(letter_template, context, download, qr_url):
     # # Set the appropriate Content-Type for docx file
     # response["Content-Type"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     inst = StreamingConvertedPdf(doc_io, download=download)
+    print("inst", inst)
 
     return inst.file_content()
 
