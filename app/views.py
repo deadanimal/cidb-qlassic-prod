@@ -1495,9 +1495,20 @@ def assessment_report_generate(request, report_type, qaa):
 
 def getPdf(request, id):
     reporting = QlassicReporting.objects.filter(qaa=id)
+    score_letter_link = ""
+    qlassic_report_link = ""
+    qlassic_certificate_link = ""
+
     for i in reporting:
         print(i.report_file)
-
+        if i.report_type=="qlassic_score_letter": 
+            score_letter_link = i.report_file.url
+        elif i.report_type=="qlassic_report":
+            qlassic_report_link = i.report_file.url
+        elif i.report_type=="qlassic_certificate":
+            qlassic_certificate_link = i.report_file.url
+            
+    output = f"{score_letter_link} \n{qlassic_report_link} \n{qlassic_certificate_link}"
     return HttpResponse(output)
 
 
