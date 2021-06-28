@@ -1508,8 +1508,10 @@ def getPdf(request, id):
         elif i.report_type=="qlassic_certificate":
             qlassic_certificate_link = i.report_file.url
             
-    output = f"{score_letter_link} \n{qlassic_report_link} \n{qlassic_certificate_link}"
-    return HttpResponse(output)
+    context = {'score_letter_link':score_letter_link, 'qlassic_report_link':qlassic_report_link, 'qlassic_certificate_link':qlassic_certificate_link}
+    return render(request, "dashboard/reporting/pdf_list.html",context)
+
+
 
 
 
