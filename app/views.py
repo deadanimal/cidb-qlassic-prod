@@ -1495,12 +1495,8 @@ def assessment_report_generate(request, report_type, qaa):
 
 def getPdf(request, id):
     reporting = QlassicReporting.objects.filter(qaa=id)
-    print(reporting)
-    output = ""
     for i in reporting:
-        output + i.report_file.url + "\n"
-
-    print(output)
+        print(i.report_file)
 
     return HttpResponse(output)
 
