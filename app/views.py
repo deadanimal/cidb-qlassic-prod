@@ -1495,7 +1495,7 @@ def assessment_report_generate(request, report_type, qaa):
 
 # downloadPdf
 class getPdf(View):
-    def get(self, request, qaaid, *args, **kwargs):
-        print("working", qaaid)
+    def get(self, request, id, *args, **kwargs):
+        print("working", id)
 
 
