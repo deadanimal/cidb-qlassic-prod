@@ -15,6 +15,7 @@ from django import template
 from django.contrib import messages
 from django.urls import resolve
 from django.db.models import Q
+from django.views.generic import View
 
 # XHTML2PDF
 from app.xhtml2pdf import link_callback
@@ -1394,8 +1395,8 @@ def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
-    #qr_path = absoluteuri.build_absolute_uri('https://pipeline-project.sgp1.digitaloceanspaces.com/cidb-qlassic/assessment/report/'+str(qaa.id)+'.pdf')
-    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    #qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    qr_path = f"https://qlassic.cidb.gov.my/reportpdf/{qaa.id}"
     print("path", qr_path)
     print("type", type(qr_path))
 
@@ -1491,5 +1492,10 @@ def assessment_report_generate(request, report_type, qaa):
 
     
     return reporting
+
+# downloadPdf
+class getPdf(View):
+    def get(self, request, qaaid, *args, **kwargs):
+        print("working", qaaid)
 
 
