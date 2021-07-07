@@ -194,6 +194,8 @@ import json
 import datetime
 from core.helpers import convert_string_to_file
 
+
+# CULPRIT
 class SyncView(APIView):
     permission_classes = (AllowAny, )
 
@@ -301,22 +303,22 @@ class SyncView(APIView):
 
                         ## Pending, upload picture       
                         
-                    er = ElementResult(
-                        qaa=qaa,
-                        sample_result=sample_result,
-                        element_name=element_name,
-                        element_code=element_id,
-                        dg_name=dg_name,
-                        test_type=test_type,
-                        result=str(dg_result),
-                        total_compliance=total_compliance,
-                        total_check=total_check,
-                        sync=sync,
-                        sync_code=str(sync.id)
-                    )
+                         er = ElementResult(
+                             qaa=qaa,
+                             sample_result=sample_result,
+                             element_name=element_name,
+                             element_code=element_id,
+                             dg_name=dg_name,
+                             test_type=test_type,
+                             result=str(dg_result),
+                             total_compliance=total_compliance,
+                             total_check=total_check,
+                             sync=sync,
+                             sync_code=str(sync.id)
+                         )
 
-                    erList.append(er)
-                    i += 1
+                         erList.append(er)
+                         i += 1
                     
         er = ElementResult.objects.bulk_create(erList)
 
