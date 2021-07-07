@@ -303,7 +303,7 @@ class SyncView(APIView):
 
                         ## Pending, upload picture       
                         
-                         er = ElementResult(
+                        er = ElementResult(
                              qaa=qaa,
                              sample_result=sample_result,
                              element_name=element_name,
