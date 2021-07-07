@@ -315,10 +315,10 @@ class SyncView(APIView):
                              total_check=total_check,
                              sync=sync,
                              sync_code=str(sync.id)
-                         )
+                        )
 
-                         erList.append(er)
-                         i += 1
+                        erList.append(er)
+                        i += 1
                     
         er = ElementResult.objects.bulk_create(erList)
 
