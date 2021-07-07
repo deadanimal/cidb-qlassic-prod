@@ -18,7 +18,7 @@ class ProjectInfo(models.Model):
     
     RATING_TYPE = [
         # To follow SRS
-        ('qlassic','QLASSIC'),
+        #('qlassic','QLASSIC'),
         ('mock_up','Mock up'),
     ]
     rating_type = models.CharField(
