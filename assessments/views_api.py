@@ -318,7 +318,7 @@ class SyncView(APIView):
                         )
 
                         erList.append(er)
-                        i += 1
+                    i += 1
                     
         er = ElementResult.objects.bulk_create(erList)
 
