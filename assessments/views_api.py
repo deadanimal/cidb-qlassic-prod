@@ -254,7 +254,7 @@ class SyncView(APIView):
             id_array = id.split('+')
 
             results = sub1['result']
-
+            erList = []
             for result in results:
                 block = result['block']
                 unit = result['unit']
@@ -285,7 +285,6 @@ class SyncView(APIView):
                 topics = result['topics']
                 
                 i = 0
-                erList = []
                 for topic in topics:
                     element_id = id_array[i]
                     element_name = topic['topic']
