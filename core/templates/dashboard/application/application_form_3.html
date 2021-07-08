@@ -185,7 +185,7 @@
                       </div>
                       <div class="d-flex" style="place-items:center;">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" id="agree_button" class="btn btn-primary" disabled>Agree</button>
+                        <button type="submit" id="agree_button" class="btn btn-primary" onclick="lock_submit();" disabled>Agree</button>
                       </div>
                       <script>
                         function check_agree(){
@@ -195,6 +195,13 @@
                             $('#agree_button').prop("disabled",true);
                           }
                         }
+
+                        function lock_submit(){
+                          $('#agree_button').prop("disabled",true);
+                        }
+
+
+                        
                       </script>
                     </div>
                   </div>
