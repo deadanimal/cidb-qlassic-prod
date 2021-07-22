@@ -1465,7 +1465,11 @@ def get_qaa_result(qaa):
 
         total_score += score_c['score']
     score['score'] = total_score
-    score['sample'] = SampleResult.objects.all().filter(qaa=qaa).count()
+
+    # Corrective Maintenance Item 1
+
+    #score['sample'] = SampleResult.objects.all().filter(qaa=qaa).count()
+    score['sample'] = AssessmentData.objects.filter(qaa=qaa)[0].number_of_sample
     score['weather'] = wcf.weather
 
     # Rounding
