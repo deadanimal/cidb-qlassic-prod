@@ -1401,7 +1401,7 @@ def assessment_report_generate(request, report_type, qaa):
     # print qr directory
 
     qlassic_score = get_qlassic_score(qaa)
-    rounded_qlassic_score = str(int(round(qlassic_score, 2)))
+    rounded_qlassic_score = '{:.2f}'.format(qlassic_score)
 
     if qaa.no_of_days > 1:
         end_date = qaa.assessment_date + timedelta(days=qaa.no_of_days)
