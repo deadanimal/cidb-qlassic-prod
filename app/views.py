@@ -1401,7 +1401,8 @@ def assessment_report_generate(request, report_type, qaa):
     # print qr directory
 
     qlassic_score = get_qlassic_score(qaa)
-    rounded_qlassic_score = '{:.2f}'.format(qlassic_score)
+    rounded_qlassic_score = str(int(round(qlassic_score, 2)))
+
 
     if qaa.no_of_days > 1:
         end_date = qaa.assessment_date + timedelta(days=qaa.no_of_days)
@@ -1453,7 +1454,7 @@ def assessment_report_generate(request, report_type, qaa):
             'structural_civil_engineer_firm': qaa.pi.structural_civil_engineer_firm,
             'mechanical_electrical_firm': qaa.pi.mechanical_electrical_firm,
             'ccd_score': str(int(round(qaa.ccd_point, 2))),
-            'qlassic_score': str(int(round(qaa.qlassic_score, 2))),
+            'qlassic_score': '{:.2f}'.format(qaa.qlassic_score),
             'casc_qlassic_score': casc_score,
             'qaa_result': qaa_result,
             'weather': qaa_result['weather'],
