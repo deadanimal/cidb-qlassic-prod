@@ -1473,15 +1473,26 @@ def get_qaa_result(qaa):
     score['weather'] = wcf.weather
 
     # Rounding
+    # Item 2 - fix rounding
     for component in score['components']:
-        component['score'] = round(component['score'],2)
-        component['total_weightage'] = round(component['total_weightage'],2)
+        # component['score'] = round(component['score'],2)
+        component['score'] = '{:.2f}'.format(component['score'])
+
+        # component['total_weightage'] = round(component['total_weightage'],2)
+        component['total_weightage'] = '{:.2f}'.format(component['total_weightage'])
+
         for subcomponent in component['subcomponents']:
             subcomponent['total_weightage'] = round(subcomponent['total_weightage'],2)
-            for element in subcomponent['elements']:
-                element['score'] = round(element['score'],2)
-                element['total_weightage'] = round(element['total_weightage'],2)
+            #subcomponent['total_weightage'] = '{:.2f}'.format(component['total_weightage'])
 
+            for element in subcomponent['elements']:
+                element['score'] = '{:.2f}'.format(element['score'])
+                element['total_weightage'] = '{:.2f}'.format(element['total_weightage'])
+
+                #element['score'] = round(element['score'],2)
+                #element['total_weightage'] = round(element['total_weightage'],2)
+
+    print("score", score)
     
     return score
 
