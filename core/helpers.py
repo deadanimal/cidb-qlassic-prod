@@ -17,6 +17,8 @@ class PathAndRename(object):
         ext = filename.split('.')[-1]
         # set filename as random string
         # filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
+
+        # filename defined here
         filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
         filename = '{}.{}'.format(filename_, ext)
         # return the whole path to the file

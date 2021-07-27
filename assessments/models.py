@@ -755,6 +755,10 @@ class QlassicReporting(models.Model):
         return '%s' % (self.qaa)
 
     def save(self,*args, **kwargs):
+
+        # rename file here
+        
+
         if not self.code_id:
             prefix = 'QLA/REP/'
             prev_instances = self.__class__.objects.filter(code_id__contains=prefix).order_by('-created_date')

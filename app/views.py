@@ -1390,8 +1390,13 @@ def assessment_report_detail_result(request, id):
 def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
+
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     #qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    # to do
+    # rename the file in DO before creation
+    # qaa_id + report_type
+    # pass the file name to models
     qr_path = f"https://qlassic.cidb.gov.my/reportpdf/{qaa.id}"
     print("path", qr_path)
     print("type", type(qr_path))
@@ -1463,7 +1468,10 @@ def assessment_report_generate(request, report_type, qaa):
             'scope': qaa_result['scope'],
         }
         response_cert = generate_document_file(request, report_type, template_ctx, None)
-        reporting.report_file.save('pdf', response_cert)
+
+        test_name = "test"
+        reporting.report_file.save('pdf', response_cert, test_name)
+
     elif report_type == 'qlassic_certificate':
         scope = Scope.objects.all().filter(qaa=qaa)
         scope = [i.scope for i in scope]
