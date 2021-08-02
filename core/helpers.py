@@ -20,7 +20,7 @@ class PathAndRename(object):
 
         # filename defined here
         # filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
-        filename = '{}.{}'.format(filename, ext)
+        filename = '{}.{}'.format(filename, "pdf")
         # return the whole path to the file
         return os.path.join(self.path, filename)
 
