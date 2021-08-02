@@ -1392,12 +1392,12 @@ def assessment_report_generate(request, report_type, qaa):
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
 
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
-    #qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
     # to do
     # rename the file in DO before creation
     # qaa_id + report_type
     # pass the file name to models
-    qr_path = f"https://qlassic.cidb.gov.my/reportpdf/{qaa.id}"
+    #qr_path = f"https://qlassic.cidb.gov.my/reportpdf/{qaa.id}"
     print("path", qr_path)
     print("type", type(qr_path))
 

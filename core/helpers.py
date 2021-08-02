@@ -10,7 +10,7 @@ from django.utils.deconstruct import deconstructible
 @deconstructible
 class PathAndRename(object):
 
-    def __init__(self, sub_path):
+    def __init__(self, sub_path, test=None):
         self.path = "cidb-qlassic/" + sub_path
 
     def __call__(self, instance, filename):
@@ -19,7 +19,7 @@ class PathAndRename(object):
         # filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
 
         # filename defined here
-        filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
+        # filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
         filename = '{}.{}'.format(filename_, ext)
         # return the whole path to the file
         return os.path.join(self.path, filename)
