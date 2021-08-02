@@ -2,6 +2,7 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from django.conf import settings
 from time import time
 import numpy as np
 from django.http.response import JsonResponse
