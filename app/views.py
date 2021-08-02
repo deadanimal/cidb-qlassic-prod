@@ -1432,7 +1432,7 @@ def assessment_report_generate(request, report_type, qaa):
             'qlassic_score': rounded_qlassic_score,
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
-        reporting.report_file.save(reportin.report_file, response_cert)
+        reporting.report_file.save(f"{qaa.id}_{report_type}", response_cert)
     elif report_type == 'qlassic_report':
         qaa_result = get_qaa_result(qaa)
         assessors = AssignedAssessor.objects.all().filter(ad__qaa=qaa)
@@ -1469,7 +1469,9 @@ def assessment_report_generate(request, report_type, qaa):
         }
         response_cert = generate_document_file(request, report_type, template_ctx, None)
 
-        reporting.report_file.save(reporting.report_file, response_cert)
+        #reporting.report_file.save(reporting.report_file, response_cert)
+        reporting.report_file.save(f"{qaa.id}_{report_type}", response_cert)
+
 
     elif report_type == 'qlassic_certificate':
         scope = Scope.objects.all().filter(qaa=qaa)
@@ -1490,7 +1492,9 @@ def assessment_report_generate(request, report_type, qaa):
             'scope': scope
         }
         response_cert = generate_document_file(request, report_type, template_ctx, reporting.qr_file)
-        reporting.report_file.save(reporting.report_file, response_cert)
+        #reporting.report_file.save(reporting.report_file, response_cert)
+        reporting.report_file.save(f"{qaa.id}_{report_type}", response_cert)
+
     else:
         return None
 
