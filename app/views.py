@@ -1393,6 +1393,9 @@ def assessment_report_generate(request, report_type, qaa):
 
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    if settings.CUSTOM_STG_MODE == 1:
+        qr_path = f"https://pipeline-prototype.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+
     # to do
     # rename the file in DO before creation
     # qaa_id + report_type
