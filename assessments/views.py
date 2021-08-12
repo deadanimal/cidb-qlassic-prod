@@ -142,7 +142,9 @@ def dashboard_application_project(request):
 @login_required(login_url="/login/")
 @allowed_users(allowed_roles=['superadmin','contractor','applicant'])
 def dashboard_application_new(request, contractor_registration_number, id):
-    contractor = get_object_or_404(Contractor, contractor_registration_number=contractor_registration_number, project_reference_number=id)
+    #contractor = get_object_or_404(Contractor, contractor_registration_number=contractor_registration_number, project_reference_number=id)
+    contractor = Contractor.objects.filter(contractor_registration_number=contractor_registration_number, project_reference_number=id)[0]
+
     qaa = None
     pi = None
     create_new_qaa = False
@@ -252,7 +254,9 @@ def dashboard_application_new_2(request, contractor_registration_number, id):
 
 @login_required(login_url="/login/")
 def dashboard_application_new_3(request, contractor_registration_number, id):
-    contractor = get_object_or_404(Contractor, contractor_registration_number=contractor_registration_number, project_reference_number=id)
+    #contractor = get_object_or_404(Contractor, contractor_registration_number=contractor_registration_number, project_reference_number=id)
+    contractor = Contractor.objects.filter(contractor_registration_number=contractor_registration_number, project_reference_number=id)[0]
+
     qaa = QlassicAssessmentApplication.objects.filter(pi__contractor_cidb_registration_no=contractor_registration_number, pi__project_reference_number=id).order_by('-created_date')[0]
     pi = qaa.pi
 
