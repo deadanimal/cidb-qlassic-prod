@@ -1393,9 +1393,9 @@ def assessment_report_generate(request, report_type, qaa):
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
 
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
-    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{reporting.report_file}.pdf"
     if settings.CUSTOM_STG_MODE == 1:
-        qr_path = f"https://pipeline-prototype.sgp1.digitaloceanspaces.com/{reporting.report_file}"
+        qr_path = f"https://pipeline-prototype.sgp1.digitaloceanspaces.com/{reporting.report_file}.pdf"
 
     # to do
     # rename the file in DO before creation

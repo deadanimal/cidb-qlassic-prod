@@ -931,6 +931,8 @@ def dashboard_application_assessor_assign(request, id):
                 sa.save()
 
             to.append(sa.assessor.user.email)
+
+            # developer email test 
         subject = "Assessor Assignation - " + qaa.qaa_number
         ctx_email = {
             'qaa':qaa,
