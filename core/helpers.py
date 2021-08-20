@@ -15,14 +15,20 @@ class PathAndRename(object):
 
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
-        # set filename as random string
-        # filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
+        try:
+            if filename.split('_')[0] == "photo":
+                filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
+                filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
+                filename = '{}.{}'.format(filename, ext)
+                return os.path.join(self.path, filename)
 
-        # filename defined here
-        # filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
-        filename = '{}.{}'.format(filename, ext)
-        # return the whole path to the file
-        return os.path.join(self.path, filename)
+            else:
+                filename = '{}.{}'.format(filename, ext)
+                return os.path.join(self.path, filename)
+
+        except Exception as e:
+            filename = '{}.{}'.format(filename, ext)
+            return os.path.join(self.path, filename)
 
 from django.core.exceptions import ValidationError
 
