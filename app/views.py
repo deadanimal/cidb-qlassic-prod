@@ -1394,7 +1394,7 @@ def assessment_report_generate(request, report_type, qaa):
 
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
     print("rr", reporting.report_file)
-    filename_array = reporting.report_file.split('.')
+    filename_array = str(reporting.report_file).split('.')
     ret = []
     for i in filename_array:
         if i != "pdf":
