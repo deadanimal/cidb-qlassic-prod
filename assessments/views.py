@@ -897,12 +897,23 @@ def dashboard_application_assessor_assign(request, id):
     suggested_assessors = SuggestedAssessor.objects.all().filter(qaa=qaa)
         
     supporting_documents = get_supporting_documents(qaa)
+    
+    # date range
+    if qaa.no_of_days > 1:
+        end_date = qaa.assessment_date + datetime.timedelta(days=qaa.no_of_days)
+        assessment_date = f"{qaa.assessment_date} hingga {end_date}"
+    else:
+        assessment_date = qaa.assessment_date
+
     context = {
         'suggested_assessors':suggested_assessors,
         'mode': mode,
         'qaa':qaa,
         'supporting_documents':supporting_documents,
+        'assessment_date': assessment_date,
     }
+
+
     if request.method == 'POST':
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
         assessment_data.user = request.user
@@ -956,12 +967,23 @@ def dashboard_application_assessor_reassign(request, id):
         print(sa.acception)
 
     supporting_documents = get_supporting_documents(qaa)
+
+    if qaa.no_of_days > 1:
+        end_date = qaa.assessment_date + datetime.timedelta(days=qaa.no_of_days)
+        assessment_date = f"{qaa.assessment_date} - {end_date}"
+    else:
+        assessment_date = qaa.assessment_date
+
     context = {
         'suggested_assessors':suggested_assessors,
         'mode': mode,
         'qaa':qaa,
         'supporting_documents':supporting_documents,
+        'assessment_date': assessment_date,
     }
+
+
+
     if request.method == 'POST':
 
         assessment_data, created = AssessmentData.objects.get_or_create(qaa=qaa)
