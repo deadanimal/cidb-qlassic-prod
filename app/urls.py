@@ -38,7 +38,10 @@ urlpatterns = [
     # path('report/<str:report_type>/view/<str:id>/', views.qlassic_report_generate, name="qlassic_report_generate"),
     path('report/<str:report_type>/generate/<str:id>/', views.report_generate, name="report_generate"),
     # path('report/generate/test/', views_pdf.report_generate_test, name="report_generate_test"),
-    path('reportpdf/<str:id>/', views.getPdf, name="get pdf"),
+
+    path('reportpdf_certificate/<str:id>/', views.getPdfCertificate, name="get pdf"),
+    path('reportpdf_score/<str:id>/', views.getPdfScore, name="get pdf"),
+
 
     # Admin Management
     path('dashboard/management/defect_group/', views.dashboard_defect_group, name="dashboard_defect_group"),

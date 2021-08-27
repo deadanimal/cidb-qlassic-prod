@@ -1391,36 +1391,16 @@ def assessment_report_detail_result(request, id):
 def assessment_report_generate(request, report_type, qaa):
     template_ctx = ''
     reporting, created = QlassicReporting.objects.get_or_create(qaa=qaa,report_type=report_type)
-
     #qr_path = absoluteuri.build_absolute_uri('/cert_assessment/'+report_type+'/'+str(qaa.id)+'/')
-    print("rr", reporting.report_file)
-    filename_array = str(reporting.report_file).split('.')
-    ret = []
-    for i in filename_array:
-        if i != "pdf":
-            ret.append(i)
-    ret = "".join(ret)  
-    print(ret)
-    qr_path = f"https://pipeline-project.sgp1.digitaloceanspaces.com/{ret}.pdf"
-    if settings.CUSTOM_STG_MODE == 1:
-        qr_path = f"https://pipeline-prototype.sgp1.digitaloceanspaces.com/{ret}.pdf"
-
-    # to do
-    # rename the file in DO before creation
-    # qaa_id + report_type
-    # pass the file name to models
     #qr_path = f"https://qlassic.cidb.gov.my/reportpdf/{qaa.id}"
-    print("path", qr_path)
-    print("type", type(qr_path))
 
-    generate_and_save_qr(qr_path, reporting.qr_file)
+    #generate_and_save_qr(qr_path, reporting.qr_file)
 
     # print qr directory
 
     qlassic_score = get_qlassic_score(qaa)
-    rounded_qlassic_score = str(int(round(qlassic_score, 0)))
-
-
+    rounded_qlassic_score = str(int(round(qlassic_score, 2)))
+    
     if qaa.no_of_days > 1:
         end_date = qaa.assessment_date + timedelta(days=qaa.no_of_days)
 
@@ -1429,6 +1409,11 @@ def assessment_report_generate(request, report_type, qaa):
         assessment_date = translate_malay_date(standard_date(qaa.assessment_date))
 
     if report_type == 'qlassic_score_letter':
+        
+        qr_path = f"https://qlassic.cidb.gov.my/reportpdf_score/{qaa.id}"
+        generate_and_save_qr(qr_path, reporting.qr_file)
+
+
         template_ctx = {
             'title': qaa.pi.project_title,
             'id': reporting.code_id,
@@ -1486,6 +1471,9 @@ def assessment_report_generate(request, report_type, qaa):
 
 
     elif report_type == 'qlassic_certificate':
+        qr_path = f"https://qlassic.cidb.gov.my/reportpdf_certificate/{qaa.id}"
+        generate_and_save_qr(qr_path, reporting.qr_file)
+
         scope = Scope.objects.all().filter(qaa=qaa)
         scope = [i.scope for i in scope]
         template_ctx = {
@@ -1513,26 +1501,10 @@ def assessment_report_generate(request, report_type, qaa):
     
     return reporting
 
-def getPdf(request, id):
-    reporting = QlassicReporting.objects.filter(qaa=id)
-    score_letter_link = ""
-    qlassic_report_link = ""
-    qlassic_certificate_link = ""
+def getPdfCertificate(request, id):
+    reporting = QlassicReporting.objects.filter(qaa=id, report_type="qlassic_score_letter")
+    return redirect(reporting[0].report_file.url)
 
-    for i in reporting:
-        print(i.report_file)
-        if i.report_type=="qlassic_score_letter": 
-            score_letter_link = i.report_file.url
-        elif i.report_type=="qlassic_report":
-            qlassic_report_link = i.report_file.url
-        elif i.report_type=="qlassic_certificate":
-            qlassic_certificate_link = i.report_file.url
-            
-    context = {'score_letter_link':score_letter_link, 'qlassic_report_link':qlassic_report_link, 'qlassic_certificate_link':qlassic_certificate_link}
-    return render(request, "dashboard/reporting/pdf_list.html",context)
-
-
-
-
-
-
+def getPdfScore(request, id):
+    reporting = QlassicReporting.objects.filter(qaa=id, report_type="qlassic_certificate")
+    return redirect(reporting[0].report_file.url)

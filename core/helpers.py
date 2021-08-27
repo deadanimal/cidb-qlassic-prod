@@ -6,29 +6,20 @@ from django.contrib.sites.shortcuts import get_current_site
 
 from django.utils.deconstruct import deconstructible
 
-
 @deconstructible
 class PathAndRename(object):
 
-    def __init__(self, sub_path, test=None):
+    def __init__(self, sub_path):
         self.path = "cidb-qlassic/" + sub_path
 
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
-        try:
-            if filename.split('_')[0] == "photo":
-                filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
-                filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
-                filename = '{}.{}'.format(filename, ext)
-                return os.path.join(self.path, filename)
-
-            else:
-                filename = '{}.{}'.format(filename, ext)
-                return os.path.join(self.path, filename)
-
-        except Exception as e:
-            filename = '{}.{}'.format(filename, ext)
-            return os.path.join(self.path, filename)
+        # set filename as random string
+        # filename_ = datetime.datetime.utcnow().strftime("%s") + uuid.uuid4().hex
+        filename_ = str(datetime.datetime.utcnow().timestamp()).split('.', 1)[0] + uuid.uuid4().hex
+        filename = '{}.{}'.format(filename_, ext)
+        # return the whole path to the file
+        return os.path.join(self.path, filename)
 
 from django.core.exceptions import ValidationError
 
