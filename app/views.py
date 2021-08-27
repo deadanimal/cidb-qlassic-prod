@@ -1410,7 +1410,7 @@ def assessment_report_generate(request, report_type, qaa):
 
     if report_type == 'qlassic_score_letter':
         
-        qr_path = f"https://qlassic.cidb.gov.my/reportpdf_score/{qaa.id}"
+        qr_path = f"https://qlassicstg.cidb.gov.my/reportpdf_score/{qaa.id}"
         generate_and_save_qr(qr_path, reporting.qr_file)
 
 
@@ -1469,7 +1469,7 @@ def assessment_report_generate(request, report_type, qaa):
 
 
     elif report_type == 'qlassic_certificate':
-        qr_path = f"https://qlassic.cidb.gov.my/reportpdf_certificate/{qaa.id}"
+        qr_path = f"https://qlassicstg.cidb.gov.my/reportpdf_certificate/{qaa.id}"
         generate_and_save_qr(qr_path, reporting.qr_file)
 
         scope = Scope.objects.all().filter(qaa=qaa)
