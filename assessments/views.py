@@ -900,7 +900,8 @@ def dashboard_application_assessor_assign(request, id):
     
     # date range
     if qaa.no_of_days > 1:
-        end_date = qaa.assessment_date + datetime.timedelta(days=qaa.no_of_days)
+        period = qaa.no_of_days - 1
+        end_date = qaa.assessment_date + datetime.timedelta(hours=period*24)
         assessment_date = f"{qaa.assessment_date} hingga {end_date}"
     else:
         assessment_date = qaa.assessment_date
@@ -969,7 +970,8 @@ def dashboard_application_assessor_reassign(request, id):
     supporting_documents = get_supporting_documents(qaa)
 
     if qaa.no_of_days > 1:
-        end_date = qaa.assessment_date + datetime.timedelta(days=qaa.no_of_days)
+        period = qaa.no_of_days - 1
+        end_date = qaa.assessment_date + datetime.timedelta(hours=period*24)
         assessment_date = f"{qaa.assessment_date} - {end_date}"
     else:
         assessment_date = qaa.assessment_date
