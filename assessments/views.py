@@ -901,7 +901,7 @@ def dashboard_application_assessor_assign(request, id):
     # date range
     if qaa.no_of_days > 1:
         end_date = qaa.assessment_date + datetime.timedelta(days=qaa.no_of_days)
-        assessment_date = f"{qaa.assessment_date} - {end_date}"
+        assessment_date = f"{qaa.assessment_date} hingga {end_date}"
     else:
         assessment_date = qaa.assessment_date
 
