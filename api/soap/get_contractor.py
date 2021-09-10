@@ -34,6 +34,7 @@ if settings.CUSTOM_STG_MODE == 1:
 def get_project(contractor_registration_number):
     check_applied_contractor(contractor_registration_number)
     contractors = Contractor.objects.all().filter(contractor_registration_number=contractor_registration_number)
+    contractors.delete()
     cims_contractor, cims_projects, grade = request_contractor(contractor_registration_number)
     if cims_projects != None:
         for data in cims_projects:
