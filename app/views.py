@@ -1499,9 +1499,9 @@ def assessment_report_generate(request, report_type, qaa):
     return reporting
 
 def getPdfCertificate(request, id):
-    reporting = QlassicReporting.objects.filter(qaa=id, report_type="qlassic_score_letter")
-    return redirect(reporting[0].report_file.url)
+    reporting = QlassicReporting.objects.get(qaa=id, report_type="qlassic_score_letter")
+    return redirect(reporting.report_file.url)
 
 def getPdfScore(request, id):
-    reporting = QlassicReporting.objects.filter(qaa=id, report_type="qlassic_certificate")
-    return redirect(reporting[0].report_file.url)
+    reporting = QlassicReporting.objects.get(qaa=id, report_type="qlassic_certificate")
+    return redirect(reporting.report_file.url)
