@@ -1402,7 +1402,8 @@ def assessment_report_generate(request, report_type, qaa):
     rounded_qlassic_score = str(int(round(qlassic_score)))
     
     if qaa.no_of_days > 1:
-        end_date = qaa.assessment_date + timedelta(days=qaa.no_of_days)
+        period = qaa.no_of_days - 1
+        end_date = qaa.assessment_date + timedelta(hours=period*24)
 
         assessment_date = f"{translate_malay_date(standard_date(qaa.assessment_date))} - {standard_date(end_date)}"
     if qaa.no_of_days == 1:
