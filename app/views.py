@@ -1411,7 +1411,10 @@ def assessment_report_generate(request, report_type, qaa):
 
     if report_type == 'qlassic_score_letter':
         
-        qr_path = f"https://qlassic.cidb.gov.my/reportpdf_score/{qaa.id}"
+        #qr_path = f"https://qlassic.cidb.gov.my/reportpdf_score/{qaa.id}"
+
+        qr_path = f"https://qlassicstg.cidb.gov.my/reportpdf_score/{qaa.id}"
+        print("assessment_date", assessment_date)
         generate_and_save_qr(qr_path, reporting.qr_file)
 
 
