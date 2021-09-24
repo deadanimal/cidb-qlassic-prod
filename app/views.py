@@ -1437,6 +1437,16 @@ def assessment_report_generate(request, report_type, qaa):
     elif report_type == 'qlassic_report':
         qaa_result = get_qaa_result(qaa)
         assessors = AssignedAssessor.objects.all().filter(ad__qaa=qaa)
+
+        # remove duplicate inside assessors
+        r = set()
+        rs = []
+        for j in assessors:
+            if j['name'] not in r:
+                r.add(j['name'])
+                rs.append(r)
+
+
         casc_score = rounded_qlassic_score
         if qaa.casc_qlassic_score != None:
             casc_score = str(round(qaa.casc_qlassic_score, 2))
@@ -1446,7 +1456,7 @@ def assessment_report_generate(request, report_type, qaa):
             'qaa_number': qaa.qaa_number,
             'assessment_date': assessment_date,
             'now': translate_malay_date(standard_date(datetime.now())),
-            'assessors': assessors,
+            'assessors': rs,
             'gfa': qaa.pi.gfa,
             'project_value': qaa.pi.contract_value,
             'developer': qaa.pi.developer,
