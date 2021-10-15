@@ -1437,14 +1437,7 @@ def assessment_report_generate(request, report_type, qaa):
     elif report_type == 'qlassic_report':
         qaa_result = get_qaa_result(qaa)
         assessors = AssignedAssessor.objects.all().filter(ad__qaa=qaa)
-
-        # remove duplicate inside assessors
-        r = set()
-        rs = []
-        for j in assessors:
-            if j['name'] not in r:
-                r.add(j['name'])
-                rs.append(r)
+        assessors = filterRepeatedName(assessors)
 
 
         casc_score = rounded_qlassic_score
@@ -1519,3 +1512,15 @@ def getPdfCertificate(request, id):
 def getPdfScore(request, id):
     reporting = QlassicReporting.objects.get(qaa=id, report_type="qlassic_score_letter")
     return redirect(reporting.report_file.url)
+
+def filterRepeatedName(assessors):
+    ret = []
+    names = list(set([i.name for i in assessors]))
+    for name in names:
+        temp = {}
+        temp["name"] = name
+        ret.append(temp)
+        
+    return ret
+
+

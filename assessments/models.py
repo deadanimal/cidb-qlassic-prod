@@ -228,10 +228,10 @@ class Component(models.Model):
     )
 
     # weightage = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage")
-    weightage_a = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage A")
-    weightage_b = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage B")
-    weightage_c = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage C")
-    weightage_d = models.DecimalField(null=True, max_digits=8, decimal_places=3, verbose_name="Weightage D")
+    weightage_a = models.DecimalField(null=True, max_digits=8, decimal_places=5, verbose_name="Weightage A")
+    weightage_b = models.DecimalField(null=True, max_digits=8, decimal_places=5, verbose_name="Weightage B")
+    weightage_c = models.DecimalField(null=True, max_digits=8, decimal_places=5, verbose_name="Weightage C")
+    weightage_d = models.DecimalField(null=True, max_digits=8, decimal_places=5, verbose_name="Weightage D")
 
     # Date
     created_date = models.DateTimeField(auto_now_add=True)
