@@ -270,14 +270,14 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
+                                    {% if request.user.role == 'casc_reviewer'%}
                                     <td>
+                                     
                                         <a href="{% url 'generate_qr' qaa.user.email %}"
-                                           class="btn btn-sm btn-info w-100 mb-2">Email SEND</a>
+                                           class="btn btn-sm btn-info w-100 mb-2">Email</a>
                                     </td>
-                                    <td>
-
-
-                                    </td>
+                                    {% endif %}
+                                 
                                     </tr>
                                 {% endif %}
                             {% endfor %}
